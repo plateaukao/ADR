@@ -345,13 +345,12 @@ main#calendar {
   line-height: 1.35;
   max-width: 360px;
   white-space: pre-wrap;
-  opacity: 0;
-  transition: opacity 0.08s ease;
+  display: none;
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   left: 0;
   top: 0;
 }
-.tt.on { opacity: 1; }
+.tt.on { display: block; }
 
 /* ==== Markdown ==== */
 .markdown-body { font-size: 14.5px; line-height: 1.65; }
