@@ -33,7 +33,7 @@ sequenceDiagram
     L->>V: layout change #1 → cancel + reschedule (300ms)
     L->>V: layout change #2 (>300ms gap on e-ink) → cancel + reschedule
     L->>V: layout change #3 → cancel + reschedule
-    Note over V: showRunnable never fires; alpha stays 0
+    Note over V: showRunnable never fires — alpha stays 0
 ```
 
 ## Solution
