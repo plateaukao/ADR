@@ -1,3 +1,4 @@
+<!-- added: 2026-04-10T17:00:17Z -->
 # EinkBro Architecture Overhaul
 
 ## Problem

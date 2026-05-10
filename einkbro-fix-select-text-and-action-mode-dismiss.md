@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T08:31:48Z -->
 # Fix: "Select Text" Context Menu and Action Mode Dismiss in Ebook Mode
 
 ## Problem

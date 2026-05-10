@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T14:39:22Z -->
 # Extract BrowserConfig, TabConfig, UiConfig from ConfigManager
 
 ## Problem

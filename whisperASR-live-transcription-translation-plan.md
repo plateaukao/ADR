@@ -1,3 +1,4 @@
+<!-- added: 2026-04-16T15:41:30Z -->
 # whisperASR — Live Transcription + Translation Improvements (Plan)
 
 Planning document for high/medium-impact fixes to the live transcription + live translation pipeline. Captured in ADR for durability; working copy lives at `~/.claude/plans/eventual-weaving-island.md`.

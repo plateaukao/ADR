@@ -1,3 +1,4 @@
+<!-- added: 2026-04-06T08:35:09Z -->
 # Mandroid Transfer: macOS Finder-like File Browser for Android Devices
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-04-14T18:57:57Z -->
 # einkbro: EPUB opening broken after delegate refactor
 
 ## Problem

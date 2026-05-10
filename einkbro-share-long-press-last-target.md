@@ -1,3 +1,4 @@
+<!-- added: 2026-05-08T05:58:53Z -->
 # EinkBro — Share long-press: copy link vs. last share target
 
 ## Problem

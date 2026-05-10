@@ -1,3 +1,4 @@
+<!-- added: 2026-04-08T14:36:07Z -->
 # EinkBro: Change Ebook "Go to" to simulate click
 
 ## Problem

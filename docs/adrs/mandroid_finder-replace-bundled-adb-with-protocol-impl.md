@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T13:25:14Z -->
 # mandroid_finder — Replace bundled `adb` binary with native Swift implementation of the adb wire protocol
 
 **Date:** 2026-04-26

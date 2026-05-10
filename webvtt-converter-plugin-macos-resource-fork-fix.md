@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T13:13:29Z -->
 # WebVTT Converter Plugin - macOS Resource Fork Fix
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-04-13T15:01:57Z -->
 # einkbro — WebView error page redesign
 
 ## Problem

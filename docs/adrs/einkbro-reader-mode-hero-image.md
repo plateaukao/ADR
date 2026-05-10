@@ -1,3 +1,4 @@
+<!-- added: 2026-04-17T10:48:37Z -->
 # EinkBro — Hero Image Missing in Reader Mode
 
 ## Problem

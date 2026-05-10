@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T10:57:16Z -->
 # mandroid_finder — FileProvider Extension Design
 
 **Date:** 2026-04-26

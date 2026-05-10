@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T13:38:11Z -->
 # mandroid_finder — Switch device detection from polling to `host:track-devices-l`
 
 **Date:** 2026-04-26

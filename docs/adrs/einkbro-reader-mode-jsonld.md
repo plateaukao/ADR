@@ -1,3 +1,4 @@
+<!-- added: 2026-04-22T20:19:24Z -->
 # einkbro — reader mode uses JSON-LD to pick the correct article container
 
 ## Problem

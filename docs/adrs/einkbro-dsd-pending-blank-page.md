@@ -1,3 +1,4 @@
+<!-- added: 2026-04-15T08:07:11Z -->
 # einkbro: blank page on io.google/2026 (dsd-pending hydration)
 
 ## Problem

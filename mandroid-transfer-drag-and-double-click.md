@@ -1,3 +1,4 @@
+<!-- added: 2026-04-06T13:28:09Z -->
 # Mandroid Transfer - Add drag-and-drop and double-click support
 
 ## Problem

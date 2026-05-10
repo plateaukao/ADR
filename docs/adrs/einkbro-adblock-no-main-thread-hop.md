@@ -1,3 +1,4 @@
+<!-- added: 2026-04-16T17:16:06Z -->
 # einkbro: avoid main-thread hop on every subresource in ad-filter
 
 ## Problem

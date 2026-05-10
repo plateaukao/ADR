@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T16:48:10Z -->
 # EinkBro: Share/Receive App Data over Local Network
 
 ## Problem

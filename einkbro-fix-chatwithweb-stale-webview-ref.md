@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T03:54:09Z -->
 # Fix: chatWithWeb uses stale webview ref after addAlbum creates new tab
 
 ## Problem

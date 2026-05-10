@@ -1,3 +1,4 @@
+<!-- added: 2026-04-20T15:53:07Z -->
 # einkbro — Keep parent BrowserAction sealed class under R8
 
 ## Problem

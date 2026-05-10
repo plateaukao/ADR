@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T11:34:54Z -->
 # EinkBro Architecture Cleanup
 
 ## Problem

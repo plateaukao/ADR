@@ -1,3 +1,4 @@
+<!-- added: 2026-04-07T14:29:50Z -->
 # EinkBro: Fix snapshot update stuck state and slow extraction
 
 ## Problem

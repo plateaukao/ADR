@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T10:56:25Z -->
 # Firefox Sync Support Feasibility Analysis
 
 **Issue:** [plateaukao/einkbro#506](https://github.com/plateaukao/einkbro/issues/506)  

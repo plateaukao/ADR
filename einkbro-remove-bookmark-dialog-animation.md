@@ -1,3 +1,4 @@
+<!-- added: 2026-04-08T15:57:04Z -->
 # Remove Bookmark Dialog Animation
 
 ## Problem

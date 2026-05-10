@@ -1,3 +1,4 @@
+<!-- added: 2026-04-07T13:59:44Z -->
 # EinkBro - MCP Bridge HTTP Server
 
 ## Problem

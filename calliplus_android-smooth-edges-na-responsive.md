@@ -1,3 +1,4 @@
+<!-- added: 2026-04-22T16:43:09Z -->
 # calliplus_android — Smooth normal stroke edges, leave na strokes responsive
 
 ## Problem

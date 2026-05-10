@@ -1,3 +1,4 @@
+<!-- added: 2026-05-09T13:13:51Z -->
 # Plan — Digitize handwritten 心經 to SVG and ship as a CalliPlus charbook
 
 ## Context

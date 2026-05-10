@@ -1,3 +1,4 @@
+<!-- added: 2026-04-13T18:26:06Z -->
 # einkbro — vertical toolbar webview collapse & stuck progress bar
 
 Commit: `c31fa857`

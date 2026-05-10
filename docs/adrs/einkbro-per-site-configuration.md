@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T16:21:12Z -->
 # EinkBro - Per-Site Configuration for Display Settings
 
 ## Problem

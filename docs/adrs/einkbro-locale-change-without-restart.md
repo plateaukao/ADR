@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T13:54:36Z -->
 # EinkBro: Apply Locale Change Without Restarting App
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-04-20T12:29:26Z -->
 # EinkBro: Gesture bindings silently reset to "Nothing" on upgrade
 
 ## Problem

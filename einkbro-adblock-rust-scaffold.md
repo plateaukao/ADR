@@ -1,3 +1,4 @@
+<!-- added: 2026-04-15T11:49:29Z -->
 # einkbro: scaffold adblock-rust-client module
 
 ## Problem

@@ -1,7 +1,14 @@
 {
-  "generated_at": "2026-05-10T05:13:46.228527Z",
-  "count": 84,
+  "generated_at": "2026-05-10T05:21:08.145839Z",
+  "count": 85,
   "entries": [
+    {
+      "slug": "mmgo-mac-initial-swiftui-app.md",
+      "date": "2026-05-10T05:16:46Z",
+      "title": "mmgo-mac — Initial SwiftUI App",
+      "project": "mmgo",
+      "summary": "The `mmgo` Go module renders Mermaid diagrams to SVG without a browser"
+    },
     {
       "slug": "einkbro-supernote-document-download-folder.md",
       "date": "2026-05-10T03:39:59Z",

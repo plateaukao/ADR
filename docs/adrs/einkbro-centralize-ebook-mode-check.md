@@ -1,3 +1,4 @@
+<!-- added: 2026-04-08T21:32:47Z -->
 # Refactor: Centralize Ebook Mode Active Check
 
 ## Problem

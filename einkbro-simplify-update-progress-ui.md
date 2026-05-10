@@ -1,3 +1,4 @@
+<!-- added: 2026-04-08T15:07:11Z -->
 # Simplify Update Progress UI to Percentage Only
 
 ## Problem

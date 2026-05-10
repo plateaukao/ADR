@@ -1,3 +1,4 @@
+<!-- added: 2026-04-14T15:36:30Z -->
 # EinkBro — Free-Form Agent Moves Into Chat-With-Web
 
 ## Problem

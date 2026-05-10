@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T04:03:42Z -->
 # android_usb — Initial USB-Debugging Toggle App
 
 ## Problem

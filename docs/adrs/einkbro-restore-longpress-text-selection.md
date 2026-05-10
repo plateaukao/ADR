@@ -1,3 +1,4 @@
+<!-- added: 2026-04-08T21:27:49Z -->
 # Fix: Restore Long-Press Text Selection When Ebook Touch Pagination Is Disabled
 
 ## Problem

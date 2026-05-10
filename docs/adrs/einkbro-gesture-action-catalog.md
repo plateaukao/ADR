@@ -1,3 +1,4 @@
+<!-- added: 2026-04-14T12:47:32Z -->
 # EinkBro: Gesture bindings now cover all BrowserActions
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-04-14T14:30:27Z -->
 # EinkBro — Task Runner for Multi-Step Browser Workflows
 
 ## Problem

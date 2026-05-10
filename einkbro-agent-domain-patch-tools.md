@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T04:16:21Z -->
 ---
 title: Agent tools to persist per-domain JS/CSS DOM patches
 project: einkbro

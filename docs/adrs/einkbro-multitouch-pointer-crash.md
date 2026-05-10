@@ -1,3 +1,4 @@
+<!-- added: 2026-05-07T16:26:04Z -->
 # einkbro: pointerIndex out-of-range crash in multitouch swipe handler
 
 ## Problem

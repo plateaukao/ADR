@@ -1,3 +1,4 @@
+<!-- added: 2026-04-09T15:22:39Z -->
 # WhisperASR: Hardened Runtime Broke Microphone Recording
 
 ## Problem

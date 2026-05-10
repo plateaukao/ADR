@@ -1,3 +1,4 @@
+<!-- added: 2026-04-06T16:11:11Z -->
 # Fix: TTS Screen Power Cycling on E-ink Devices
 
 ## Problem

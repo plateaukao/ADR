@@ -1,3 +1,4 @@
+<!-- added: 2026-05-08T16:13:23Z -->
 # einkbro: Dynamic zoom factor for Save-as-PDF
 
 ## Problem

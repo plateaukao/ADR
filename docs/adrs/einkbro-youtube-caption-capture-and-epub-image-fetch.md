@@ -1,3 +1,4 @@
+<!-- added: 2026-05-09T09:47:07Z -->
 # einkbro: harden YouTube caption capture and EPUB image fetch
 
 > **Status:** partially fixed. Single-language YouTube caption capture and

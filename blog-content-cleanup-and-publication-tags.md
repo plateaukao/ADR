@@ -1,3 +1,4 @@
+<!-- added: 2026-05-03T03:07:33Z -->
 # blog: Prune comment-style posts and tag remaining posts by Medium publication
 
 ## Problem

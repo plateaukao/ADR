@@ -1,3 +1,4 @@
+<!-- added: 2026-04-07T17:47:47Z -->
 # Fix: Harden Video Autoplay Blocking
 
 ## Problem

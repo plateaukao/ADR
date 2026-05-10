@@ -1,3 +1,4 @@
+<!-- added: 2026-04-07T16:05:54Z -->
 # EinkBro: Ebook Touch Mode
 
 ## Problem

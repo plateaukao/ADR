@@ -1,3 +1,4 @@
+<!-- added: 2026-04-10T14:16:10Z -->
 # EinkBro Architecture Refactoring
 
 ## Problem

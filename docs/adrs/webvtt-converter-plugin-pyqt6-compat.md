@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T13:29:03Z -->
 # WebVTT Converter Plugin - Calibre 8.x PyQt6 Compatibility
 
 ## Problem

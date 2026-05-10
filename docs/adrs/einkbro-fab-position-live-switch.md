@@ -1,3 +1,4 @@
+<!-- added: 2026-05-09T01:30:17Z -->
 # einkbro: switch FAB position live without activity restart
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-04-13T14:55:04Z -->
 # Configurable statusbar for fullscreen / no-toolbar mode
 
 ## Problem

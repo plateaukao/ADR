@@ -73,8 +73,8 @@ file_date() {
   local path="$ROOT_DIR/$f"
   local d=""
 
-  # 1. Inline override
-  d=$(awk 'NR<=10 && match($0, /<!--[[:space:]]*added:[[:space:]]*([^[:space:]>-]+)[[:space:]]*-->/, m) { print m[1]; exit }' "$path" 2>/dev/null || true)
+  # 1. Inline override:  <!-- added: 2026-04-07 -->  or  <!-- added: 2026-04-07T14:10:17Z -->
+  d=$(awk 'NR<=10 && match($0, /<!--[[:space:]]*added:[[:space:]]*([0-9TZ:+-]+)[[:space:]]*-->/, m) { print m[1]; exit }' "$path" 2>/dev/null || true)
   if [[ -n "$d" ]]; then
     # Normalize bare YYYY-MM-DD to ISO 8601 at noon local
     if [[ "$d" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
@@ -84,14 +84,18 @@ file_date() {
     return
   fi
 
-  # 2. Filesystem birthtime (epoch; macOS supports %B; -f means symbolic when -t is given)
-  local birth
-  birth=$(stat -f '%B' "$path" 2>/dev/null || true)
-  if [[ -n "$birth" && "$birth" != "0" ]]; then
-    d=$(date -u -r "$birth" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || true)
-    if [[ -n "$d" ]]; then
-      printf '%s' "$d"
-      return
+  # 2. Filesystem birthtime (BSD/macOS only — `-f '%B'` is BSD `stat`).
+  # On Linux/GitHub Actions, birthtime is meaningless after `git clone` anyway,
+  # so skipping is correct.
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    local birth
+    birth=$(stat -f '%B' "$path" 2>/dev/null || true)
+    if [[ -n "$birth" && "$birth" != "0" ]]; then
+      d=$(date -u -r "$birth" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || true)
+      if [[ -n "$d" ]]; then
+        printf '%s' "$d"
+        return
+      fi
     fi
   fi
 

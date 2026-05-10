@@ -1,3 +1,4 @@
+<!-- added: 2026-04-25T02:51:34Z -->
 # einkbro — In-place translation survives SPA re-renders and lazy hydration
 
 ## Problem

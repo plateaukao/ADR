@@ -1,3 +1,4 @@
+<!-- added: 2026-04-17T13:45:47Z -->
 # einkbro: migrate epub handling from unmaintained epublib to epub4j
 
 ## Problem

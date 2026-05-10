@@ -1,3 +1,4 @@
+<!-- added: 2026-05-09T02:00:58Z -->
 # einkbro: clear captured YouTube caption on SPA route changes
 
 ## Problem

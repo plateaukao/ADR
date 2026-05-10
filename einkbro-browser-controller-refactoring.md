@@ -1,3 +1,4 @@
+<!-- added: 2026-04-11T07:16:36Z -->
 # EinkBro BrowserController Architecture Analysis & Refactoring
 
 ## Problem

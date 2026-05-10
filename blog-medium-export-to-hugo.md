@@ -1,3 +1,4 @@
+<!-- added: 2026-05-03T02:47:11Z -->
 # blog: Migrate Medium archive to self-hosted Hugo site on GitHub Pages
 
 ## Problem

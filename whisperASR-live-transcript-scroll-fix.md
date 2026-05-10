@@ -1,3 +1,4 @@
+<!-- added: 2026-04-22T02:18:09Z -->
 # whisperASR — Live Transcript Scroll & Drag Fix
 
 Commit: `fa56d62` on `main`.

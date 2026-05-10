@@ -1,3 +1,4 @@
+<!-- added: 2026-04-26T13:47:16Z -->
 # mandroid_finder — Unescape backslash-escaped filenames from `ls -la`
 
 **Date:** 2026-04-26

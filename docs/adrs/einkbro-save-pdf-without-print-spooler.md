@@ -1,3 +1,4 @@
+<!-- added: 2026-05-08T14:57:13Z -->
 # einkbro: Save-as-PDF without system print spooler
 
 ## Problem

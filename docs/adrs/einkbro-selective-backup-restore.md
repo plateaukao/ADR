@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T16:26:57Z -->
 # EinkBro: Selective Backup/Restore
 
 ## Problem

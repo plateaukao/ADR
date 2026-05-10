@@ -1,3 +1,4 @@
+<!-- added: 2026-05-10T03:39:59Z -->
 # einkbro: route downloads to Document/ on Supernote devices
 
 ## Problem

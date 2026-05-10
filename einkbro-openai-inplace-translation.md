@@ -1,3 +1,4 @@
+<!-- added: 2026-04-06T07:54:04Z -->
 # EinkBro: OpenAI/Gemini In-Place Translation Mode
 
 ## Problem

@@ -1,3 +1,4 @@
+<!-- added: 2026-05-09T10:28:31Z -->
 # einkbro: Surface Supernote reader for saved EPUB/PDF files
 
 ## Problem

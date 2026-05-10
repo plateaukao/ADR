@@ -1,3 +1,4 @@
+<!-- added: 2026-04-20T15:33:25Z -->
 # calliplus_android: PaintView ANR fix
 
 Commit: `f7a4494` — *perf: fix ANR in brush renderer by collapsing redundant subdivision*

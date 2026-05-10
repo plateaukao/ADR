@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T11:26:41Z -->
 # Fix: Cross-Page Text Selection in Vertical Reading Mode
 
 **Date:** 2026-04-05

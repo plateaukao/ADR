@@ -1,3 +1,4 @@
+<!-- added: 2026-05-06T16:34:14Z -->
 # einkbro: audio-only caption width preservation
 
 ## Problem

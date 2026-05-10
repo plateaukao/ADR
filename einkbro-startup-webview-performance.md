@@ -1,3 +1,4 @@
+<!-- added: 2026-04-06T03:26:03Z -->
 # EinkBro: App Startup and WebView Creation Performance
 
 **Date:** 2026-04-06

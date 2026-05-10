@@ -1,3 +1,4 @@
+<!-- added: 2026-04-15T12:18:32Z -->
 # einkbro: replace C++ adblock-client with Brave adblock-rust
 
 ## Problem

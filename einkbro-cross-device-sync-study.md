@@ -1,3 +1,4 @@
+<!-- added: 2026-04-05T16:05:24Z -->
 # EinkBro Cross-Device Sync Study
 
 ## Problem

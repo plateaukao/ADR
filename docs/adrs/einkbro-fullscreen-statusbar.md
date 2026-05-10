@@ -1,3 +1,4 @@
+<!-- added: 2026-04-13T14:19:56Z -->
 # Statusbar feature for fullscreen / no-toolbar mode
 
 ## Context

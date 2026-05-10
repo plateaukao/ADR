@@ -1,3 +1,4 @@
+<!-- added: 2026-05-06T15:21:57Z -->
 # einkbro: Always release translation semaphore on error
 
 ## Problem
