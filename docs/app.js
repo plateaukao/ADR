@@ -20,15 +20,18 @@ const renderer = {
     if (language === "mermaid") {
       return `<div class="mermaid-block" data-mermaid="${encodeURIComponent(text)}"></div>`;
     }
+    const hljs = window.hljs;
     let highlighted;
-    if (language && window.hljs.getLanguage(language)) {
-      try {
-        highlighted = window.hljs.highlight(text, { language }).value;
-      } catch {
+    try {
+      if (hljs && language && hljs.getLanguage(language)) {
+        highlighted = hljs.highlight(text, { language }).value;
+      } else if (hljs && hljs.highlightAuto) {
+        highlighted = hljs.highlightAuto(text).value;
+      } else {
         highlighted = escapeHtml(text);
       }
-    } else {
-      highlighted = window.hljs.highlightAuto(text).value;
+    } catch {
+      highlighted = escapeHtml(text);
     }
     const cls = language ? ` language-${language}` : "";
     return `<pre><code class="hljs${cls}">${highlighted}</code></pre>`;
