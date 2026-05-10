@@ -6,9 +6,9 @@ In a sequence diagram, three messages between adjacent participants
 `L` and `V`:
 
 ```
-L->>V: layout change #1 → cancel + reschedule (300ms)
-L->>V: layout change #2 (>300ms gap on e-ink) → cancel + reschedule
-L->>V: layout change #3 → cancel + reschedule
+L->>V: layout change No. 1 → cancel + reschedule (300ms)
+L->>V: layout change No. 2 (>300ms gap on e-ink) → cancel + reschedule
+L->>V: layout change No. 3 → cancel + reschedule
 ```
 
 rendered with the labels overflowing both lifelines — the arrow
