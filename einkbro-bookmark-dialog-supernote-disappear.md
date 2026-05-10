@@ -29,7 +29,7 @@ sequenceDiagram
     U->>F: tap folder icon
     F->>F: alpha = 0, post showRunnable in 300ms
     F->>F: intoFolder(folder)
-    Note over F: ViewModel emits new items;<br/>key() rebuilds grid
+    Note over F: ViewModel emits new items<br/>key() rebuilds grid
     L->>V: layout change #1 → cancel + reschedule (300ms)
     L->>V: layout change #2 (>300ms gap on e-ink) → cancel + reschedule
     L->>V: layout change #3 → cancel + reschedule
