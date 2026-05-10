@@ -336,17 +336,18 @@ main#calendar {
   position: fixed;
   z-index: 9999;
   pointer-events: none;
-  background: var(--text);
-  color: var(--surface);
-  padding: 4px 8px;
-  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  padding: 3px 7px;
+  border-radius: 4px;
   font-size: 12px;
   line-height: 1.35;
   max-width: 360px;
   white-space: pre-wrap;
   opacity: 0;
   transition: opacity 0.08s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   left: 0;
   top: 0;
 }
