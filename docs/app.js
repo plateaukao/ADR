@@ -195,10 +195,14 @@ function renderMonth(root) {
     const head = document.createElement("div");
     head.className = "daynum";
     const items = entriesFor(d);
-    head.innerHTML = `<span>${d.getDate()}</span>${items.length ? `<span class="count muted">${items.length}</span>` : ""}`;
+    head.innerHTML = `<span>${d.getDate()}</span>`;
     cell.appendChild(head);
 
     appendPills(cell, items, 4);
+    cell.addEventListener("click", (ev) => {
+      if (ev.target.closest(".pill")) return;
+      navigate({ view: "day", cursor: new Date(d) });
+    });
     grid.appendChild(cell);
   }
   root.appendChild(grid);
@@ -374,31 +378,81 @@ async function renderMermaidIn(container) {
   }
 }
 
+// ----- Routing (hash-based) -----
+function buildHash() {
+  if (state.view === "list") return "#/list";
+  if (state.view === "month") {
+    const y = state.cursor.getFullYear();
+    const m = String(state.cursor.getMonth() + 1).padStart(2, "0");
+    return `#/month/${y}-${m}`;
+  }
+  return `#/${state.view}/${isoDay(state.cursor)}`;
+}
+
+function parseHash() {
+  const h = location.hash.slice(1);
+  if (!h) return null;
+  if (!h.startsWith("/")) return { entry: decodeURIComponent(h) };
+  const [view, param] = h.slice(1).split("/").filter(Boolean);
+  if (view === "list") return { view: "list" };
+  if (view === "month") {
+    const m = param && param.match(/^(\d{4})-(\d{2})$/);
+    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, 1) };
+  }
+  if (view === "week" || view === "day") {
+    const m = param && param.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, +m[3]) };
+  }
+  return null;
+}
+
+function syncViewButtons() {
+  document.querySelectorAll(".view-switch button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.view === state.view);
+  });
+}
+
+function navigate({ view, cursor } = {}, { push = true } = {}) {
+  if (view) state.view = view;
+  if (cursor) state.cursor = cursor;
+  syncViewButtons();
+  const h = buildHash();
+  if (location.hash !== h) {
+    if (push) history.pushState(null, "", h);
+    else history.replaceState(null, "", h);
+  }
+  render();
+}
+
 // ----- Wiring -----
 function wire() {
   document.querySelectorAll(".view-switch button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".view-switch button").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.view = btn.dataset.view;
-      render();
-    });
+    btn.addEventListener("click", () => navigate({ view: btn.dataset.view }));
   });
   document.getElementById("prev").addEventListener("click", () => {
-    if (state.view === "month") state.cursor = addMonths(state.cursor, -1);
-    else if (state.view === "week") state.cursor = addDays(state.cursor, -7);
-    else if (state.view === "day") state.cursor = addDays(state.cursor, -1);
-    render();
+    let c = state.cursor;
+    if (state.view === "month") c = addMonths(c, -1);
+    else if (state.view === "week") c = addDays(c, -7);
+    else if (state.view === "day") c = addDays(c, -1);
+    navigate({ cursor: c });
   });
   document.getElementById("next").addEventListener("click", () => {
-    if (state.view === "month") state.cursor = addMonths(state.cursor, 1);
-    else if (state.view === "week") state.cursor = addDays(state.cursor, 7);
-    else if (state.view === "day") state.cursor = addDays(state.cursor, 1);
-    render();
+    let c = state.cursor;
+    if (state.view === "month") c = addMonths(c, 1);
+    else if (state.view === "week") c = addDays(c, 7);
+    else if (state.view === "day") c = addDays(c, 1);
+    navigate({ cursor: c });
   });
   document.getElementById("today").addEventListener("click", () => {
-    state.cursor = new Date();
-    render();
+    navigate({ cursor: new Date() });
+  });
+  window.addEventListener("popstate", () => {
+    const parsed = parseHash();
+    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
+  });
+  window.addEventListener("hashchange", () => {
+    const parsed = parseHash();
+    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
   });
   document.getElementById("project-filter").addEventListener("change", (ev) => {
     state.filterProject = ev.target.value;
@@ -417,11 +471,17 @@ async function init() {
   if (state.manifest.entries.length) {
     state.cursor = new Date(state.manifest.entries[0].date);
   }
-  render();
-  if (location.hash.length > 1) {
-    const slug = decodeURIComponent(location.hash.slice(1));
-    const entry = state.manifest.entries.find((e) => e.slug === slug);
-    if (entry) openEntry(entry);
+  const parsed = parseHash();
+  if (parsed && parsed.view) {
+    navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
+  } else {
+    syncViewButtons();
+    history.replaceState(null, "", buildHash());
+    render();
+    if (parsed && parsed.entry) {
+      const entry = state.manifest.entries.find((e) => e.slug === parsed.entry);
+      if (entry) openEntry(entry);
+    }
   }
 }
 

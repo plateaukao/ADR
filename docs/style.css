@@ -151,6 +151,7 @@ main#calendar {
   min-width: 0;
   overflow: hidden;
 }
+.month-grid .day-cell { cursor: pointer; }
 .day-cell.weekend { background: var(--weekend); }
 .day-cell.outside { opacity: 0.45; }
 .day-cell.today { background: var(--today); }
