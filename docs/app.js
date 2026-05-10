@@ -320,7 +320,7 @@ function appendPills(container, items, max, opts = {}) {
     const btn = document.createElement("button");
     btn.className = compact ? "pill pill-compact" : "pill";
     btn.style.setProperty("--pill-color", state.projectColors.get(e.project));
-    btn.title = compact ? `${e.project} — ${e.title}` : e.title;
+    btn.dataset.tip = compact ? `${e.project} — ${e.title}` : e.title;
     const label = stripProjectPrefix(e.title, e.project);
     btn.innerHTML = compact
       ? escapeHtml(label)
@@ -476,8 +476,62 @@ function wire() {
   });
 }
 
+function setupTooltip() {
+  const el = document.createElement("div");
+  el.className = "tt";
+  document.body.appendChild(el);
+  let timer = null;
+  let current = null;
+  let lastEv = null;
+  const SHOW_DELAY = 100;
+
+  function position(ev) {
+    const pad = 8;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    let x = ev.clientX + 14;
+    let y = ev.clientY + 18;
+    if (x + w + pad > window.innerWidth) x = window.innerWidth - w - pad;
+    if (y + h + pad > window.innerHeight) y = ev.clientY - h - 10;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+  }
+  function hide() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    current = null;
+    el.classList.remove("on");
+  }
+  document.addEventListener("mouseover", (ev) => {
+    const t = ev.target.closest("[data-tip]");
+    if (t === current) return;
+    if (current) hide();
+    if (!t) return;
+    current = t;
+    lastEv = ev;
+    timer = setTimeout(() => {
+      if (!current) return;
+      el.textContent = current.getAttribute("data-tip");
+      el.classList.add("on");
+      position(lastEv);
+    }, SHOW_DELAY);
+  });
+  document.addEventListener("mousemove", (ev) => {
+    if (!current) return;
+    lastEv = ev;
+    if (el.classList.contains("on")) position(ev);
+  });
+  document.addEventListener("mouseout", (ev) => {
+    if (!current) return;
+    if (ev.relatedTarget && current.contains(ev.relatedTarget)) return;
+    hide();
+  });
+  document.addEventListener("click", hide, true);
+  window.addEventListener("scroll", hide, true);
+}
+
 async function init() {
   wire();
+  setupTooltip();
   await loadManifest();
   if (state.manifest.entries.length) {
     state.cursor = new Date(state.manifest.entries[0].date);
