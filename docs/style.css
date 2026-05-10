@@ -241,6 +241,7 @@ main#calendar {
   line-height: 1.3;
 }
 .pill:hover { background: var(--accent-soft); border-color: var(--border-strong); }
+.pill-compact { border-left-width: 4px; padding-left: 8px; }
 .pill .proj {
   display: inline-block;
   font-size: 9.5px;

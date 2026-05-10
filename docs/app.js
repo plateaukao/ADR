@@ -198,7 +198,7 @@ function renderMonth(root) {
     head.innerHTML = `<span>${d.getDate()}</span>`;
     cell.appendChild(head);
 
-    appendPills(cell, items, 4);
+    appendPills(cell, items, 4, { compact: true });
     cell.addEventListener("click", (ev) => {
       if (ev.target.closest(".pill")) return;
       navigate({ view: "day", cursor: new Date(d) });
@@ -287,7 +287,7 @@ function renderList(root) {
       what.className = "what";
       const a = document.createElement("a");
       a.href = "#";
-      a.innerHTML = `<span class="proj" style="--pill-color:${state.projectColors.get(e.project)}">${e.project}</span>${escapeHtml(e.title)}`;
+      a.innerHTML = `<span class="proj" style="--pill-color:${state.projectColors.get(e.project)}">${e.project}</span>${escapeHtml(stripProjectPrefix(e.title, e.project))}`;
       a.addEventListener("click", (ev) => { ev.preventDefault(); openEntry(e); });
       what.appendChild(a);
       if (e.summary) {
@@ -306,14 +306,25 @@ function renderList(root) {
   root.appendChild(wrap);
 }
 
-function appendPills(container, items, max) {
+function stripProjectPrefix(title, project) {
+  if (!project) return title;
+  const escaped = project.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`^${escaped}(?:\\s*[:—–]|\\s+-)?\\s+`, "i");
+  return title.replace(re, "") || title;
+}
+
+function appendPills(container, items, max, opts = {}) {
+  const compact = !!opts.compact;
   const visible = items.slice(0, max);
   for (const e of visible) {
     const btn = document.createElement("button");
-    btn.className = "pill";
+    btn.className = compact ? "pill pill-compact" : "pill";
     btn.style.setProperty("--pill-color", state.projectColors.get(e.project));
-    btn.title = e.title;
-    btn.innerHTML = `<span class="proj">${e.project}</span>${escapeHtml(e.title)}`;
+    btn.title = compact ? `${e.project} — ${e.title}` : e.title;
+    const label = stripProjectPrefix(e.title, e.project);
+    btn.innerHTML = compact
+      ? escapeHtml(label)
+      : `<span class="proj">${e.project}</span>${escapeHtml(label)}`;
     btn.addEventListener("click", () => openEntry(e));
     container.appendChild(btn);
   }
