@@ -10,8 +10,8 @@ yellow background only covered a fraction of the text. Reproducer:
 ```
 sequenceDiagram
     participant F
-    Note over F: ViewModel emits new items;<br/>key() rebuilds grid
-    Note over F: showRunnable never fires; alpha stays 0
+    Note over F: ViewModel emits new items<br/>key() rebuilds grid
+    Note over F: showRunnable never fires — alpha stays 0
 ```
 
 Both notes rendered with text spilling well outside the rect.
