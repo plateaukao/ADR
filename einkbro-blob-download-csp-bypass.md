@@ -35,18 +35,18 @@ page's own scripts run in the main world, so the wrap is invisible to the page.
 
 ```mermaid
 flowchart TD
-    PageLoad[Page loads] --> InjectHook[Inject blob_download_hook.js<br/>via evaluateJsFile in main world]
-    InjectHook --> Wrap[Wrap URL.createObjectURL/<br/>revokeObjectURL on window]
-    Wrap --> Registry[(__einkbroBlobRegistry<br/>url ➜ Blob)]
-    UserClick[User taps a&lt;href='blob:..'&gt; with download attr] --> Capture{Capture-phase<br/>document click listener}
-    Capture -- match in registry --> Read[FileReader.readAsDataURL<br/>on the Blob object]
+    PageLoad[Page loads] --> InjectHook["Inject blob_download_hook.js<br>via evaluateJsFile in main world"]
+    InjectHook --> Wrap["Wrap URL.createObjectURL and<br>revokeObjectURL on window"]
+    Wrap --> Registry[("__einkbroBlobRegistry<br>url ➜ Blob")]
+    UserClick["User taps an a tag with href starting blob: and a download attr"] --> Capture{"Capture-phase<br>document click listener"}
+    Capture -- match in registry --> Read["FileReader.readAsDataURL<br>on the Blob object"]
     Capture -- no match --> Default[Browser default → onDownloadStart]
-    Read --> Stream[Chunked base64 →<br/>androidApp JS interface]
+    Read --> Stream["Chunked base64 →<br>androidApp JS interface"]
     Default --> ListenerKt[EBDownloadListener.onDownloadStart]
-    ListenerKt --> Github{github.com /blob/ page?}
-    Github -- yes --> Raw[GithubUtil → /raw/&lt;ref&gt;/&lt;path&gt;<br/>→ DownloadManager]
-    Github -- no --> Fetch[blob_url_fetch.js<br/>fetch + FileReader fallback<br/>(loses to CSP on github)]
-    Stream --> DownloadHelper[DownloadHelper appendChunk/<br/>complete → write to Downloads]
+    ListenerKt --> Github{"github.com /blob/ page?"}
+    Github -- yes --> Raw["GithubUtil → /raw/ref/path<br>→ DownloadManager"]
+    Github -- no --> Fetch["blob_url_fetch.js<br>fetch + FileReader fallback<br>loses to CSP on github"]
+    Stream --> DownloadHelper["DownloadHelper appendChunk/<br>complete → write to Downloads"]
     Raw --> DownloadHelper
 ```
 
