@@ -15,8 +15,18 @@ mermaid.initialize({
 //   - emits a placeholder div for ```mermaid blocks (post-processed after DOM insert)
 //   - syntax-highlights everything else with highlight.js
 const renderer = {
-  code({ text, lang }) {
-    const language = (lang || "").trim().split(/\s+/)[0] || "";
+  // marked v12 calls `code(text, infostring, escaped)`; v13+ passes a token
+  // object. Accept both.
+  code(codeOrToken, info) {
+    let text, lang;
+    if (codeOrToken && typeof codeOrToken === "object") {
+      text = codeOrToken.text ?? "";
+      lang = codeOrToken.lang ?? "";
+    } else {
+      text = codeOrToken ?? "";
+      lang = info ?? "";
+    }
+    const language = String(lang).trim().split(/\s+/)[0] || "";
     if (language === "mermaid") {
       return `<div class="mermaid-block" data-mermaid="${encodeURIComponent(text)}"></div>`;
     }
