@@ -5,8 +5,8 @@
 ## Summary
 
 New standalone Android app (`info.plateaukao.pwidgets`) living at
-`/Users/maoyuankao/src/einkbro/pwidgets` with its own Gradle wrapper — **not**
-an einkbro module. It provides a home-screen App Widget that connects or
+`/Users/maoyuankao/src/pwidgets` with its own Gradle wrapper — a fully
+independent project (initially scaffolded under `einkbro/`, then relocated out). It provides a home-screen App Widget that connects or
 disconnects **any paired Bluetooth device** with one tap, showing
 disconnected → connecting → connected. Configuration (device pick) happens when
 the widget is added and is re-editable afterward.
@@ -56,10 +56,10 @@ launcher explainer reports adapter ON / permission granted, no crash.
   A2DP/Headset are system-owned and persist/reconcile correctly.
 - A2DP/Headset connect/disconnect relies on non-SDK reflection — best-effort by
   design; clear ERROR state on OS versions that block it.
-- The repo was initialized **nested inside the einkbro working tree**
-  (`einkbro/pwidgets/.git`). It is a fully separate repository; einkbro will
-  show `pwidgets/` as an untracked embedded repo. Acceptable for now; could be
-  relocated outside `einkbro/` later.
+- The repo was initially scaffolded inside the einkbro working tree, then
+  moved to `/Users/maoyuankao/src/pwidgets` so it is a clean, independent
+  checkout (no nesting). `local.properties` uses an absolute `sdk.dir`, so the
+  move required no path fixes.
 - README declares MIT; a matching `LICENSE` (Daniel Kao, 2026) is included.
 
 ## Key Files
