@@ -46,6 +46,25 @@ const renderer = {
     const cls = language ? ` language-${language}` : "";
     return `<pre><code class="hljs${cls}">${highlighted}</code></pre>`;
   },
+  // Rewrite relative image paths so they resolve against ./adrs/ (where
+  // build.sh stages the assets), not the SPA's URL root. Without this,
+  // `![](foo.png)` in an ADR points at /foo.png and 404s.
+  image(hrefOrToken, title, text) {
+    let href, t, alt;
+    if (hrefOrToken && typeof hrefOrToken === "object") {
+      href = hrefOrToken.href ?? "";
+      t = hrefOrToken.title ?? "";
+      alt = hrefOrToken.text ?? "";
+    } else {
+      href = hrefOrToken ?? "";
+      t = title ?? "";
+      alt = text ?? "";
+    }
+    const isAbsolute = /^([a-z]+:)?\/\//i.test(href) || href.startsWith("/") || href.startsWith("./") || href.startsWith("../");
+    const src = isAbsolute ? href : `adrs/${href}`;
+    const titleAttr = t ? ` title="${escapeHtml(t)}"` : "";
+    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"${titleAttr}>`;
+  },
 };
 
 window.marked.use({ gfm: true, breaks: false, renderer });
