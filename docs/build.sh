@@ -15,7 +15,16 @@ MANIFEST="$DOCS_DIR/manifest.json"
 INDEX="$DOCS_DIR/index.html"
 
 mkdir -p "$ADRS_DIR"
-rm -f "$ADRS_DIR"/*.md
+rm -f "$ADRS_DIR"/*.md "$ADRS_DIR"/*.png "$ADRS_DIR"/*.jpg "$ADRS_DIR"/*.jpeg "$ADRS_DIR"/*.gif "$ADRS_DIR"/*.svg
+
+# Copy image assets so relative ![](...) references in ADRs resolve when the
+# site fetches the markdown from ./adrs/.
+for ext in png jpg jpeg gif svg; do
+  for img in "$ROOT_DIR"/*.$ext; do
+    [[ -e "$img" ]] || continue
+    cp "$img" "$ADRS_DIR/"
+  done
+done
 
 # Cache-bust app.js / style.css by stamping a fresh epoch into the version query.
 # index.html stores either `__BUST__` (initial state) or a previous epoch — both

@@ -1,7 +1,189 @@
 {
-  "generated_at": "2026-05-10T09:11:14.500027Z",
-  "count": 87,
+  "generated_at": "2026-05-26T00:33:18.724559Z",
+  "count": 113,
   "entries": [
+    {
+      "slug": "koreader-sony-stylus-debug-and-refactor.md",
+      "date": "2026-05-25T18:07:10Z",
+      "title": "KOReader Sony DPT stylus: from \"so slow\" to smooth — a one-day rebuild",
+      "project": "koreader",
+      "summary": ""
+    },
+    {
+      "slug": "notable-sony-ui-scale.md",
+      "date": "2026-05-25T13:54:35Z",
+      "title": "Notable: 2x UI scale for Sony",
+      "project": "notable",
+      "summary": ""
+    },
+    {
+      "slug": "notable-sony-dpt-cp1-runtime.md",
+      "date": "2026-05-25T13:54:05Z",
+      "title": "Notable: get Sony DPT-CP1 actually drawing",
+      "project": "notable",
+      "summary": ""
+    },
+    {
+      "slug": "koreader-pencil-port-to-sony-dpt.md",
+      "date": "2026-05-24T17:50:14Z",
+      "title": "KOReader pencil.koplugin port to Sony DPT-CP1",
+      "project": "koreader",
+      "summary": ""
+    },
+    {
+      "slug": "sony_draw-add-eraser.md",
+      "date": "2026-05-24T17:22:24Z",
+      "title": "sony_draw — add eraser",
+      "project": "sony_draw",
+      "summary": ""
+    },
+    {
+      "slug": "sony_draw-port-stylus-from-digitalpaperapp.md",
+      "date": "2026-05-24T17:05:11Z",
+      "title": "sony_draw — port stylus drawing from Sony DigitalPaperApp",
+      "project": "sony_draw",
+      "summary": ""
+    },
+    {
+      "slug": "dpt-cp1-home-assistant-initial.md",
+      "date": "2026-05-24T12:17:12Z",
+      "title": "dpt-cp1-home-assistant: initial fork for DPT-CP1",
+      "project": "dpt",
+      "summary": ""
+    },
+    {
+      "slug": "einkbro-bookmark-dialog-api22-native-crash.md",
+      "date": "2026-05-17T16:23:38Z",
+      "title": "EinkBro — Bookmark dialog native SIGSEGV on Sony DPT (API 22)",
+      "project": "einkbro",
+      "summary": "On the Sony DPT-CP1 digital-paper device (Android 5.1 / API 22,"
+    },
+    {
+      "slug": "einkbro-zh-hant-locale-and-2x-density.md",
+      "date": "2026-05-17T14:35:52Z",
+      "title": "EinkBro — zh-Hant locale fallback & 2x UI density (Sony DPT)",
+      "project": "einkbro",
+      "summary": "On the Sony DPT-CP1 (Android 5.1 / API 22), choosing Traditional Chinese"
+    },
+    {
+      "slug": "einkbro-sony-dpt-cp1-support.md",
+      "date": "2026-05-17T14:20:13Z",
+      "title": "EinkBro — Sony DPT-CP1 (Android 5.1 / API 22) support",
+      "project": "einkbro",
+      "summary": ""
+    },
+    {
+      "slug": "blog-post-add-skill.md",
+      "date": "2026-05-16T14:55:50Z",
+      "title": "blog — /post-add skill",
+      "project": "blog",
+      "summary": ""
+    },
+    {
+      "slug": "vertical-read-squiggly-vertical-mode.md",
+      "date": "2026-05-15T16:32:06Z",
+      "title": "vertical-read: squiggly highlight style in vertical reading mode",
+      "project": "vertical",
+      "summary": ""
+    },
+    {
+      "slug": "vertical-read-sync-device-image-rendering.md",
+      "date": "2026-05-15T16:31:46Z",
+      "title": "vertical-read: sync device's image-only page rendering into repo",
+      "project": "vertical",
+      "summary": ""
+    },
+    {
+      "slug": "plateaukao.github.io-profile-landing-page.md",
+      "date": "2026-05-15T15:22:22Z",
+      "title": "plateaukao.github.io — Profile landing page",
+      "project": "plateaukao.github.io",
+      "summary": ""
+    },
+    {
+      "slug": "pwidgets-bluetooth-connection-widget.md",
+      "date": "2026-05-15T11:32:20Z",
+      "title": "pwidgets — Bluetooth Connection Widget App",
+      "project": "pwidgets",
+      "summary": ""
+    },
+    {
+      "slug": "mmgo-mac-mermaid-js-webview.md",
+      "date": "2026-05-13T12:56:35Z",
+      "title": "mmgo-mac: Replace mmgo Go library with bundled mermaid.js in WKWebView",
+      "project": "mmgo",
+      "summary": ""
+    },
+    {
+      "slug": "ask_web-mindmap-copy-png.md",
+      "date": "2026-05-12T15:02:48Z",
+      "title": "ask_web — copy mindmap as PNG",
+      "project": "ask_web",
+      "summary": ""
+    },
+    {
+      "slug": "mmgo-mac-editor-focus-and-history-popover.md",
+      "date": "2026-05-11T15:28:16Z",
+      "title": "mmgo-mac: Fix unfocusable editor in NavigationSplitView sidebar; rework history as a popover",
+      "project": "mmgo",
+      "summary": "After switching to `NavigationSplitView` (commit 563dc81), the Mermaid source editor — an `NSTextView`-backed `NSViewRepresentable` living in the sidebar column — would render correctly but refuse to take first responder. Clicking the text view did nothing; the caret never appeared; typing went nowhere. Separately, the existing history `Menu` was a flat list with no per-item deletion and no way to scroll long histories. And launching the app via `swift run` did not reliably bring the window forward / make it key."
+    },
+    {
+      "slug": "adr-site-fast-pill-tooltip.md",
+      "date": "2026-05-10T15:34:54Z",
+      "title": "ADR Site: Replace native `title` tooltip with a fast custom hover hint",
+      "project": "adr",
+      "summary": "Hovering a calendar pill in the viewer (`docs/`) showed the project + full title only after the browser's built-in `title` delay (~500–700 ms, varies by browser/OS). On a calendar where the pill text itself is aggressively truncated, that delay made the tooltip feel slow enough that users would move on before it appeared."
+    },
+    {
+      "slug": "einkbro-blob-download-csp-bypass.md",
+      "date": "2026-05-10T15:30:17Z",
+      "title": "einkbro — blob: URL downloads on CSP-strict sites",
+      "project": "einkbro",
+      "summary": "Tapping \"Download raw file\" on a github.com file view (and similar pages that"
+    },
+    {
+      "slug": "einkbro-translate-paragraph-layout-and-error-caching.md",
+      "date": "2026-05-10T14:11:44Z",
+      "title": "einkbro: preserve page layout and avoid caching errors in paragraph translation",
+      "project": "einkbro",
+      "summary": "The translate-by-paragraph feature visibly broke layouts on common modern"
+    },
+    {
+      "slug": "mmgo-sequence-message-label-gap.md",
+      "date": "2026-05-10T12:07:23Z",
+      "title": "mmgo: Widen sequence-diagram gaps to fit cross-message labels",
+      "project": "mmgo",
+      "summary": "In a sequence diagram, three messages between adjacent participants"
+    },
+    {
+      "slug": "einkbro-bookmark-dialog-supernote-disappear.md",
+      "date": "2026-05-10T12:07:08Z",
+      "title": "Bookmark Dialog Disappears on Supernote When Entering a Folder",
+      "project": "einkbro",
+      "summary": "On Supernote (e-ink) devices, opening the bookmarks dialog and tapping a folder icon to drill into it caused the dialog to vanish entirely instead of showing the folder's contents. The dialog never came back. On faster phones the same flow worked, so the regression went unnoticed for a while."
+    },
+    {
+      "slug": "mmgo-sequence-note-rect-sizing.md",
+      "date": "2026-05-10T12:04:20Z",
+      "title": "mmgo: Size sequence-diagram note rectangles to fit text content",
+      "project": "mmgo",
+      "summary": "Note rectangles in mermaid sequence diagrams (`Note over X`, `Note left of`,"
+    },
+    {
+      "slug": "adr-site-pill-density-and-prefix-stripping.md",
+      "date": "2026-05-10T11:51:04Z",
+      "title": "ADR Site: Tighter Pills and Title Prefix Stripping",
+      "project": "adr",
+      "summary": "In the calendar viewer (`docs/`), each entry was rendered as a \"pill\" containing an uppercase project label followed by the title — e.g. `MANDROID_FINDER track-devices event stream`. Two related issues:"
+    },
+    {
+      "slug": "adr-site-hash-routing-and-month-click-through.md",
+      "date": "2026-05-10T09:27:09Z",
+      "title": "ADR Site: Hash Routing and Month-View Click-Through",
+      "project": "adr",
+      "summary": "The ADR viewer (`docs/`) had three usability gaps:"
+    },
     {
       "slug": "einkbro-supernote-save-saf.md",
       "date": "2026-05-10T09:07:01Z",
