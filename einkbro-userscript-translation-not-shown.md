@@ -4,119 +4,111 @@
 
 ## Problem
 
-After the userscript engine (see `einkbro-userscript-engine.md`) was working, Immersive Translate
-would inject, render its floating control, fetch translations successfully (HTTP 200 with correct
-translated text observed on the wire), yet **no translated text appeared on the page** — every
-paragraph showed a loading spinner that animated forever. The page DOM ended up full of:
+With the userscript engine working (see `einkbro-userscript-engine`), Immersive Translate would
+install, inject, show its floating control, and successfully fetch translations — the network
+requests completed and the correct translated text came back over the wire — yet nothing translated
+ever appeared on the page. Every paragraph sat under a loading spinner that span forever. Inspecting
+the page afterwards showed that the script had built each translation's container and its spinner,
+but the spinner was never replaced with the translated text.
 
-```html
-<font class="immersive-translate-target-wrapper" lang="zh-TW">
-  &nbsp;<font class="immersive-translate-loading-spinner"></font>
-</font>
-```
-
-i.e. the translation *wrapper* and *spinner* were created, but the spinner was never replaced with
-text. Crucially this was not a network or engine-plumbing failure: the requests completed and the
-data came back. The breakage was downstream, inside how the script consumed the response.
-
-A hand-written paragraph-translation userscript (using `GM_xmlhttpRequest` directly) rendered fine
-under the same engine, which proved the engine's basic path was sound and the failure was specific
-to how Immersive Translate is built.
+The important early observation was that this was not a networking or engine-plumbing failure. The
+requests were reaching the translation service and returning good data. The breakage lay downstream,
+in how the script consumed that data once it arrived. A telling control experiment reinforced this: a
+small hand-written paragraph translator, running under the very same engine and calling the same
+cross-origin HTTP capability directly, rendered its translations correctly. So the engine's basic
+path was sound, and the failure was specific to how Immersive Translate is built.
 
 ## Root Cause
 
-There were **four** independent defects on the path from "response arrives" to "text rendered." All
-four had to be fixed for translations to appear. They are ordered below by how decisive each was.
+There were four independent defects on the road from "response has arrived" to "text is on screen,"
+and all four had to be cleared before anything rendered. They are described below roughly in order of
+how decisive each turned out to be.
 
-### 1. `GM.xmlHttpRequest` was promise-only, not dual-mode (the decisive one)
+### The decisive one: the promise-style HTTP entry point ignored callback-style callers
 
-Immersive Translate does not call `GM_xmlhttpRequest` directly. It ships a `fetch` polyfill
-(`GM_fetch`) — it deletes `window.fetch` to bypass CORS and routes everything through GM. That
-polyfill selects its transport in this priority order:
+Immersive Translate does not call the cross-origin HTTP capability directly. It ships its own `fetch`
+replacement — it even removes the page's native `fetch` to force everything through the userscript
+channel and thereby sidestep cross-origin restrictions. That replacement chooses its transport with a
+strong preference for the promisified HTTP entry point in the `GM.` namespace, ahead of the older
+underscore-named one. Having chosen it, the script then drives it in the *callback* style: it passes
+in success and error handlers and resolves its own internal promise from inside the success handler.
 
-```js
-let httpRequest;
-if (typeof GM < "u" && GM.xmlHttpRequest)      httpRequest = GM.xmlHttpRequest;   // ← picked first
-else if (typeof GM < "u" && GM_xmlhttpRequest) httpRequest = GM_xmlhttpRequest;
-else if (typeof GM_xmlhttpRequest < "u")       httpRequest = GM_xmlhttpRequest;
-```
+In a real userscript manager that promisified entry point is dual-natured: called with handlers it
+behaves like the callback form and fires them; called without, it returns a promise. Our version only
+ever returned a promise. So when Immersive Translate invoked it with handlers attached, those handlers
+were quietly discarded, a promise nobody was waiting on was returned, and the success handler never
+ran. Its internal fetch-promise therefore never settled, the translated text was never read out of
+the response, and the spinners spun indefinitely.
 
-It then drives that transport **callback-style**, passing `xhr_details.onload`/`onerror` and
-resolving its own wrapping `Promise` from inside `onload`.
+This single mismatch explains the whole confusing picture: requests plainly succeeded yet nothing
+rendered, and the hand-written control script worked because it used the underscore-named entry point
+directly and never touched the broken promisified one.
 
-In real Tampermonkey, `GM.xmlHttpRequest` is **dual-mode**: callback-style (fires `details.onload`,
-returns a control object) *and* promise-returning. Our shim implemented only the promise form. So
-when Immersive Translate called `GM.xmlHttpRequest(details_with_onload)`, the shim ignored the
-callbacks, returned a Promise nobody awaited, and `details.onload` never fired → `GM_fetch`'s
-wrapping promise never settled → the translated text was never consumed → spinners forever.
+### Resolving a promise synchronously from inside its own executor left it pending
 
-This is why the requests visibly succeeded but nothing rendered, and why a script calling
-`GM_xmlhttpRequest` directly worked: it bypassed the broken `GM.xmlHttpRequest` path entirely.
+The native side delivers an HTTP result by asking the WebView to run a small piece of JavaScript
+immediately. "Immediately" turned out to mean *within the same JavaScript turn* as the script's own
+code that had just issued the request and wrapped it in a freshly created promise. In this WebView's
+JavaScript engine, resolving a brand-new promise synchronously from inside the very executor that
+created it leaves the promise stuck in a pending state. Even after the first fix made the success
+handler fire, the promise would not settle until delivery was deferred by a single turn of the event
+loop.
 
-### 2. Synchronous callback dispatch leaves a native Promise pending
+### Wrapping a no-content response in a Response object threw
 
-The native bridge delivers a response by calling
-`webView.evaluateJavascript("…handleXhr(reqId,…)")`. That executes **synchronously**, often within
-the same JS turn as the script's `new Promise(executor)` that issued the request. Resolving a native
-Promise synchronously from inside its own executor, in this WebView's V8, leaves the promise
-permanently pending. Even after fix #1 made the callback fire, the promise still would not settle
-until dispatch was deferred one macrotask (`setTimeout(fn, 0)`).
+The script's fetch replacement wraps every reply in a standard `Response` object. Some replies carry
+no body by definition — for instance the empty acknowledgement returned by an analytics beacon.
+Constructing a `Response` with a body for one of those no-body status codes throws an error. Because
+that construction happened inside the success handler, the throw was one more way the fetch-promise
+died before the translation could be used.
 
-### 3. `new Response('', {status: 204})` throws
+### A long-standing selection bug in the browser itself
 
-The fetch polyfill wraps *every* response in `new Response(body, {status})`. Some responses are
-null-body statuses (e.g. a `204` from an analytics beacon). `new Response('non-empty', {status:204})`
-throws *"Response with null body status cannot have body"*. That throw happens inside `onload`, which
-again kills the wrapping promise.
+The browser installs, on every page, a listener that reacts whenever the text selection changes by
+asking for the current selection range. It did so without first checking that a range actually
+existed. Immersive Translate disturbs the document and selection as it inserts its bilingual text,
+which fires that change listener at a moment when nothing is selected, so the request for a
+non-existent range threw — and that exception, raised in the middle of the script's rendering work,
+aborted it. This was a genuine latent defect in the browser unrelated to userscripts: any page that
+programmatically changes the selection could have tripped it.
 
-### 4. `getRangeAt(0)` IndexSizeError from EinkBro's own selection JS
+### Why it took so long to find
 
-EinkBro injects `text_selection_change.js` as a **global `selectionchange` listener on every page**,
-and it called `selection.getRangeAt(0)` with no `rangeCount` guard (same in
-`text_selection_highlight.js`). Immersive Translate mutates the document/selection while inserting
-its bilingual nodes, which fires `selectionchange` when no range is active → `getRangeAt(0)` throws
-*IndexSizeError* → the exception propagates out of the event dispatch and aborts the render
-microtask. This is a genuine latent EinkBro bug, independent of userscripts: any page that
-programmatically changes the selection could trigger it.
-
-### Why this took so long to find
-
-Two layers of noise masked the real errors:
-- A `setAttribute on undefined` exception kept appearing and looked relevant. It turned out to be
-  EinkBro's own "enable zoom" one-liner
-  (`document.getElementsByName('viewport')[0].setAttribute(...)`) failing on a test page that had no
-  `<meta viewport>`, plus identical-looking errors coming from a *different background tab*. Pure
-  red herring.
-- Eval-injected code reports exceptions as opaque `"Script error."` with no stack, so the real
-  failures were invisible until the injector was changed to a same-origin `<script>` element with a
-  `//# sourceURL`.
+Two layers of noise hid the real failures. First, a different error about setting an attribute on
+something undefined kept surfacing and looked like the culprit; it was in fact the browser's own
+"enable zoom" adjustment failing on a test page that lacked the element it expected, compounded by
+identical-looking errors arriving from a completely separate background tab — pure distraction.
+Second, code handed to the WebView as a bare string to evaluate reports its exceptions as opaque,
+stack-less messages, so the genuine errors were effectively invisible until the injection method was
+changed to a real, attributable script element. Only then did the actual selection error and the
+unsettled-promise behavior become diagnosable.
 
 ```mermaid
 flowchart TB
-    REQ["IT GM_fetch issues request via GM.xmlHttpRequest(details.onload=…)"]
-    SHIM{"shim GM.xmlHttpRequest"}
-    P1["promise-only: callbacks dropped → GM_fetch promise never settles"]:::bad
-    P2["dual-mode: fires details.onload"]:::good
-    SYNC{"callback dispatched…"}
-    S1["synchronously in same JS turn → native Promise stays pending"]:::bad
-    S2["deferred setTimeout(0) → promise resolves"]:::good
-    RESP{"onload wraps new Response(body,{status})"}
-    R1["status 204 + body → throws → promise dies"]:::bad
-    R2["null-body statuses drop body → ok"]:::good
-    SEL{"IT mutates selection during render"}
-    E1["selectionchange → getRangeAt(0) no guard → IndexSizeError aborts render"]:::bad
-    E2["rangeCount guard → no throw"]:::good
-    OK["spinner replaced with translated text ✓"]:::good
+    req["Script's fetch replacement issues a request via the promisified HTTP entry point, with success/error handlers attached"]
+    shim{"the promisified HTTP entry point"}
+    p1["promise-only: handlers discarded → the script's fetch-promise never settles"]:::bad
+    p2["dual-mode: success handler fires"]:::good
+    sync{"result delivered to the handler…"}
+    s1["in the same JS turn → the freshly-created promise stays pending"]:::bad
+    s2["deferred by one event-loop turn → it settles"]:::good
+    resp{"handler wraps the reply in a Response"}
+    r1["no-content reply given a body → throws → promise dies"]:::bad
+    r2["no-body statuses wrapped without a body → ok"]:::good
+    sel{"script disturbs the page selection while rendering"}
+    e1["selection-change listener asks for a range that isn't there → throws → rendering aborts"]:::bad
+    e2["listener checks first → no throw"]:::good
+    ok["spinner replaced with translated text ✓"]:::good
 
-    REQ --> SHIM
-    SHIM --> P1
-    SHIM --> P2 --> SYNC
-    SYNC --> S1
-    SYNC --> S2 --> RESP
-    RESP --> R1
-    RESP --> R2 --> SEL
-    SEL --> E1
-    SEL --> E2 --> OK
+    req --> shim
+    shim --> p1
+    shim --> p2 --> sync
+    sync --> s1
+    sync --> s2 --> resp
+    resp --> r1
+    resp --> r2 --> sel
+    sel --> e1
+    sel --> e2 --> ok
 
     classDef bad fill:#fdd,stroke:#c00;
     classDef good fill:#dfd,stroke:#0a0;
@@ -124,71 +116,47 @@ flowchart TB
 
 ## Solution
 
-All GM-side fixes are in `app/src/main/assets/gm_shim.js`; the selection fix is in the two asset JS
-files; the bridge gained timeout handling.
+Each defect was addressed in turn. The promisified HTTP entry point was made dual-natured: given
+success or error handlers it now behaves as the callback form and returns a control handle; given
+none, it returns a promise as before — matching how real userscript managers expose it. Delivery of
+HTTP results to script handlers was deferred by one turn of the event loop, so resolution never
+happens inside the issuing promise's own executor. Response wrapping was taught to omit the body for
+no-content status codes, so constructing those replies no longer throws. And the browser's
+selection-change listener was made to confirm a range exists before asking for one, which both
+unblocks the translation script and fixes the underlying crash for any page.
 
-1. **Dual-mode `GM.xmlHttpRequest`.** New `GM_xmlhttpRequestDual(details)`: if `details` has
-   `onload`/`onerror`/`onreadystatechange`, run callback-style and return the control object;
-   otherwise return a Promise resolving to the response. Assigned to both `GM.xmlHttpRequest` and
-   `GM.xmlhttpRequest`.
+Alongside these, several smaller alignments with real userscript-manager behavior were made and
+helped diagnosis: notifying readiness before the success handler in the expected order, honoring a
+per-request timeout with a proper timeout notification, pre-parsing JSON responses when the script
+asked for that response type, providing the global object some WebView scopes omit, and annotating
+injected code with a source reference so its exceptions carry real stack traces.
 
-2. **Async callback dispatch.** `handleXhr` wraps its entire callback dispatch in `setTimeout(fn, 0)`
-   so resolution never happens inside the issuing promise's executor turn.
-
-3. **`Response` subclass for null-body statuses.** `window.Response` is replaced with
-   `class extends Response` whose constructor passes `null` body for `204`/`205`/`304`. It must be a
-   real `class extends` (genuine `Response` instances); a plain wrapper function returning
-   `new Orig(...)` produced an object that itself left `GM_fetch`'s promise pending.
-
-4. **`rangeCount` guards.** `text_selection_change.js` and `text_selection_highlight.js` now check
-   `selection && selection.rangeCount > 0` before `getRangeAt(0)`.
-
-Supporting changes that align the shim with Tampermonkey semantics and aided diagnosis:
-`onreadystatechange(readyState 4)` fired before `onload`; per-request `timeout` honored in the bridge
-with a distinct `timeout` event → `ontimeout`; `responseType: 'json'` pre-parses `response`;
-`globalThis` polyfill for WebView scopes that omit it; `//# sourceURL` appended to injected code so
-exceptions carry a real file/line/stack.
-
-Result on the arm64 emulator: a Japanese page renders Traditional-Chinese translations inline
-(e.g. 人工知能の歴史 → 人工智慧的歷史); CDP confirms all target wrappers filled.
-
-## Key Files
-
-- `app/src/main/assets/gm_shim.js` — `GM_xmlhttpRequestDual`; async `handleXhr` dispatch; `Response`
-  204/205/304 subclass; `ontimeout`/`onreadystatechange`/`responseType`/`globalThis` handling
-- `app/src/main/assets/text_selection_change.js` — `rangeCount` guard
-- `app/src/main/assets/text_selection_highlight.js` — `rangeCount` guard
-- `app/src/main/java/info/plateaukao/einkbro/browser/UserScriptBridge.kt` — per-request timeout →
-  `timeout` event; off-thread OkHttp + `@connect` enforcement; async delivery back to JS
-- `app/src/main/java/info/plateaukao/einkbro/userscript/UserScriptManager.kt` — `//# sourceURL`
-  appended in the injection-blob builder
+With all four fixes in place, a Japanese page renders Traditional-Chinese translations inline beneath
+each paragraph, and every translation container that previously held only a spinner now holds
+translated text.
 
 ## Lessons Learned
 
-- **A succeeding network request is not a succeeding feature.** The 200s and correct response bodies
-  pointed everyone away from the bug, which lived entirely in JS callback/promise plumbing *after*
-  the response arrived. When the data is right but the UI is wrong, instrument the consumption path,
-  not the transport.
+A succeeding network request is not a succeeding feature. The fact that requests returned good data
+steered attention away from the real bug, which lived entirely in the promise-and-callback plumbing
+that ran *after* the response arrived. When the data is right but the screen is wrong, the place to
+instrument is the consumption path, not the transport.
 
-- **Match the platform contract exactly, not just the common case.** `GM.xmlHttpRequest` being
-  promise-only "worked" for naive callers and for a hand-written control script, but a real
-  fetch-polyfill client drove it callback-style. Re-implementing a well-known API means honoring its
-  full dual contract, not the subset that happens to pass a smoke test.
+Re-implementing a well-known interface means honoring its whole contract, not the part that passes a
+quick test. The promise-only HTTP entry point looked fine for simple callers and for our control
+script, but a serious third-party script drove it through its other, callback-shaped contract — and
+the missing half is what stalled everything.
 
-- **A clean-room reimplementation is a fast oracle.** Writing a minimal paragraph-translation
-  userscript that rendered correctly instantly partitioned the problem: engine = good, target script
-  interaction = bad. That single experiment saved a lot of blind guessing.
+A clean-room reimplementation is a fast oracle. Writing a minimal translator that rendered correctly
+under the same engine immediately partitioned the problem into "engine: good, this script's
+expectations: not met," which saved a great deal of blind guessing.
 
-- **Make third-party errors observable before theorizing.** Eval-injected code yields opaque
-  `"Script error."`. Switching to a same-origin `<script>` tag + `//# sourceURL`, and using Chrome
-  DevTools over the WebView, turned invisible failures into real stack traces — only then did the
-  actual `IndexSizeError` and the unsettled-promise behavior become diagnosable.
+Make third-party errors observable before forming theories. As long as injected code produced opaque,
+stack-less errors, every theory was a guess. Switching to attributable injection and attaching a real
+debugger to the WebView turned invisible failures into concrete stack traces, and only then did the
+true causes surface.
 
-- **Beware look-alike noise from other contexts.** The `setAttribute`/`getRangeAt` errors that
-  dominated early logs included EinkBro's own viewport one-liner and a second background tab. Confirm
-  *which* document and *which* script an error belongs to before chasing it.
-
-- **DevTools access:** the WebView debug socket rejected websocket handshakes whose `Host` header was
-  a raw IP (HTTP 403); connecting with `Host: localhost` and a suppressed Origin header worked.
-  Beautifying the minified bundle and bisecting the failure with DevTools `Runtime.evaluate`
-  (`awaitPromise`) is what isolated each of the four causes.
+Finally, be suspicious of look-alike noise from other contexts. The errors that dominated the early
+logs came partly from an unrelated browser feature and partly from a second background tab; confirming
+which document and which script an error actually belonged to, before chasing it, would have saved
+time.
