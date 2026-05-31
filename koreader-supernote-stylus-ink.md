@@ -105,12 +105,12 @@ specific* (you wire it).
 
 ```mermaid
 flowchart TD
-    H[Stylus hardware] --> L1["1 INPUT SOURCE\nevdev /dev/input/eventN<br/>or Android AInputEvent"]
-    L1 --> L2["2 TOOL CLASSIFICATION<br/>pen / eraser / highlighter via toolType + buttons"]
-    L2 --> L3["3 LUA INPUT COOK<br/>evdev -> routeStylusEvents -> handleStylusSlot"]
-    L3 --> L4["4 USERSPACE OVERLAY<br/>(optional) ARGB SurfaceView for sub-100ms preview"]
-    L3 --> L5["5 KERNEL-FAST PATH<br/>vendor DHW / direct framebuffer ioctl"]
-    L3 --> L6["6 REFRESH POLICY<br/>when KOReader bakes stroke into the page"]
+    H[Stylus hardware] --> L1["1 INPUT SOURCE\nevdev /dev/input/eventN<br>or Android AInputEvent"]
+    L1 --> L2["2 TOOL CLASSIFICATION<br>pen / eraser / highlighter via toolType + buttons"]
+    L2 --> L3["3 LUA INPUT COOK<br>evdev -> routeStylusEvents -> handleStylusSlot"]
+    L3 --> L4["4 USERSPACE OVERLAY<br>(optional) ARGB SurfaceView for sub-100ms preview"]
+    L3 --> L5["5 KERNEL-FAST PATH<br>vendor DHW / direct framebuffer ioctl"]
+    L3 --> L6["6 REFRESH POLICY<br>when KOReader bakes stroke into the page"]
 
     style L4 stroke-dasharray:5 5
     style L5 stroke-dasharray:5 5
@@ -146,13 +146,13 @@ brokers between them).
 sequenceDiagram
     autonumber
     participant Pen as Stylus
-    participant FW as Supernote firmware<br/>(service_myservice)
-    participant App as KOReader<br/>(NativeActivity)
+    participant FW as Supernote firmware<br>(service_myservice)
+    participant App as KOReader<br>(NativeActivity)
     participant Lua as pencil.koplugin
     participant BB as Screen.bb
 
-    Note over App,FW: On Activity.onResume:<br/>SupernoteInk.sendWriteAppInfo() + enableFullUiAuto(true)
-    Note over Lua,App: Pencil enabled → setupSupernoteInk →<br/>applySupernotePen(setPen NEEDLE, sizeEmr, BLACK)
+    Note over App,FW: On Activity.onResume:<br>SupernoteInk.sendWriteAppInfo() + enableFullUiAuto(true)
+    Note over Lua,App: Pencil enabled → setupSupernoteInk →<br>applySupernotePen(setPen NEEDLE, sizeEmr, BLACK)
 
     Pen->>FW: tip-down
     FW-->>Pen: paint ink overlay (sub-frame)
@@ -165,7 +165,7 @@ sequenceDiagram
         FW-->>Pen: extend ink overlay (firmware DU waveform)
         FW->>App: MotionEvent ACTION_MOVE
         App->>Lua: handleStylusSlot
-        Lua->>BB: paintRectRGB32 / drawLineSegment<br/>(NO Screen:refresh* — firmware owns the ink)
+        Lua->>BB: paintRectRGB32 / drawLineSegment<br>(NO Screen:refresh* — firmware owns the ink)
     end
 
     Pen->>FW: tip-up
@@ -180,7 +180,7 @@ sequenceDiagram
 
     Note over Lua: scheduleIn(0.3 s)
     Lua->>FW: clearAll (tx=6)
-    FW-->>FW: EPDC overlay wiped; next stroke starts clean
+    FW-->>FW: EPDC overlay wiped — next stroke starts clean
 ```
 
 Three details from that diagram deserve highlighting.
@@ -214,12 +214,12 @@ KOReader's logical tool. Three things can change the effective tool:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PenTip: setupSupernoteInk<br/>(applySupernotePen)
-    PenTip --> EraserMode: side-button held<br/>(slot.tool promoted to 2)
+    [*] --> PenTip: setupSupernoteInk<br>(applySupernotePen)
+    PenTip --> EraserMode: side-button held<br>(slot.tool promoted to 2)
     EraserMode --> PenTip: side-button released
-    PenTip --> EraserMode: Tools→Pencil→Tool→Eraser<br/>(setTool / onPencilToggleTool)
+    PenTip --> EraserMode: Tools→Pencil→Tool→Eraser<br>(setTool / onPencilToggleTool)
     EraserMode --> PenTip: Tools→Pencil→Tool→Pencil
-    PenTip --> PenTip: setPenWidth (width picker)<br/>EMR size pushed
+    PenTip --> PenTip: setPenWidth (width picker)<br>EMR size pushed
     note right of PenTip
         SupernoteInk.setPen(NEEDLE 10, w*100, BLACK)
         clamped [200, 1200]
@@ -259,10 +259,10 @@ turn — pages flip out from under you mid-word. The fix:
 ```mermaid
 flowchart LR
     G[Finger gesture] --> C{Pencil enabled?}
-    C -->|no| R[ReaderUI handles<br/>(swipe → page turn)]
+    C -->|no| R["ReaderUI handles<br>(swipe → page turn)"]
     C -->|yes| D{Pen down?}
-    D -->|yes| X[Consume<br/>palm-reject log]
-    D -->|no| T{Within 1s of<br/>last pen event?}
+    D -->|yes| X[Consume<br>palm-reject log]
+    D -->|no| T{Within 1s of<br>last pen event?}
     T -->|yes| X
     T -->|no| R
 
@@ -291,14 +291,14 @@ broke at once:
 
 ```mermaid
 flowchart TD
-    K[Stylus contact] --> M[Android NDK MotionEvent<br/>tool=STYLUS, buttonState bits set]
+    K[Stylus contact] --> M[Android NDK MotionEvent<br>tool=STYLUS, buttonState bits set]
     M --> A{Which input_android.lua?}
-    A -->|"FORK (base/ffi/)"| F["emitToolType writes<br/>ABS_MT_TOOL_TYPE = 1 or 2"]
-    A -->|"STOCK UPSTREAM"| U["Only x/y emitted<br/>tool type info DISCARDED"]
+    A -->|"FORK (base/ffi/)"| F["emitToolType writes<br>ABS_MT_TOOL_TYPE = 1 or 2"]
+    A -->|"STOCK UPSTREAM"| U["Only x/y emitted<br>tool type info DISCARDED"]
     F --> SF[slot.tool = 1/2]
     U --> SU[slot.tool = nil]
-    SF --> RF[routeStylusEvents sees stylus<br/>→ handleStylusSlot fires<br/>→ stroke saved + gesture dominated]
-    SU --> RU[routeStylusEvents skips slot<br/>→ no persistence<br/>→ swipe gesture turns page]
+    SF --> RF[routeStylusEvents sees stylus<br>→ handleStylusSlot fires<br>→ stroke saved + gesture dominated]
+    SU --> RU[routeStylusEvents skips slot<br>→ no persistence<br>→ swipe gesture turns page]
 
     style F fill:#efe,stroke:#4c4
     style U fill:#fee,stroke:#c44
@@ -348,9 +348,9 @@ symlinks `plugins/` into the install, so we explicitly move
 ```mermaid
 flowchart LR
     SRC[~/src/pencil.koplugin] -->|edit| MOD[main.lua]
-    MOD -->|adb push| DEV["/sdcard/koreader/plugins/pencil.koplugin/<br/>(loaded via extra_plugin_paths)"]
+    MOD -->|adb push| DEV["/sdcard/koreader/plugins/pencil.koplugin/<br>(loaded via extra_plugin_paths)"]
 
-    K[~/src/koreader<br/>supernote_ink] -->|mv plugins/pencil.koplugin out| BUILD[Docker build]
+    K[~/src/koreader<br>supernote_ink] -->|mv plugins/pencil.koplugin out| BUILD[Docker build]
     BUILD -->|kodev release android-arm64| APK[koreader-android-arm64-*.apk]
     APK -->|signed + adb install| DEV2[fork APK on device]
 
