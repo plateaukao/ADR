@@ -131,19 +131,19 @@ see nor block them.
 ```mermaid
 sequenceDiagram
     participant HW as Slide-bar sensor (kernel)
-    participant GS as GestureService<br/>(com.ratta.supernote.launcher, pid 1486)
+    participant GS as GestureService (launcher pid 1486)
     participant WM as WindowManager (system_server)
     participant Apps as NoteBroadcast / Explorer / IME
     participant EL as eLauncher MainActivity
 
-    HW->>GS: eventkey101 press, then eventkey106 slide (type:2, position ramps)
-    Note over GS: accumulate position;<br/>enableSlidebar=true, hand=0
-    GS->>GS: threshold crossed → ==侧滑菜单:126 → showslidebar
+    HW->>GS: eventkey101 press, then eventkey106 slide (type 2, position ramps)
+    Note over GS: accumulate position; enableSlidebar=true, hand=0
+    GS->>GS: threshold crossed, showslidebar (侧滑菜单 126)
     GS->>GS: read recent NOTE/DOC, enable buttons
-    GS->>Apps: broadcast com.ratta.supernote.launcher.slidebarstatusbarstate
+    GS->>Apps: broadcast slidebarstatusbarstate
     GS->>WM: addWindow TYPE_PHONE overlay (SYSTEM_ALERT_WINDOW, uid 1000)
-    WM-->>EL: mCurrentFocus → launcher overlay<br/>(mResumedActivity stays = MainActivity)
-    Note over EL: eLauncher receives NO input event<br/>— cannot intercept
+    WM-->>EL: mCurrentFocus = launcher overlay; mResumedActivity stays MainActivity
+    Note over EL: eLauncher receives NO input event - cannot intercept
 ```
 
 ## Implications for eLauncher
