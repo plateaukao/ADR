@@ -137,12 +137,12 @@ sequenceDiagram
     participant EL as eLauncher MainActivity
 
     HW->>GS: eventkey101 press, then eventkey106 slide (type 2, position ramps)
-    Note over GS: accumulate position; enableSlidebar=true, hand=0
+    Note over GS: accumulate position, enableSlidebar=true, hand=0
     GS->>GS: threshold crossed, showslidebar (侧滑菜单 126)
     GS->>GS: read recent NOTE/DOC, enable buttons
     GS->>Apps: broadcast slidebarstatusbarstate
     GS->>WM: addWindow TYPE_PHONE overlay (SYSTEM_ALERT_WINDOW, uid 1000)
-    WM-->>EL: mCurrentFocus = launcher overlay; mResumedActivity stays MainActivity
+    WM-->>EL: mCurrentFocus = launcher overlay, mResumedActivity stays MainActivity
     Note over EL: eLauncher receives NO input event - cannot intercept
 ```
 
