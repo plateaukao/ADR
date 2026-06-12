@@ -9,7 +9,7 @@ per-character images lived on Flickr farm URLs that are now all 404. The file
 was rebuilt to point at 368 locally bundled contour-only SVG glyphs
 (`assets/92_huang_svg/NN_i_字.svg`, traced with potrace exactly like the
 existing `92_ou_svg` book), and the book is registered in
-`ResourceUtils.getBooks()` as 間架九十二法 (黃自元). Commit `46282c5`.
+`ResourceUtils.getBooks()` as 間架九十二法 (黃自元). Commit `3c2304a`.
 
 ## Approach
 
@@ -53,14 +53,28 @@ flowchart TD
   Machine archived the paginated article but not that page's image. The page
   was finally recovered from Wikimedia Commons (`File:06雖御鑾章.jpg`, 649×1108,
   same edition uploaded as individual page files).
-- **Vectorization, matching the 歐陽詢 book.** Each cell is upscaled 3×,
+- **Vectorization, matching the 歐陽詢 book.** Grid lines are first erased in
+  page space: along each detected line, pixels whose perpendicular glyph run
+  is line-thin are blanked, so strokes that cross or overlap a grid line
+  (e.g. 留 in rule 23, written over the column line) survive intact. Each
+  cell is then cropped with a margin beyond the line positions, upscaled 3×,
   binarized with per-cell Otsu, cleaned with connected-component filtering
-  (drops grid-line remnants: thin components hugging the cell border, and
-  full-length skinny lines), tightly cropped, and traced with
-  `potrace -s -t 12` — the same potrace 1.16 pipeline whose output the
-  existing `92_ou_svg` assets carry. Result: black contour glyphs on
-  transparent background, so the app's practice grid shows through, identical
-  in presentation to the 間架九十二法 (歐陽詢) book.
+  (skinny line stubs and, on the noisier Commons page, a
+  distance-transform test that drops fragments which are thin everywhere),
+  tightly cropped, and traced with `potrace -s -t 12` — the same potrace 1.16
+  pipeline whose output the existing `92_ou_svg` assets carry. Result: black
+  contour glyphs on transparent background, identical in presentation to the
+  間架九十二法 (歐陽詢) book. All 368 rendered glyphs were visually reviewed
+  in contact sheets for leftover border lines and mis-crops.
+- **Stroke-completeness pass.** The automated cleanup initially ate real
+  strokes on eight glyphs whose ink sits on or near a grid line (顧體 in rule
+  21, 意素累 in 24, 爾 in 28, 聲 in 59 — whose bottom 耳 nearly touches the
+  row line — and 贏 in 72). Those cells were re-extracted with overflow-
+  preserving margins and hand-specified junk-erase boxes instead of the
+  heuristics. A final audit compared every glyph's traced ink area against
+  its source-cell ink (ratio final/source); the distribution sits at
+  0.86–1.07 with the lowest 10 verified visually — no missing components
+  remain.
 - **Old Flickr URLs are dead.** All `farmX.staticflickr.com` links in the
   legacy file 404, including via `live.staticflickr.com` rewrite — the photos
   were deleted, which is why the book had to be rebuilt from scans rather than
@@ -76,10 +90,9 @@ flowchart TD
 - Binarization quality depends on the scan: the Commons-sourced page
   (rules 21–24, lower resolution) yields slightly chunkier contours than the
   blog pages, but is clean after component filtering.
-- The edge-cleanup heuristic (drop components lying entirely within ~9 px of
-  the cell border) could in principle clip a detached stroke tip that sits
-  hard against the border; random-sample QA of rendered SVGs showed no such
-  loss.
+- The edge-cleanup heuristics could in principle clip a detached stroke tip
+  that sits hard against the cell border; a full visual review of all 368
+  rendered glyphs (contact sheets) showed no such loss.
 - Scan variant forms are mapped to the legacy file's normalized characters
   (e.g. 衆→眾, 冄→冉, 纒→纏), keeping search/display behavior consistent with
   the rest of the app.
