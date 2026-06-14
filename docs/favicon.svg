@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- ADR Calendar favicon: calendar page + ADR wordmark, accent #3b6dd6 -->
+  <rect x="5" y="7" width="54" height="52" rx="10" fill="#ffffff" stroke="#d9d9d4" stroke-width="2"/>
+  <path d="M5 25 V17 A10 10 0 0 1 15 7 H49 A10 10 0 0 1 59 17 V25 Z" fill="#3b6dd6"/>
+  <rect x="18" y="2" width="6" height="11" rx="3" fill="#2a4f9e"/>
+  <rect x="40" y="2" width="6" height="11" rx="3" fill="#2a4f9e"/>
+  <text x="32" y="49" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="18" letter-spacing="0.5" fill="#3b6dd6">ADR</text>
+</svg>
