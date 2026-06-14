@@ -56,8 +56,11 @@ Key decisions:
   `google-api-client` dependency tree (and core-library-desugaring) that the
   official Drive client would pull in.
 - **No built-in auto-sync.** Unlike iCloud, Android has no OS-level account-tied
-  file/KV sync, so `DriveSync` runs the sync itself on launch / sign-in / a
-  manual "立即同步". (Push-on-change is a future enhancement.)
+  file/KV sync, so `DriveSync` runs the sync itself: on launch / sign-in / manual
+  "立即同步", plus a **debounced (~2.5s) `requestSync()`** fired after favoriting
+  or after a transcript/handout finishes, and a flush when the app backgrounds
+  (`ProcessLifecycleOwner` ON_STOP). A `Mutex` serializes runs so concurrent
+  syncs can't double-upload.
 - **Merge model:** small metadata (favorites, programs, AI index) is
   **union-merged by id**; write-once content files are **copied if missing**.
   After a pull, `FavoritesStore.reload()` / `AIContentStore.reloadIndex()`
@@ -74,7 +77,9 @@ Key decisions:
   OAuth client with package + SHA-1). iCloud needed none of this.
 - **Deletions of favorites don't propagate** cross-device (union-merge);
   additions and reinstall-restore do — a backup tradeoff matching the iOS sync.
-- **Not real-time** — syncs on launch/sign-in/manual.
+- **Near-real-time, not instant** — auto-sync is debounced ~2.5s and gated on
+  the toggle + sign-in; there's no live change feed, so a second device sees
+  changes on its next launch/foreground sync.
 - `GoogleSignIn` is Google-deprecated (Credential Manager is the successor) but
   remains the simplest reliable way to obtain the Drive scope token on minSdk 24.
 
