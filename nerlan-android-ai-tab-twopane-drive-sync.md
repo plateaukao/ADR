@@ -17,12 +17,17 @@ transcript-punctuation prompt refinement.)
   transcript/handout, grouped by program or language, reusing `RecordRow` in an
   `aiReadyOnly` mode that opens existing content without an API key.
 - **Two-pane:** the transcript/handout/PDF dialog bodies were extracted into
-  reusable `*Content` composables shared by the phone dialogs and the panel. At
-  width ≥ the tablet breakpoint, `MainScreen` renders a browser pane + a
-  `StudyDetailPanel`. A `StudyPanelController` provided via `LocalStudyPanel`
-  (null on phones) routes the AI/講義 buttons to the panel vs. a dialog — the
-  Android analog of iOS `StudyPanel`/`usesSidePanel`. Playback auto-loads the
-  episode's content (PDF handout → AI handout → transcript).
+  reusable `*Content` composables (with a shared `leading` slot) used by both the
+  phone dialogs and the panel. At width **≥ 800dp** (the tablet in landscape),
+  `MainScreen` renders a browser pane + a `StudyDetailPanel`. A
+  `StudyPanelController` provided via `LocalStudyPanel` (null on phones) routes
+  the AI/講義 buttons to the panel vs. a dialog — the Android analog of iOS
+  `StudyPanel`/`usesSidePanel`. Playback auto-loads the episode's content (PDF
+  handout → AI handout → transcript). A chevron toggle in the panel header
+  collapses/restores the browser pane for full-width reading. The detail pane is
+  raw (not in a `Scaffold`), so it's inset from the system bars with
+  `windowInsetsPadding` — without it the header sat under the status bar (found on
+  the e-ink tablet). The handout WebView has pinch-to-zoom enabled.
 
 ### Google Drive sync (chosen over Firebase)
 The closest analog to the iOS iCloud model — data lives in the **user's own**
