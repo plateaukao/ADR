@@ -100,5 +100,13 @@ would each need a separate metadata fetch.
 - `drive-sync-state.json` (runtime, in `filesDir`) — the persisted ledger; never
   uploaded to Drive, purely local per-device sync state.
 
-The iOS app's iCloud-based `DriveSync` mirrors this same sync model and is the next
-target for the identical optimization.
+The iOS counterpart needs no equivalent change. It syncs the same data through
+iCloud's native event-driven primitives — `NSUbiquitousKeyValueStore` (per-item
+keys, background delta-sync, `didChangeExternallyNotification`) for
+favorites/programs/AI index/podcast subscriptions/stats, and `NSMetadataQuery` over
+the iCloud Documents container for the write-once transcript/handout/cue files.
+Those already transfer only what changed and push a change notification on remote
+edits, so there is no polling loop or unconditional re-upload to eliminate. The
+local ledger added here is essentially hand-rolling, over Google Drive's feed-less
+REST API, the behavior iCloud provides for free — which is exactly why this
+optimization is Android-only.
