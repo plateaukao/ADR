@@ -119,3 +119,21 @@ correct key).
 - `Package.swift` / `Package.resolved` — FlyingFox dependency.
 - `Scripts/build_release.sh` — version bump to 0.6.
 - `README.md` / `README.zh-TW.md` / `CLAUDE.md` — docs.
+
+## Update — gated diagnostic logging
+
+Debugging a client that got HTTP 500s exposed a blind spot: the server returned
+error reasons only in the HTTP response body, so the run log was silent and
+"watch the logs" yielded nothing. (The 500 itself turned out to be WebM/Opus
+decoding — see the companion ADR on the ffmpeg fallback.)
+
+Added opt-in per-request logging — content-type, multipart part names, file
+name/size/format, and the outcome (including the exact error on failure) — written
+to stderr (captured in the run log). It's gated behind the `apiServerVerboseLogging`
+flag, **off by default**, and the flag is read *per request* so it toggles live
+without restarting the server. Exposed as a "Verbose request logging" toggle in the
+Settings "Local API Server" section.
+
+Rationale for gating rather than always-on: normal operation stays quiet, but when a
+client misbehaves the flag can be flipped (Settings or `defaults write`) and the next
+request's full trace appears immediately — no rebuild, no restart.
