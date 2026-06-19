@@ -54,11 +54,15 @@ color/width picker. Tap selection itself flows through the gesture system
 `color_value` / `width_value`; the in-callback eraser-branch routing mirrors
 the pen branch as a defensive fallback.
 
-**Confirmation via toast, not badge.** A tool switch from a deliberate menu
-pick shows a one-second `InfoMessage` ("Pen" / "Eraser"), consistent with the
-picker's own color/width confirmations, rather than the corner badge used by
-the quick gesture/double-tap toggle. `setTool` gained a `silent` flag so the
-picker path can suppress the badge and avoid a redundant double-indicator.
+**Confirmation via the corner badge.** A tool switch from the picker shows the
+same top-right corner indicator (`showToolBadge`) as the quick double-tap /
+gesture toggle — a filled square for pen, hollow for eraser — rather than a
+toast. The wrinkle: `showToolBadge` paints directly into `Screen.bb` and the
+picker's close repaints the whole view, so a badge painted inside the tap
+callback is immediately wiped. The fix switches the tool silently (`setTool`
+gained a `silent` flag) and schedules `showToolBadge` ~0.2s later, after the
+close repaint has composited, so the badge lands on the stable page and
+lingers until the next repaint — exactly like the gesture toggle.
 
 ```mermaid
 flowchart TD
