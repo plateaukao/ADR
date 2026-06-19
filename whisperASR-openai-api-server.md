@@ -156,3 +156,27 @@ web latency.
 Diagnosing this is also what motivated adding **timestamps + per-request elapsed
 time** to the verbose log; the `in 39.4s` against a client that had already given up
 was the tell.
+
+## Update — Bonjour/DNS-SD discovery
+
+So LAN clients don't have to be told the Mac's IP, the server now advertises itself
+via Bonjour when LAN access is enabled. A `NetService` publishes type
+**`_whisperasr._tcp`** (instance "WhisperASR on \<computer name\>") on the server
+port, with TXT records `path=/v1`, `version`, and `auth=none|bearer`. A client browses
+the type, resolves the instance to host+port, reads `path`, and builds
+`http://<host>:<port>/v1` — and knows from `auth` whether a bearer token is required.
+
+Design choices:
+
+- **Advertise only when LAN is on.** A `127.0.0.1` binding isn't reachable by the
+  devices that would discover it, so advertising it would be misleading.
+- **Advertise separately from the listener.** FlyingFox owns the socket; `NetService`
+  just announces the port, so the two compose cleanly. Published on `start()`,
+  withdrawn on `stop()`.
+- **Dedicated service type** (`_whisperasr._tcp`) rather than generic `_http._tcp`, so
+  only intended clients discover it instead of every web server / printer on the LAN.
+
+Caveats inherited from Bonjour: link-local only (no routing across subnets/VPNs), and
+clients need the OS "local network" permission to browse. Verified with
+`dns-sd -B _whisperasr._tcp` (browse) and `dns-sd -L` (resolve → `ms.local:11434`,
+TXT `path=/v1 auth=none`).
