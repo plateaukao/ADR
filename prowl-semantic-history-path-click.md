@@ -13,6 +13,11 @@ A related fix: `GHOSTTY_ACTION_OPEN_URL` previously captured the clicked URL int
 view state but never actually opened it, so even scheme'd links did nothing — the
 handler now opens them.
 
+The path-click behavior is **opt-in and off by default**, exposed as a
+`semanticHistoryEnabled` global setting (Settings → General → Terminal → "Open file
+paths on Cmd+click"). It defaults off because it intercepts Cmd+click in the
+terminal, which some users rely on for selection or other bindings.
+
 ## Approach
 
 The path-detection logic lives in a small, pure, UI-free `SemanticHistory` enum so
@@ -21,9 +26,17 @@ inputs — the clicked line of text, the click column, and the surface's cwd —
 back a concrete file `URL` to open (or `nil` to fall through to Ghostty's own click
 handling).
 
+The setting is stored in `GlobalSettings` (persisted to `~/.prowl/settings.json`)
+following the existing inline-default pattern, and read in the AppKit terminal layer
+via `@Shared(.settingsFile)` — the same Sharing-backed store the TCA reducers write
+to, so toggling it in Settings takes effect immediately without a bespoke client.
+`mouseDown` checks the flag before attempting any path resolution:
+
 ```mermaid
 flowchart TD
-    A[mouseDown with Cmd held] --> B{openClickedPath}
+    A[mouseDown with Cmd held] --> S{semanticHistoryEnabled?}
+    S -- no --> L[Fall through to Ghostty link handling]
+    S -- yes --> B{openClickedPath}
     B --> C[Convert click point to row/column]
     C --> D[readViewportLine via ghostty_surface_read_text]
     D --> E[SemanticHistory.match line, column, cwd]
@@ -63,6 +76,10 @@ Ghostty's native link handling.
 
 ## Trade-offs
 
+- **Off by default.** Shipping the feature opt-in avoids surprising users who rely on
+  Cmd+click in the terminal, at the cost of discoverability — most users won't find it
+  unless they read the General settings. A reasonable future step is promoting it to
+  on-by-default once it has proven unobtrusive.
 - **Existence-gated, not heuristic.** A path only becomes clickable if it exists on
   disk. This avoids false positives on arbitrary slash-containing text, at the cost of
   not linkifying paths to files that don't (yet) exist.
@@ -90,3 +107,14 @@ Ghostty's native link handling.
   detached cleanup task to satisfy Swift 6 region isolation under Xcode 26.3.
 - `supacodeTests/SemanticHistoryTests.swift` — new; unit tests for token extraction
   and resolution.
+- `supacode/Features/Settings/Models/GlobalSettings.swift` — new
+  `semanticHistoryEnabled` field (default `false`), Codable round-trip with a
+  back-compat fallback.
+- `supacode/Features/Settings/Reducer/SettingsFeature.swift` — thread the field
+  through State, init, and the `globalSettings` mapping.
+- `supacode/Features/Settings/Views/AppearanceSettingsView.swift` — "Terminal"
+  section with the opt-in toggle.
+- `docs/components/settings.md`, `docs/reference/settings-fields.md` — document the
+  new setting.
+- `supacodeTests/SettingsFeatureTests.swift` — `semanticHistoryEnabledPersistsChanges`
+  covers the reducer binding/persist path.
