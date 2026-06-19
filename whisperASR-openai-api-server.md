@@ -137,3 +137,22 @@ Settings "Local API Server" section.
 Rationale for gating rather than always-on: normal operation stays quiet, but when a
 client misbehaves the flag can be flipped (Settings or `defaults write`) and the next
 request's full trace appears immediately — no rebuild, no restart.
+
+## Update — connection timeout (the real "500")
+
+A client kept getting HTTP 500 on longer clips even though the server log showed
+`200 ok (... ) in 39.4s`. Root cause: the server was created with FlyingFox's
+**default 15-second per-connection timeout**. For anything but very short audio, the
+framework severed the connection at 15s — the client received a 500 / dropped
+connection while the handler kept running and eventually logged a 200 nobody was
+listening for. Short clips (sub-15s processing) worked, which made it look
+intermittent.
+
+Fix: pass a generous `timeout: 3600` when constructing the `HTTPServer` (in both the
+loopback and LAN branches). A web framework's default request timeout is wrong for
+long-running ML inference — the timeout has to be sized to the work, not to typical
+web latency.
+
+Diagnosing this is also what motivated adding **timestamps + per-request elapsed
+time** to the verbose log; the `in 39.4s` against a client that had already given up
+was the tell.
