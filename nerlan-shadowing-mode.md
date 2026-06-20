@@ -62,6 +62,11 @@ auto-starts recording the current sentence. On stop, the take is queued and
 played back from the `AVAudioRecorder` finish delegate — the safe moment to read
 the file, avoiding a read-before-finalize race.
 
+**Loop control and interruption.** While a segment repeats, the replay control
+becomes a pause that stops the loop (clears it and pauses). Stepping to another
+sentence — tap, previous, or next — while recording abandons the take and plays
+that segment, because `loopSentence` resets the recorder before arming the loop.
+
 **Entry point routes like the transcript button.** 跟讀 reuses the same
 presentation as the existing 逐字稿 button — a sheet on iPhone, a new
 `StudyPanel.Item.shadow` side-panel case on iPad — passing `startShadowing:
@@ -79,9 +84,9 @@ are unchanged and still available.
   resumed sequential playback; it now stops on the sentence so the learner can
   repeat/record. ∞ remains the "just keep looping" mode and is the escape hatch
   to avoid auto-recording.
-- **Cue precision.** Whisper sentence boundaries can clip the first syllable; a
-  fixed ~0.2 s lead-in covers it. Trailing silence into the next cue is left as a
-  natural micro-pause rather than trimmed.
+- **No loop lead-in.** Loops start exactly at the cue's `start`. An earlier
+  ~0.2 s lead-in (to avoid clipping the first syllable) was dropped on request;
+  trailing silence into the next cue is left as a natural micro-pause.
 - **Loop math in the view, not the player.** Keeps `PlayerManager` free of any
   cue/`AIContentStore` dependency. Cost: lock-screen prev/next stay
   whole-episode, not sentence-grained.
