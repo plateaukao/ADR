@@ -389,7 +389,8 @@ function closeViewer() {
   document.getElementById("viewer").classList.add("hidden");
   document.getElementById("viewer-backdrop").classList.add("hidden");
   document.body.style.overflow = "";
-  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  // openEntry replaced the hash with the entry slug; restore the view+filter URL.
+  history.replaceState(null, "", buildHash());
 }
 
 async function renderMermaidIn(container) {
@@ -410,28 +411,40 @@ async function renderMermaidIn(container) {
 
 // ----- Routing (hash-based) -----
 function buildHash() {
-  if (state.view === "list") return "#/list";
-  if (state.view === "month") {
+  let base;
+  if (state.view === "list") {
+    base = "#/list";
+  } else if (state.view === "month") {
     const y = state.cursor.getFullYear();
     const m = String(state.cursor.getMonth() + 1).padStart(2, "0");
-    return `#/month/${y}-${m}`;
+    base = `#/month/${y}-${m}`;
+  } else {
+    base = `#/${state.view}/${isoDay(state.cursor)}`;
   }
-  return `#/${state.view}/${isoDay(state.cursor)}`;
+  // Fold the project filter into the URL so a shared link restores it too.
+  if (state.filterProject) {
+    base += `?project=${encodeURIComponent(state.filterProject)}`;
+  }
+  return base;
 }
 
 function parseHash() {
-  const h = location.hash.slice(1);
-  if (!h) return null;
-  if (!h.startsWith("/")) return { entry: decodeURIComponent(h) };
-  const [view, param] = h.slice(1).split("/").filter(Boolean);
-  if (view === "list") return { view: "list" };
+  const raw = location.hash.slice(1);
+  if (!raw) return null;
+  // Split an optional `?project=…` query off the path part.
+  const qi = raw.indexOf("?");
+  const path = qi >= 0 ? raw.slice(0, qi) : raw;
+  const project = qi >= 0 ? (new URLSearchParams(raw.slice(qi + 1)).get("project") || "") : "";
+  if (!path.startsWith("/")) return { entry: decodeURIComponent(path) };
+  const [view, param] = path.slice(1).split("/").filter(Boolean);
+  if (view === "list") return { view: "list", project };
   if (view === "month") {
     const m = param && param.match(/^(\d{4})-(\d{2})$/);
-    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, 1) };
+    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, 1), project };
   }
   if (view === "week" || view === "day") {
     const m = param && param.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, +m[3]) };
+    if (m) return { view, cursor: new Date(+m[1], +m[2] - 1, +m[3]), project };
   }
   return null;
 }
@@ -442,10 +455,21 @@ function syncViewButtons() {
   });
 }
 
-function navigate({ view, cursor } = {}, { push = true } = {}) {
+function syncProjectFilter() {
+  const sel = document.getElementById("project-filter");
+  if (sel && sel.value !== state.filterProject) sel.value = state.filterProject;
+}
+
+function navigate({ view, cursor, project } = {}, { push = true } = {}) {
   if (view) state.view = view;
   if (cursor) state.cursor = cursor;
+  if (project !== undefined) {
+    // Ignore an unknown project (e.g. a stale shared link) — fall back to "All".
+    state.filterProject =
+      !project || state.projectColors.has(project) ? project : "";
+  }
   syncViewButtons();
+  syncProjectFilter();
   const h = buildHash();
   if (location.hash !== h) {
     if (push) history.pushState(null, "", h);
@@ -478,15 +502,14 @@ function wire() {
   });
   window.addEventListener("popstate", () => {
     const parsed = parseHash();
-    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
+    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor, project: parsed.project }, { push: false });
   });
   window.addEventListener("hashchange", () => {
     const parsed = parseHash();
-    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
+    if (parsed && parsed.view) navigate({ view: parsed.view, cursor: parsed.cursor, project: parsed.project }, { push: false });
   });
   document.getElementById("project-filter").addEventListener("change", (ev) => {
-    state.filterProject = ev.target.value;
-    render();
+    navigate({ project: ev.target.value });
   });
   document.getElementById("viewer-close").addEventListener("click", closeViewer);
   document.getElementById("viewer-backdrop").addEventListener("click", closeViewer);
@@ -557,7 +580,7 @@ async function init() {
   }
   const parsed = parseHash();
   if (parsed && parsed.view) {
-    navigate({ view: parsed.view, cursor: parsed.cursor }, { push: false });
+    navigate({ view: parsed.view, cursor: parsed.cursor, project: parsed.project }, { push: false });
   } else {
     syncViewButtons();
     history.replaceState(null, "", buildHash());
