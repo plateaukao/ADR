@@ -51,6 +51,17 @@ they still line up 1:1 with the sentences, and the moment any chunk yields no
 timestamps (a non-whisper model) the transcript falls back to rendering without
 highlighting — never with cues that drift out of alignment.
 
+Moving segmentation per-chunk raised the stakes on its fallback. The segmenter
+already falls back to the raw ASR text when the chat call fails, and a weak model
+can return a whole ~20-minute chunk as one unpunctuated line — a wall of
+run-together sentences. Two guards were added: `segmentTranscript` retries once on a
+transient error before keeping the raw piece (so a single hiccup can't collapse a
+chunk), and `displaySentences` — the one splitter both the producer and the viewer
+use — now splits each line on sentence-ending punctuation as well as newlines
+(full-width 。！？ always; half-width `.!?` only before whitespace/end-of-line, so
+`3.14` and ellipses survive), keeping trailing closers with their sentence. It is
+idempotent on already-one-per-line text, so cue alignment stays 1:1.
+
 ## Translation: per batch
 
 `translateSentences` already ran in ~40-sentence batches. It gained an `onPartial`
