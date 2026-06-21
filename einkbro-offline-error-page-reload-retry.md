@@ -65,7 +65,7 @@ flowchart TD
         direction TB
         A2["showOfflineErrorPage: set errorPageUrl + loadDataWithBaseURL"]
         A3["WebView URL stays the real failed URL"]
-        A4{"reload / retry / probe ok"}
+        A4{"toolbar reload / Retry tap"}
         A5["retryErrorPage consumes the flag once"]
         A6["loadUrl real URL, forced network"]
         A7["real site loads"]
@@ -76,44 +76,39 @@ flowchart TD
     Fail --> A2
 ```
 
-## Auto-recovery, and why polling
+## Auto-recovery: tried, then deliberately dropped
 
-The headline enhancement is that the page now recovers on its own: when the
-network comes back, it reloads without any tap.
+The first cut tried to make the page recover on its own when the network came
+back. Listening for the JS `online` event was the obvious approach, but on-device
+testing confirmed Android's WebView does **not** reliably fire `online`/`offline`
+or update `navigator.onLine` from system connectivity changes — toggling airplane
+mode back off left the page sitting on the error screen.
 
-The obvious implementation — listen for the JS `online` event — turned out not to
-work. On-device testing confirmed that Android's WebView does **not** reliably
-fire `online`/`offline` or update `navigator.onLine` from system connectivity
-changes; toggling airplane mode back off left the page sitting on the error
-screen indefinitely.
+So that version *actively probed* the failed URL with a `fetch(url, {mode:
+'no-cors'})` every 3 seconds and reloaded the instant it resolved. It worked, but
+the trade was wrong for the target device: a timer that wakes the CPU/radio every
+few seconds drains an idle E-ink reader's battery for a payoff (saving one tap)
+that doesn't justify the cost. **The poll was removed.**
 
-So instead the page *actively probes* the failed URL: a `fetch(url, {mode:
-'no-cors', cache: 'no-store'})` every 3 seconds. While offline it rejects almost
-immediately; the instant the host is reachable it resolves (an opaque response is
-enough — we never read the body), and the page triggers a retry. The probe pauses
-when the page is hidden so it doesn't wake an idle E-ink device, and the
-short-lived `online` listener is kept too in case some WebView build does deliver
-it.
+Recovery now relies on an explicit user action — tapping **Retry** or the toolbar
+**reload**, both of which re-fetch the real URL — plus the free `online` listener
+left in place for the WebView builds that *do* deliver the event (it costs nothing
+when it never fires). No timers, no background network use.
 
-Two smaller touches round it out: the Retry button shows "Reconnecting…" and
-disables on tap, and the title adapts — "You're offline" only for an actual
-connectivity drop, otherwise "Can't reach this page" (DNS, refused, cert).
+Two smaller touches remain: the Retry button shows "Reconnecting…" and disables on
+tap, and the title adapts — "You're offline" only for an actual connectivity drop,
+otherwise "Can't reach this page" (DNS, refused, cert).
 
 ```mermaid
 stateDiagram-v2
     [*] --> Showing: error page rendered
-    Showing --> Probing: start 3s probe loop
-    Probing --> Probing: fetch rejects (still offline)
-    Probing --> Retrying: fetch resolves (host reachable)
-    Showing --> Retrying: user taps Retry
-    Probing --> Paused: page hidden
-    Paused --> Probing: page visible
+    Showing --> Retrying: user taps Retry / toolbar reload
+    Showing --> Retrying: WebView fires 'online' (if it does)
     Retrying --> [*]: loadUrl real URL
 ```
 
 ## Verified on device
 
 Tested on a physical API 32 device by toggling airplane mode: manual Retry after
-reconnect loads the page; the toolbar reload re-fetches the real URL rather than
-the error document; and with no interaction at all, the page reloads itself once
-connectivity is restored.
+reconnect loads the page, and the toolbar reload re-fetches the real URL rather
+than the error document.
