@@ -16,8 +16,11 @@ backends, two of which are free and keyless, so the script works out of the box.
 - **Google Translate** — free, no key, via the public `gtx` endpoint.
 - **Microsoft Translator (Bing)** — free, no key, via the Bing web endpoint.
 
-Google and Microsoft become the zero-signup default path; OpenAI stays for users
-who want LLM-quality translations or a self-hosted model.
+**Google is the default engine on a fresh install**, so the script translates
+immediately with zero setup; OpenAI stays for users who want LLM-quality
+translations or a self-hosted model. (Existing installs keep their saved engine —
+the default only applies to new installs, since saved settings merge over the
+defaults.)
 
 The release also ships a **minified build** alongside the readable source, since
 the script now runs on e-ink readers where parse time and download size matter.
@@ -38,6 +41,13 @@ A few design constraints shaped the implementation:
   To keep that from hammering the public endpoints, every engine routes through
   one shared `request()` helper that sits behind the single `RateLimiter` — a
   per-paragraph fan-out is throttled exactly like an OpenAI batch.
+- **Concurrency is per-engine.** Each engine exposes `concurrency()` and the
+  scheduler's `pump()` caps in-flight requests at `currentEngine().concurrency()`
+  rather than one global number. The free engines, which fan out per paragraph,
+  use a fixed cap of 5 (`FREE_CONCURRENCY`); OpenAI keeps its user-tunable
+  `maxConcurrent` (default 2), so the two engine families have distinct,
+  appropriate limits. The Max-concurrent settings field is hidden for the keyless
+  engines since it doesn't apply to them.
 - **Auth failures mean different things per engine.** A 401/403 from OpenAI is a
   bad key and should pause the queue (fatal). The same status from Google/Bing is
   a transient block, so `httpError(res, msg, authFatal)` only makes auth fatal for
