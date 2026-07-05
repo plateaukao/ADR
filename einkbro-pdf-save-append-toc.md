@@ -137,9 +137,11 @@ flowchart TD
   not exist in append mode, since it would clobber the target with just the new pages.
   Failure cleanup deletes the target only in create mode, where it is a just-created
   empty document.
-- Remembered targets get `takePersistableUriPermission` (read+write) and are stored as
-  `EpubFileInfo(title, uri)` under a new `K_SAVED_PDFS` preference key — the same
-  storage shape and dialog row composable as saved EPUBs, reused rather than duplicated.
+- Remembered targets get `takePersistableUriPermission` (read+write) and are stored
+  under a new `K_SAVED_PDFS` preference key using the same `(title, uri)` data model
+  and dialog row composable as saved EPUBs, reused rather than duplicated. Since the
+  class is now shared by both features, it was renamed from `EpubFileInfo` to
+  `SavedFileInfo` (and moved to the `preference` package) in a follow-up commit.
 - Two runtime gotchas were found the hard way on-device, both now encoded in the code:
   WebView getters (`webView.title`) are main-thread-only, so the TOC title is captured
   before hopping to the IO coroutine (the first test build crashed on exactly this);
