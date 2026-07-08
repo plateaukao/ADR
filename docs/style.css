@@ -327,7 +327,26 @@ main#calendar {
   cursor: pointer;
   line-height: 1;
 }
-#viewer-body { padding: 24px 32px 60px; overflow: auto; }
+.viewer-nav {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  padding: 3px 12px;
+  cursor: pointer;
+}
+.viewer-nav:hover:not(:disabled) { background: var(--accent-soft); }
+.viewer-nav:disabled { opacity: 0.35; cursor: default; }
+#viewer-body { padding: 24px 32px 60px; overflow: auto; flex: 1; }
+.viewer-foot {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
 
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 90; }
 .backdrop.hidden { display: none; }

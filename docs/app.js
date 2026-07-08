@@ -77,6 +77,7 @@ const state = {
   filterProject: "",
   byDay: new Map(), // 'YYYY-MM-DD' -> [entries]
   projectColors: new Map(),
+  currentEntry: null, // entry open in the viewer, null when closed
 };
 
 // ----- Load -----
@@ -360,14 +361,51 @@ function escapeHtml(s) {
 }
 
 // ----- Viewer -----
+// Prev/next navigate the same list the calendar shows: manifest order
+// (newest first), narrowed by the active project filter.
+function viewerSiblings(entry) {
+  const list = state.filterProject
+    ? state.manifest.entries.filter((e) => e.project === state.filterProject)
+    : state.manifest.entries;
+  const i = list.findIndex((e) => e.slug === entry.slug);
+  return {
+    older: i >= 0 && i + 1 < list.length ? list[i + 1] : null,
+    newer: i > 0 ? list[i - 1] : null,
+  };
+}
+
+function syncViewerNav() {
+  const { older, newer } = state.currentEntry
+    ? viewerSiblings(state.currentEntry)
+    : { older: null, newer: null };
+  const sync = (sel, target) => {
+    document.querySelectorAll(sel).forEach((btn) => {
+      btn.disabled = !target;
+      if (target) btn.dataset.tip = `${target.project} — ${stripProjectPrefix(target.title, target.project)}`;
+      else delete btn.dataset.tip;
+    });
+  };
+  sync(".viewer-prev", older);
+  sync(".viewer-next", newer);
+}
+
+function openSibling(which) {
+  if (!state.currentEntry) return;
+  const target = viewerSiblings(state.currentEntry)[which];
+  if (target) openEntry(target);
+}
+
 async function openEntry(entry) {
   const viewer = document.getElementById("viewer");
   const body = document.getElementById("viewer-body");
+  state.currentEntry = entry;
+  syncViewerNav();
   document.getElementById("viewer-project").textContent = entry.project;
   document.getElementById("viewer-project").style.color = state.projectColors.get(entry.project);
   document.getElementById("viewer-date").textContent = new Date(entry.date).toLocaleString();
   document.getElementById("viewer-raw").href = `./adrs/${entry.slug}`;
   body.innerHTML = `<p class="muted">Loading…</p>`;
+  body.scrollTop = 0;
   viewer.classList.remove("hidden");
   document.getElementById("viewer-backdrop").classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -378,14 +416,18 @@ async function openEntry(entry) {
     const res = await fetch(`./adrs/${entry.slug}?v=${Date.now()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const md = await res.text();
+    // A faster prev/next click may have superseded this fetch.
+    if (state.currentEntry !== entry) return;
     body.innerHTML = window.marked.parse(md);
     await renderMermaidIn(body);
   } catch (err) {
+    if (state.currentEntry !== entry) return;
     body.innerHTML = `<div class="mermaid-error">Failed to load: ${escapeHtml(err.message)}</div>`;
   }
 }
 
 function closeViewer() {
+  state.currentEntry = null;
   document.getElementById("viewer").classList.add("hidden");
   document.getElementById("viewer-backdrop").classList.add("hidden");
   document.body.style.overflow = "";
@@ -513,8 +555,17 @@ function wire() {
   });
   document.getElementById("viewer-close").addEventListener("click", closeViewer);
   document.getElementById("viewer-backdrop").addEventListener("click", closeViewer);
+  document.querySelectorAll(".viewer-prev").forEach((btn) => {
+    btn.addEventListener("click", () => openSibling("older"));
+  });
+  document.querySelectorAll(".viewer-next").forEach((btn) => {
+    btn.addEventListener("click", () => openSibling("newer"));
+  });
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") closeViewer();
+    if (!state.currentEntry) return;
+    if (ev.key === "ArrowLeft") openSibling("older");
+    if (ev.key === "ArrowRight") openSibling("newer");
   });
 }
 
