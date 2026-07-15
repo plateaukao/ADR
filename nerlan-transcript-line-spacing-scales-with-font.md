@@ -15,6 +15,6 @@ and applies it in both places that were previously fixed:
 - `.lineSpacing(bodyLineSpacing)` on the original-text `Text` and on the translation `Text`, so wrapped lines within a sentence get proportional leading;
 - the `VStack` spacing between the original and its translation, replacing the fixed 4 pt.
 
-At the default 17 pt the spacing is ~5 pt — close to what it was — so the small setting looks essentially unchanged; the benefit shows up at 21 and 26 pt where the leading now grows with the type. 30% of the em size is a conventional comfortable-reading leading ratio.
+At the default 17 pt the spacing is about 5 pt — close to what it was — so the small setting looks essentially unchanged; the benefit shows up at 21 and 26 pt where the leading now grows with the type. 30% of the em size is a conventional comfortable-reading leading ratio.
 
 Shipped in v1.6 (build 7).

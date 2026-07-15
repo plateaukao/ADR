@@ -17,7 +17,7 @@ Three related defects in the Drive sync engine:
 3. **No pagination.** `listFiles` requested `pageSize=1000` and never followed
    `nextPageToken`. Each episode with AI content contributes up to 4 files
    (transcript, cues, translation, handout) plus per-device stats blobs, so
-   ~250 episodes overflow one page. A local file missing from the truncated
+   about 250 episodes overflow one page. A local file missing from the truncated
    listing was "not on Drive" → re-uploaded as a **new** file every sync (Drive
    allows duplicate names), growing the appDataFolder without bound — and
    pulls then picked an arbitrary duplicate.

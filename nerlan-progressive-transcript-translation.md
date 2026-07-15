@@ -45,7 +45,7 @@ the job's progress note ("轉錄中…（2/3）") sits at the bottom while it ru
 partial never looks like the finished whole.
 
 Segmentation moved from the joined transcript to per-chunk; the chat segmenter was
-already internally chunked at ~4000 chars, and a chunk boundary lands on an audio
+already internally chunked at about 4000 chars, and a chunk boundary lands on an audio
 boundary the ASR already cut, so quality is unchanged. Cues are only attached when
 they still line up 1:1 with the sentences, and the moment any chunk yields no
 timestamps (a non-whisper model) the transcript falls back to rendering without
@@ -53,7 +53,7 @@ highlighting — never with cues that drift out of alignment.
 
 Moving segmentation per-chunk raised the stakes on its fallback. The segmenter
 already falls back to the raw ASR text when the chat call fails, and a weak model
-can return a whole ~20-minute chunk as one unpunctuated line — a wall of
+can return a whole about 20-minute chunk as one unpunctuated line — a wall of
 run-together sentences. Two guards were added: `segmentTranscript` retries once on a
 transient error before keeping the raw piece (so a single hiccup can't collapse a
 chunk), and `displaySentences` — the one splitter both the producer and the viewer
@@ -64,7 +64,7 @@ idempotent on already-one-per-line text, so cue alignment stays 1:1.
 
 ## Translation: per batch
 
-`translateSentences` already ran in ~40-sentence batches. It gained an `onPartial`
+`translateSentences` already ran in about 40-sentence batches. It gained an `onPartial`
 callback invoked after each batch with the cumulative result; the store publishes
 that as a partial, and the transcript screen flips into the requested translate
 mode on the first batch and fills top-down instead of showing one long spinner.

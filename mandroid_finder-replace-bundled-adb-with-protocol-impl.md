@@ -23,7 +23,7 @@ This works, but it's heavy: the project ships a third-party signed binary that m
 |---|---|---|---|---|
 | **A. Bundle `adb`** | Extension ships its own adb, execs it as a subprocess to talk to the user's daemon. | +18 MB | Trivial | **Current state.** Pragmatic for v1. |
 | **B. XPC bridge** | Extension RPCs into a non-sandboxed host or helper that runs adb. | 0 MB | Moderate (XPC plumbing, lifecycle) | Cleaner than (A) but ships a host daemon that has to be alive when Finder calls. |
-| **C. Native protocol client** | Implement adb wire protocol in Swift; speak it directly to `127.0.0.1:5037`. No subprocesses, no bundled binary. | 0 MB | High (~week) | **Chosen.** Best long-term ergonomics. |
+| **C. Native protocol client** | Implement adb wire protocol in Swift; speak it directly to `127.0.0.1:5037`. No subprocesses, no bundled binary. | 0 MB | High (about a week) | **Chosen.** Best long-term ergonomics. |
 | **D. Tiny native shim** | Bundle a small custom helper that speaks the protocol. | small +Δ | Same as (C) plus packaging | Worst-of-both-worlds. |
 
 ## Solution
@@ -41,7 +41,7 @@ After the swap:
 - The extension's `Process` invocations disappear; the network entitlements (`network.client`) remain — that's our only privileged need.
 - The bundled `adb` binary is removed from both `MandroidFinder.app/Contents/Resources/` and `MandroidFileProvider.appex/Contents/Resources/`.
 - `Tools/adb`, `Scripts/fetch-adb.sh`, and the post-compile copy phases are deleted.
-- Distributable size drops by ~36 MB (binary embedded in two places).
+- Distributable size drops by about 36 MB (binary embedded in two places).
 - One real new requirement we inherit: the user must have an adb server running locally (Android Studio's adb, `brew install --cask android-platform-tools`, etc.). Without one, we can't talk to USB devices. We detect this gracefully and surface a clear "no adb server reachable" state.
 
 ## Architecture
@@ -68,9 +68,9 @@ ADBClient        ← high-level service dispatcher: connects, picks transport, r
 ## Key Files
 
 ### New
-- `Core/ADBProtocol/ADBConnection.swift` (~120 lines) — wraps `NWConnection`, exposes `send` / `read(exactly:)` / `readUntilClose()` / `close()`.
-- `Core/ADBProtocol/ADBClient.swift` (~150 lines) — host service handshake (`<4-hex-length><payload>`, `OKAY`/`FAIL`), `devices()`, `openTransport(serial:)`, `shell(serial:, command:)`.
-- `Core/ADBProtocol/ADBSync.swift` (~280 lines) — sync sub-protocol: `enterSync`, `recv` (RECV → DATA frames → DONE), `send` (SEND + path,mode → DATA frames ≤ 64 KiB → DONE+mtime → OKAY), `stat`. Optional `list` (LIST → DENT records) for v2.
+- `Core/ADBProtocol/ADBConnection.swift` (about 120 lines) — wraps `NWConnection`, exposes `send` / `read(exactly:)` / `readUntilClose()` / `close()`.
+- `Core/ADBProtocol/ADBClient.swift` (about 150 lines) — host service handshake (`<4-hex-length><payload>`, `OKAY`/`FAIL`), `devices()`, `openTransport(serial:)`, `shell(serial:, command:)`.
+- `Core/ADBProtocol/ADBSync.swift` (about 280 lines) — sync sub-protocol: `enterSync`, `recv` (RECV → DATA frames → DONE), `send` (SEND + path,mode → DATA frames ≤ 64 KiB → DONE+mtime → OKAY), `stat`. Optional `list` (LIST → DENT records) for v2.
 
 ### Modified
 - `Core/ADBService.swift` — re-implement every public method on top of `ADBClient` / `ADBSync`. `setPath(_)` becomes a no-op for source-compat. `ADBError` updates: drop `adbNotFound`, add `serverUnreachable`.
@@ -102,7 +102,7 @@ Branchable phases — each compiles and the build stays green between phases:
 2. **Add `ADBClient.shell()`.** Switch `list`, `mkdir`, `remove`, `rename` to use it. Build, click into Finder, verify enumeration. **This proves shell mode + the host transport switch.**
 3. **Add `ADBSync` (RECV path)** and switch `pull()`. Drag a file from Finder location to Desktop; verify bytes match.
 4. **Add `ADBSync` (SEND path)** and switch `push()`. Drag a file in; verify on-device.
-5. **Cleanup pass.** Delete `ADBLocator`'s probe/locate code, delete `Tools/adb`, delete `Scripts/fetch-adb.sh`, remove `postCompileScripts` from `project.yml`, update `README.md`, simplify `App/MandroidFinderApp.swift` and `StatusWindow.swift`. Rebuild — bundle should now be ~36 MB lighter and contain no `adb`.
+5. **Cleanup pass.** Delete `ADBLocator`'s probe/locate code, delete `Tools/adb`, delete `Scripts/fetch-adb.sh`, remove `postCompileScripts` from `project.yml`, update `README.md`, simplify `App/MandroidFinderApp.swift` and `StatusWindow.swift`. Rebuild — bundle should now be about 36 MB lighter and contain no `adb`.
 
 ## Wire-protocol reference
 
@@ -155,7 +155,7 @@ End-to-end test plan (run after phase 5):
 7. **Pull:** drag a small file from the Mandroid location to Desktop; verify byte-for-byte match (`shasum`).
 8. **Push:** drag a file from Desktop into the Mandroid location; verify on-device with `adb shell ls -la /sdcard/` from Terminal.
 9. **Mkdir / delete / rename:** new folder via Finder, rename it, drop a file into it, delete the folder. Each step should round-trip to the device.
-10. **Server-down case:** `adb kill-server`, then click into the Finder location. Status window should show "ADB server: unreachable" within ~2s; Finder should show an error rather than hanging.
+10. **Server-down case:** `adb kill-server`, then click into the Finder location. Status window should show "ADB server: unreachable" within about 2s; Finder should show an error rather than hanging.
 11. **Replug:** unplug the device, status updates within one poll cycle; replug, sidebar entry reappears.
 
 Each phase 1–4 above also has its own intermediate smoke test (mentioned inline). If a phase regresses earlier behavior, revert before continuing.
@@ -169,11 +169,11 @@ Each phase 1–4 above also has its own intermediate smoke test (mentioned inlin
 
 ## Lessons learned (after implementation)
 
-- **Net code expansion was proportional to expectations.** ~550 lines of new Swift across `ADBConnection`/`ADBClient`/`ADBSync` replaced ~120 lines of `Process`-based code in the old `ADBService`. The 5× line cost buys: zero bundled binaries, zero subprocess spawns per call, full control of error semantics, and a 36 MB drop in distributable size.
+- **Net code expansion was proportional to expectations.** about 550 lines of new Swift across `ADBConnection`/`ADBClient`/`ADBSync` replaced about 120 lines of `Process`-based code in the old `ADBService`. The 5× line cost buys: zero bundled binaries, zero subprocess spawns per call, full control of error semantics, and a 36 MB drop in distributable size.
 - **NWConnection ↔ async bridging is the trickiest part.** Two pitfalls bit during testing: (1) `stateUpdateHandler` fires on every transition, so a naive `cont.resume()` in the `.ready` case will double-resume when followed by `.failed` or `.cancelled` — guard with a once-fired flag (the `AtomicFlag` class). (2) `connection.receive` can return `data == nil, isComplete == false, error == nil` in rare windows; treat it as EOF and resume the continuation rather than hanging.
 - **The shell-mode pipeline survived unchanged.** Routing `list()`/`mkdir()`/`rm()`/`mv()` through `ADBClient.shell()` and the existing `LSParser` worked first try. The lossy UTF-8 fix from the bundled-binary phase carried over verbatim — `String(decoding: outData, as: UTF8.self)` on raw socket bytes behaves identically to the same call on subprocess stdout.
 - **Sync sub-protocol asymmetry was the only real surprise.** RECV is symmetric: client sends `RECV+path`, server streams `DATA+len+bytes`, client reads `DONE` to terminate. SEND is asymmetric: client sends `SEND+path,mode`, then *client* streams `DATA` frames, then *client* sends `DONE+mtime` (the length slot carries mtime, not a payload size — easy off-by-one), then *server* answers `OKAY` (length 0) or `FAIL+len+msg`. Reading the SYNC.TXT spec carefully before writing SEND avoided a debugging session.
 - **Network entitlement scope shrank.** Bundled adb needed `network.server` so it could fork its own daemon when none was running. The native client only needs `network.client` — we strictly connect outbound to `127.0.0.1:5037`. The reduced entitlement surface is a real security win.
-- **App-bundle size: 1.2 MB after this change**, down from ~40 MB with bundled adb. End-to-end smoke test (device enumeration, subdirectory listing with non-ASCII filenames, file pull via Finder drag-out) passed on first run after the swap.
+- **App-bundle size: 1.2 MB after this change**, down from about 40 MB with bundled adb. End-to-end smoke test (device enumeration, subdirectory listing with non-ASCII filenames, file pull via Finder drag-out) passed on first run after the swap.
 - **One ergonomic regression**: the bundled adb used to silently `start-server` if no daemon was running. We can't, since we have no binary. The status window now surfaces "ADB server: unreachable" with a hint to run `adb start-server`. Acceptable tradeoff; future work could shell out to a known PATH location to start it (re-introducing some of the sandbox/exec complexity, but only on a one-shot best-effort path).
 - **Future work surfaced by this implementation**: replacing the 2-second `host:devices-l` poll with `host:track-devices` (a long-lived connection that streams device add/remove events) is now a small change — same `ADBConnection`, just don't close after the first response. Worth doing once we have a `URLSessionTask`-style cancellation primitive in place.

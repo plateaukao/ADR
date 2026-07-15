@@ -11,7 +11,7 @@ Android was not crashing (unlike iOS — see below), so this is a preventive/eff
 
 ## Approach
 
-The iOS twin of this code *was* crashing: its `URLSession` delegate ran on the main thread and republished a `@Published` progress fraction on every byte-chunk, which — because the download manager is a root `environmentObject` — re-evaluated the whole view tree continuously, pegged the main thread at ~91% CPU, and got the app killed by iOS's background CPU watchdog (`cpu_resource_fatal`, 80%-over-60s limit).
+The iOS twin of this code *was* crashing: its `URLSession` delegate ran on the main thread and republished a `@Published` progress fraction on every byte-chunk, which — because the download manager is a root `environmentObject` — re-evaluated the whole view tree continuously, pegged the main thread at about 91% CPU, and got the app killed by iOS's background CPU watchdog (`cpu_resource_fatal`, 80%-over-60s limit).
 
 Android is structurally immune to that specific kill, which is why no fix was strictly required:
 
@@ -21,8 +21,8 @@ Android is structurally immune to that specific kill, which is why no fix was st
 
 What remained were two genuine inefficiencies worth tidying:
 
-- `_progress.value += (id to fraction)` allocated a fresh map and emitted on *every* chunk. Now a `lastStep` guard emits only when the whole-10%-step changes (≤10 emissions/download). The on-screen indicator is a 24dp `CircularWavyProgressIndicator` that can't resolve finer than ~10% anyway.
-- Downloads use OkHttp's **synchronous** `execute()`, which bypasses the dispatcher's per-host/total request limits. Tapping download on many episodes could launch up to ~64 simultaneous connections (Dispatchers.IO's pool) and starve other IO. A `Semaphore(3)` now bounds concurrency. The `progress = 0f` marker is set *before* the permit is acquired, so a queued episode shows its spinner immediately rather than looking dead.
+- `_progress.value += (id to fraction)` allocated a fresh map and emitted on *every* chunk. Now a `lastStep` guard emits only when the whole-10%-step changes (≤10 emissions/download). The on-screen indicator is a 24dp `CircularWavyProgressIndicator` that can't resolve finer than about 10% anyway.
+- Downloads use OkHttp's **synchronous** `execute()`, which bypasses the dispatcher's per-host/total request limits. Tapping download on many episodes could launch up to about 64 simultaneous connections (Dispatchers.IO's pool) and starve other IO. A `Semaphore(3)` now bounds concurrency. The `progress = 0f` marker is set *before* the permit is acquired, so a queued episode shows its spinner immediately rather than looking dead.
 
 ```mermaid
 flowchart TD

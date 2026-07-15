@@ -37,7 +37,7 @@ Add a new ComposeView (`statusBar`) to `MainActivityLayout` constrained to eithe
 | TouchPagination | Existing drawables `R.drawable.ic_touch_enabled` / `R.drawable.ic_touch_disabled` (already used by `ToolbarAction.Touch` at `ToolbarAction.kt:59-67`) | Bound to `config.touch.enableTouchTurn` (`TouchConfig.kt:9`). Observe via SharedPreferences change listener so it updates when the user toggles via the toolbar |
 | VolumePagination | No existing drawable — use Material `Icons.Outlined.VolumeUp` / `Icons.Outlined.VolumeOff` (consistent with icon-only approach) | Bound to `config.touch.volumePageTurn` (`TouchConfig.kt:18`) |
 
-All items render as icons (not text) where possible — per user preference. Time and PageInfo remain text since they're numeric values. Lay out in a `Row` with `Arrangement.spacedBy(8.dp)` and small (~16.dp) icon size so the bar stays slim.
+All items render as icons (not text) where possible — per user preference. Time and PageInfo remain text since they're numeric values. Lay out in a `Row` with `Arrangement.spacedBy(8.dp)` and small (about 16.dp) icon size so the bar stays slim.
 
 ## Data model
 

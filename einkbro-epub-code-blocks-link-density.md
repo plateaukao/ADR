@@ -15,7 +15,7 @@ unaffected because it prints the live page. On the reported chapter, 27 of
 EPUB export extracts the article with Mozilla Readability
 (`app/src/main/assets/MozReadability.js`). Readability's
 `_cleanConditionally` pass prunes "shady" `div`s, and one of its heuristics
-removes any low-weight div whose text is more than ~20% link text.
+removes any low-weight div whose text is more than about 20% link text.
 
 Sites built with Quarto/downlit (and similar doc generators: pkgdown,
 rustdoc-style references) hyperlink *every function name inside code* to

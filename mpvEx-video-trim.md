@@ -57,7 +57,7 @@ to switch `FramePreviewer` to the app's existing libmpv thumbnailer (`FastThumbn
 to the nearest keyframe, caches results (so re-dragging a spot is instant), and the start
 handle's preview mirrors the keyframe snap. `MediaMetadataRetriever` survives only as a
 fallback for sources FastThumbnails can't open, disabled after its first failure so it can't
-repeatedly stall. Decoding is debounced (~90 ms) so dragging doesn't queue a decode per pixel.
+repeatedly stall. Decoding is debounced (about 90 ms) so dragging doesn't queue a decode per pixel.
 
 **Side effects of changing the file.** Bookmarks for the video are rebased onto the new,
 shorter timeline: kept bookmarks shift left by the cropped prefix, those falling in the

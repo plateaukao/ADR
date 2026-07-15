@@ -68,7 +68,7 @@ cs.applyTo(root)
 
 ## Key Files
 
-- `app/src/main/java/info/plateaukao/einkbro/activity/BrowserActivity.kt` — `applyStatusbarConstraints` (lines ~392–424)
+- `app/src/main/java/info/plateaukao/einkbro/activity/BrowserActivity.kt` — `applyStatusbarConstraints` (lines about 392–424)
 - `app/src/main/java/info/plateaukao/einkbro/unit/ViewUnit.kt` — `setProgressBarHorizontal`, `setProgressBarVertical`
 - `app/src/main/java/info/plateaukao/einkbro/view/viewControllers/StatusbarViewController.kt` — calls `applyConstraints` at init and on `refresh()`
 

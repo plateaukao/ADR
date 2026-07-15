@@ -93,7 +93,7 @@ minifies only the IIFE body that follows. The one deliberate edit to the header 
 repointing the min build's `@updateURL`/`@downloadURL` at itself, so an installed
 min build self-updates from its own raw-GitHub URL rather than pulling the readable
 source. terser mangles local names only — property names, strings, and the `%%N%%`
-marker protocol survive intact. The body comes out ~49% smaller.
+marker protocol survive intact. The body comes out about 49% smaller.
 
 The readable `.user.js` remains the source of truth; the `.min.user.js` is a
 committed artifact (so the download URL stays in lockstep with source), while

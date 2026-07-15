@@ -4,9 +4,9 @@
 ## Problem
 
 The EinkBro codebase had accumulated several structural friction points identified in an architecture review:
-1. `RecordRepository` used `runBlocking` on ~10 DAO calls, risking ANR on the main thread
+1. `RecordRepository` used `runBlocking` on about 10 DAO calls, risking ANR on the main thread
 2. `BaseWebConfig` (AdBlock, Javascript, Cookie) spawned raw `Thread`s with no lifecycle management
-3. `ConfigManager` had ~250 lines of forwarding boilerplate delegating to sub-configs (AiConfig, TtsConfig, etc.) that added no value
+3. `ConfigManager` had about 250 lines of forwarding boilerplate delegating to sub-configs (AiConfig, TtsConfig, etc.) that added no value
 4. `EinkBroApplication.instance` was a static mutable singleton bypassing DI
 5. Delegate classes (TabManager, ActionModeDelegate, etc.) each took 10-16 lambda/provider constructor parameters for shared mutable state
 

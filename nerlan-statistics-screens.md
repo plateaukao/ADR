@@ -25,7 +25,7 @@ while playing credits the *wall-clock* delta since the last tick to the current
 day/hour/program; deltas ≥ 5 s (pause, seek, backgrounding) are discarded as gaps.
 Wall-clock — not rate-adjusted audio duration — is the engagement metric a learner cares
 about and stays correct across playback-rate changes. Completions are counted in
-`playbackDidFinish`. Local writes are throttled (every ~5 s of accumulated listening, and
+`playbackDidFinish`. Local writes are throttled (every about 5 s of accumulated listening, and
 on pause/finish) since the JSON file is small.
 
 **Cross-device sync as a per-device G-counter.** Usage stats sync over the existing
@@ -76,7 +76,7 @@ read inline. New helpers were added to `DownloadManager`
 
 - **Forward-only Usage data** is inherent — there's no historical playback to backfill. A
   first-run empty state ("開始聆聽後…") covers this.
-- **G-counter cost** is one KVS key per device. Tiny (daily buckets are pruned to ~400
+- **G-counter cost** is one KVS key per device. Tiny (daily buckets are pruned to about 400
   days), well under the KVS 1 MB / 1024-key cap, and the correct minimal way to sum
   counters over a last-write-wins store.
 - **Day boundaries use the device's local time zone.** For a single user this is fine;

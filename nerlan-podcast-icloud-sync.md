@@ -29,7 +29,7 @@ flowchart LR
 ```
 
 - **Why URLs, not full feeds.** `CloudKVStore` (NSUbiquitousKeyValueStore) is
-  capped at ~1 MB total / 1024 keys, already shared with favorites and AI record
+  capped at about 1 MB total / 1024 keys, already shared with favorites and AI record
   indexes. A feed's episodes (dozens–hundreds of `EpisodeRecord`s) would blow that
   budget. Syncing just the feed URL keeps each key tiny and lets every device keep
   its own fresh episode list — which is how subscriptions naturally work anyway.

@@ -8,7 +8,7 @@ sync had no change detection: every run re-listed the folder, re-downloaded ever
 metadata/podcast file, re-merged it, and **unconditionally re-uploaded** it — plus
 re-uploaded the device's stats blob and re-downloaded every peer's — all as a
 single sequential chain of blocking REST calls. A steady-state sync where nothing
-had changed was still **~12 + N round-trips** (N = other devices' stats blobs),
+had changed was still **about 12 + N round-trips** (N = other devices' stats blobs),
 which took tens of seconds on high-RTT or cellular links.
 
 The fix makes an unchanged sync collapse to a **single `listFiles` call**, and runs
@@ -86,7 +86,7 @@ would each need a separate metadata fetch.
   ever serialize in a non-deterministic order, the own blob could re-upload when
   unchanged. Worst case that is a single upload (what the old code did every time
   anyway) — never a correctness issue.
-- **Concurrency raises peak connections slightly.** Up to ~11 in-flight requests
+- **Concurrency raises peak connections slightly.** Up to about 11 in-flight requests
   during a full sync vs. 1 before. HTTP/2 multiplexing and the content-file
   semaphore keep this well-behaved, and the common idle sync issues just one call.
 

@@ -2,7 +2,7 @@
 
 ## Summary
 
-WhisperASR previously supported a single hard-wired model (Breeze-ASR-25, ~3 GB) downloaded via a first-run sheet or converted manually with a script. This change adds a catalog of six downloadable GGML models — Breeze-ASR-25 plus the official whisper.cpp multilingual builds (large-v3-turbo ~1.6 GB, medium ~1.5 GB, small ~488 MB, base ~148 MB, tiny ~78 MB) — and lets the user download any of them in-app and choose which one transcribes new audio.
+WhisperASR previously supported a single hard-wired model (Breeze-ASR-25, about 3 GB) downloaded via a first-run sheet or converted manually with a script. This change adds a catalog of six downloadable GGML models — Breeze-ASR-25 plus the official whisper.cpp multilingual builds (large-v3-turbo about 1.6 GB, medium about 1.5 GB, small about 488 MB, base about 148 MB, tiny about 78 MB) — and lets the user download any of them in-app and choose which one transcribes new audio.
 
 Commit: `1122c30` (feat: downloadable model catalog with selectable transcription model)
 

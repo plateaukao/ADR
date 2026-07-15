@@ -3,7 +3,7 @@
 
 ## Problem
 
-Two crash reports were captured on the emulator within ~1 minute of each
+Two crash reports were captured on the emulator within about 1 minute of each
 other, both surfacing the same fatal exception inside `info.plateaukao.einkbro`:
 
 ```

@@ -28,7 +28,7 @@ HiNote exposes **no** refresh-mode setting. Its resources contain zero `模式`/
 that kind; the editor "more" menu only has handwriting-to-text, clear/delete page, share,
 export, print, and note-lock. What HiNote *does* have is automatic anti-ghosting:
 `com.huawei.hinote.common.residualshadows.EinkResidualShadowsController` calls the framework
-`HwInkScreenEx.clearResidualShadows()` after every ~10 strokes (or immediately on dark fills),
+`HwInkScreenEx.clearResidualShadows()` after every about 10 strokes (or immediately on dark fills),
 throttled to once per second. That is per-app ghosting management, not a user-selectable mode.
 
 ### 2. The refresh mode is a system control, and it lives in SystemUI (not Control Center)

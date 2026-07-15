@@ -16,7 +16,7 @@ just the one key by clipping the buffer canvas to a dirty rect. The clip call us
 `Region.Op.REPLACE`, which Android P banned, so at some point it was commented out
 ("will cause crash") - and with no clip, `getClipBounds()` returns the full bitmap,
 the single-key containment test never passes, and every press/release cleared and
-re-rasterized all ~40 keys. About 3 full keyboard rasters per tap, synchronously
+re-rasterized all about 40 keys. About 3 full keyboard rasters per tap, synchronously
 inside the touch handler, each one triggering a large e-ink panel refresh.
 
 The fix is the modern idiom for the same thing: `canvas.save()` +

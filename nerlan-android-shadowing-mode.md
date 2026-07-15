@@ -38,7 +38,7 @@ The structure mirrors iOS one-to-one (`PlayerManager`, `TranscriptDialog`,
 **Loop primitive via polling.** `PlayerManager.loopSegment(startMs, endMs, times)`
 loops a single `[start, end)` region. Unlike iOS (`AVPlayer` boundary observer),
 Media3 exposes no exact boundary callback through `MediaController`, so a tight
-~40 ms coroutine poll watches the end and seeks back — far finer than the existing
+coroutine poll (roughly every 40 ms) watches the end and seeks back — far finer than the existing
 500 ms position loop. A `triggered` latch avoids double-counting while the
 async seek lands. `times == null` loops forever; a finite count pauses on the
 sentence and bumps `loopFinishedSignal` (a `StateFlow<Int>`). Loops start exactly
@@ -68,7 +68,7 @@ or a new `StudyItem.Shadow` side-panel item on large screens, with
 ## Trade-offs
 
 - **Polling vs callback.** A 40 ms poll is simple and works through
-  `MediaController`, at the cost of a small CPU tick while looping and up to ~40 ms
+  `MediaController`, at the cost of a small CPU tick while looping and up to about 40 ms
   of overshoot. Exact `ExoPlayer.createMessage` boundaries would need to live in
   `PlaybackService`, not the controller — not worth the coupling.
 - **Gated on transcribed episodes.** 跟讀 and the loop toggle appear only where a

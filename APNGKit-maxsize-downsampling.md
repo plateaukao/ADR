@@ -10,11 +10,11 @@ The question that started this: *what happens with a list of several images at 1
 
 | Allocation | Cost at 10240×7680 |
 |---|---|
-| `outputBuffer` `CGContext` | ~300 MB |
-| current output `CGImage` (`makeImage()`) | ~300 MB |
-| previous output `CGImage` (dispose `.none`/`.previous`) | up to ~300 MB |
+| `outputBuffer` `CGContext` | about 300 MB |
+| current output `CGImage` (`makeImage()`) | about 300 MB |
+| previous output `CGImage` (dispose `.none`/`.previous`) | up to about 300 MB |
 
-So ~600 MB+ **per displayed image**, allocated eagerly the moment `.image` is assigned to an `APNGImageView`. A handful in a scrolling list blows past the per-app memory limit on every iPhone, and the OS terminates the process.
+So about 600 MB+ **per displayed image**, allocated eagerly the moment `.image` is assigned to an `APNGImageView`. A handful in a scrolling list blows past the per-app memory limit on every iPhone, and the OS terminates the process.
 
 We confirmed that *reactively* catching the OOM is not reliable on iOS: a 300 MB `CGContext` allocation usually succeeds (virtual-memory overcommit) and the jetsam kill fires later when the pages are faulted in, so there is nothing catchable. The reliable fix is *proactive*: render the image smaller. This change adds that capability.
 
@@ -30,7 +30,7 @@ imageView.image = image
 
 When `maxSize` is set, the decoder derives a single `renderScale = min(1, fit)` and the **entire compositing pipeline runs in that scaled space**. This is the important design point: it is not "composite at full size then shrink the result" (that would still allocate the 300 MB buffer). The persistent buffers themselves are small, because the canvas — and therefore every cached frame and every drawn region — is allocated at the reduced size.
 
-For the 10240×7680 case with `maxSize` 1024×768 (scale 0.1), the canvas drops from ~300 MB to ~3 MB. A list of several such images goes from multiple gigabytes (guaranteed kill) to tens of megabytes.
+For the 10240×7680 case with `maxSize` 1024×768 (scale 0.1), the canvas drops from about 300 MB to about 3 MB. A list of several such images goes from multiple gigabytes (guaranteed kill) to tens of megabytes.
 
 ## How it was built
 

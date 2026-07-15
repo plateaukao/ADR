@@ -3,11 +3,11 @@
 
 ## Problem
 
-ConfigManager was a 623-line god object directly owning ~56 SharedPreferences-backed properties spanning unrelated concerns (browser behavior, tab management, UI layout), plus domain-toggle methods, bookmark/epub helpers, and clear settings. Adding any new setting required touching this single file, and the lack of domain boundaries made it hard to reason about which settings belong together.
+ConfigManager was a 623-line god object directly owning about 56 SharedPreferences-backed properties spanning unrelated concerns (browser behavior, tab management, UI layout), plus domain-toggle methods, bookmark/epub helpers, and clear settings. Adding any new setting required touching this single file, and the lack of domain boundaries made it hard to reason about which settings belong together.
 
 ## Root Cause
 
-A previous refactoring (commit 3149bbef) extracted AI, TTS, Translation, Touch, and Display configs into sub-configs and removed the forwarding delegate layer, but left the remaining ~56 properties directly on ConfigManager. These properties naturally fall into three domains (browser, tab, UI) but were never separated.
+A previous refactoring (commit 3149bbef) extracted AI, TTS, Translation, Touch, and Display configs into sub-configs and removed the forwarding delegate layer, but left the remaining about 56 properties directly on ConfigManager. These properties naturally fall into three domains (browser, tab, UI) but were never separated.
 
 ## Solution
 

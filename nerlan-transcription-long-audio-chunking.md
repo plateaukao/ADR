@@ -10,17 +10,17 @@ transcribing a normal-length episode started failing with:
 > 處理失敗 — audio duration 1425.084 seconds is longer than 1400 seconds which is
 > the maximum for this model
 
-The episodes are ~24 min, so this hit most of them.
+The episodes are about 24 min, so this hit most of them.
 
 ## Root Cause
 
 A hard input limit of the new models, not the audio file. The
 `gpt-4o-transcribe` / `gpt-4o-mini-transcribe` models cap a single
-`/v1/audio/transcriptions` request at **1400 seconds (~23.3 min)**. `whisper-1`
+`/v1/audio/transcriptions` request at **1400 seconds (about 23.3 min)**. `whisper-1`
 has no duration cap (only a 25 MB size limit), so the app had always sent the
 whole episode in one request and never hit a duration ceiling — the limit only
 surfaced once the model changed. The transcoded audio is mono 16 kHz at 32 kbps
-(~5–6 MB for a full episode), so size was never the issue.
+(about 5–6 MB for a full episode), so size was never the issue.
 
 ## Solution
 

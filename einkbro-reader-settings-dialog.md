@@ -48,7 +48,7 @@ Content flows into viewport-height columns extending horizontally; each pair of 
 
 Two constraints surfaced only by driving the real WebView:
 
-1. **WebView zooms out to fit wide content on rotation.** The column strip makes the document ~N viewports wide; rotating to landscape dropped the visual scale to 0.25, showing nine tiny columns. Fix: while two-column is enabled, the viewport meta is pinned to `width=device-width, initial-scale=1.0, minimum-scale=1.0` (via a new `set_viewport_content.js` asset), and restored on exit.
+1. **WebView zooms out to fit wide content on rotation.** The column strip makes the document about N viewports wide; rotating to landscape dropped the visual scale to 0.25, showing nine tiny columns. Fix: while two-column is enabled, the viewport meta is pinned to `width=device-width, initial-scale=1.0, minimum-scale=1.0` (via a new `set_viewport_content.js` asset), and restored on exit.
 2. **The UA stylesheet's `body { margin: 8px }` breaks page tiling.** Each spread tiled 16px narrower than the viewport, drifting one clipped glyph further per page turn. Fix: `margin: 0` in the two-column rule, plus page turns anchor with `scrollTo(page * width)` instead of accumulating `scrollBy`, so sub-pixel layout rounding can never build up either.
 
 ## Settings consolidation

@@ -197,12 +197,12 @@ Result: zero disk I/O during writing. Strokes persist on page turn or close.
 
 After all of the above, the user's report stayed: *"still have delay if drawing quickly more than 3 strokes"*. Saves disabled. DHW idempotent. Cancels working. Long strokes smooth. Yet 3+ short consecutive strokes still stuttered.
 
-The insight: touch events arrive at ~100 Hz. Sony's DU waveform takes ~120 ms. Android's `BufferQueue` has a small fixed depth (typically 3). So:
+The insight: touch events arrive at about 100 Hz. Sony's DU waveform takes about 120 ms. Android's `BufferQueue` has a small fixed depth (typically 3). So:
 
 - pushLive #1 at t=0: lockCanvas → buffer A → unlockAndPost. EPD waveform starts on A.
 - pushLive #2 at t=10ms: lockCanvas → buffer B (A still in use) → unlockAndPost. EPD queues B.
 - pushLive #3 at t=20ms: lockCanvas → buffer C → unlockAndPost. EPD queues C.
-- pushLive #4 at t=30ms: lockCanvas **blocks** waiting for A's waveform (~90ms remaining).
+- pushLive #4 at t=30ms: lockCanvas **blocks** waiting for A's waveform (about 90ms remaining).
 - All subsequent pushLives queue up behind that block, on the input thread.
 
 Long single strokes hide this — the user is still moving, so "lag" feels like "ink trailing the pen". For short strokes with visible gaps, each "missing stroke" stands out.
@@ -265,7 +265,7 @@ Two SurfaceViews is more boilerplate but everything else falls out naturally.
 
 ### Coalescing render thread, not motion prediction
 
-Android's `MotionPredictor` (and notable's `GLFrontBufferedRenderer`) interpolates touch input ahead of the next frame. Useful when you can render at ≥60 fps. On a DPT-CP1 with ~8 Hz EPD waveform, interpolation is useless — we'd be predicting motion that won't be displayed for 100ms. Coalescing past events is the right pull-direction.
+Android's `MotionPredictor` (and notable's `GLFrontBufferedRenderer`) interpolates touch input ahead of the next frame. Useful when you can render at ≥60 fps. On a DPT-CP1 with about 8 Hz EPD waveform, interpolation is useless — we'd be predicting motion that won't be displayed for 100ms. Coalescing past events is the right pull-direction.
 
 ### Save on lifecycle event, not on timer
 
@@ -281,7 +281,7 @@ Matches sony_draw exactly. Eraser is the only thing that disables DHW. If the us
 
 ## Trade-offs
 
-- **Two SurfaceViews = more surface memory.** ~10 MB ARGB for each at 1404×1872. Acceptable on DPT-CP1 (1 GB RAM); would matter on a constrained device.
+- **Two SurfaceViews = more surface memory.** about 10 MB ARGB for each at 1404×1872. Acceptable on DPT-CP1 (1 GB RAM); would matter on a constrained device.
 - **No pen-up GC16 in the overlay path.** Strokes are DU-mode (1-bit) until KOReader's debounced fast refresh fires and rebakes them through the page render. Brief 1-bit appearance is fine; only matters if user is staring at a single stroke for >120 ms.
 - **Save-on-lifecycle loses up to the last unsaved stroke set on a hard crash.** No autosave timer. Acceptable; users get the file flushed on page turn or close.
 - **`pending_image_captures` still runs the 4-second debounced page-capture for bookmark previews.** This can fire during writing if a stroke ends >4 s before the next one. The image capture paints the full page widget into an offscreen buffer and writes JPEG — could be hundreds of ms. Not seen as a problem yet, but if it becomes one, push the capture onto a worker thread or move it to lifecycle events too.
@@ -294,7 +294,7 @@ Matches sony_draw exactly. Eraser is the only thing that disables DHW. If the us
 3. **`setZOrderMediaOverlay(true)` on DPT-CP1 firmware 1.6.50.14130 puts a SurfaceView *below* the activity window** — opposite of the typical Android behaviour. `setZOrderOnTop(true)` is the reliable "put it on top" call.
 4. **DHW pixels need NOCONVERT + SP1_IGNORE to survive SurfaceFlinger composites.** Plain `lockCanvas(Rect, DU)` will wipe them. The exact constant we need is `UPDATE_MODE_NOWAIT_NOCONVERT_DU_SP1_IGNORE` (decimal 16385); SP1_IGNORE is the "don't run stage-1 preservation conversion" flag that protects kernel-painted pixels.
 5. **`UIManager:scheduleIn` returns nothing.** Storing its return value gives you `nil`. To cancel, keep the function reference itself and pass it to both `scheduleIn` and `unschedule`. `unschedule(action)` compares by identity (`==` on the action) in a linear scan of the task queue.
-6. **Touch event rate >> EPD waveform rate.** ~100 Hz touch vs ~8 Hz DU. Always coalesce. A render thread that owns the post is the simplest pattern; it absorbs `lockCanvas` blocking while the input thread keeps rasterising.
+6. **Touch event rate >> EPD waveform rate.** about 100 Hz touch vs about 8 Hz DU. Always coalesce. A render thread that owns the post is the simplest pattern; it absorbs `lockCanvas` blocking while the input thread keeps rasterising.
 7. **Disk I/O on a single-threaded interpreter blocks input.** KOReader is one Lua main loop; any synchronous `io.open/write/close` stalls the AInputQueue drain *and* the JNI inject path (they're called from the same thread). Saves must happen at lifecycle events, not during user input.
 8. **Two places to translate eraser intent.** The JNI inject path (`maybeForwardStylusToOverlay`) and the evdev cook path (`emitToolType`). Either fix alone is insufficient — the overlay's DHW toggle needs one; the pencil plugin's `handleStylusSlot` reads the other.
 9. **Don't trust timers without verifying cancel works.** A debounce that doesn't cancel is just a bounded queue. Check whether the timer source returns something you can use as a handle before assuming it does.

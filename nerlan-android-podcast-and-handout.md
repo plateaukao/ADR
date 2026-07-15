@@ -12,7 +12,7 @@ shipped on iOS:
    offline download, favoriting, lock-screen controls, listening stats, and the
    OpenAI transcript/handout. As on iOS, this rides on the `EpisodeRecord` pivot
    type, so nothing downstream needed podcast-specific code.
-2. **Chunked AI handout** — episodes longer than ~15 min are split into
+2. **Chunked AI handout** — episodes longer than about 15 min are split into
    **Part I/II/III** sections, each with four parts: **內容說明** (new), **文法重點**,
    **例句**, **單字**.
 

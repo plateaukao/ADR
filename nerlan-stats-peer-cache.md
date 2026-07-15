@@ -4,12 +4,12 @@
 
 ## What was broken
 
-The 使用統計 screen reads ~9 accessors (`totalSeconds`, `secondsToday/Week/Month`, `currentStreak`, `completedCount`, `hourlyTodayStats`, `dailySeries`, `topPrograms`). Every one of them called `mergedStats()`, which on **every call**:
+The 使用統計 screen reads about 9 accessors (`totalSeconds`, `secondsToday/Week/Month`, `currentStreak`, `completedCount`, `hourlyTodayStats`, `dailySeries`, `topPrograms`). Every one of them called `mergedStats()`, which on **every call**:
 
 - enumerated the `stats-peers/` directory and `Data(contentsOf:)` + `JSONDecoder`-decoded every peer device's blob, and
 - copied the entire `NSUbiquitousKeyValueStore.dictionaryRepresentation` and decoded every stats entry in it.
 
-The screen recomputes all accessors whenever `revision` changes — and `addListening` bumps `revision` on every 0.5s playback tick. So with the stats screen open during playback: ~9 × (N peer files read + decoded + a full KVS copy), on the main actor, twice a second, to display data that only actually changes when *another device's* blob arrives.
+The screen recomputes all accessors whenever `revision` changes — and `addListening` bumps `revision` on every 0.5s playback tick. So with the stats screen open during playback: about 9 × (N peer files read + decoded + a full KVS copy), on the main actor, twice a second, to display data that only actually changes when *another device's* blob arrives.
 
 ## Fix
 

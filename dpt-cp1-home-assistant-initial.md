@@ -21,7 +21,7 @@ Sony has its own `DPExtensions` framework that consumes the keypad event and re-
 
 ### Gesture design tuned for e-ink
 
-`GestureDetector.onDoubleTap` uses `ViewConfiguration.getDoubleTapTimeout()` (~300 ms). On the DPT-CP1's slow Mobius panel, the user can't reliably lift, recover, and re-tap inside 300 ms, so the built-in detector misses double-taps. Replaced it with a manual `Handler`-based state machine:
+`GestureDetector.onDoubleTap` uses `ViewConfiguration.getDoubleTapTimeout()` (about 300 ms). On the DPT-CP1's slow Mobius panel, the user can't reliably lift, recover, and re-tap inside 300 ms, so the built-in detector misses double-taps. Replaced it with a manual `Handler`-based state machine:
 
 - `ACTION_DOWN` schedules a long-press runnable at +600 ms.
 - `ACTION_MOVE` past a 15 dp threshold cancels long-press and starts dragging.

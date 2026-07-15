@@ -3,7 +3,7 @@
 
 ## Problem
 
-Medium account export at `~/Downloads/medium-export/` held 262 published posts (2018-06 → 2026-04) plus 30 drafts and ~1,200 embedded images. The user wanted off Medium, hosted on GitHub Pages, with the post archive intact and self-contained (no reliance on Medium's CDN).
+Medium account export at `~/Downloads/medium-export/` held 262 published posts (2018-06 → 2026-04) plus 30 drafts and about 1,200 embedded images. The user wanted off Medium, hosted on GitHub Pages, with the post archive intact and self-contained (no reliance on Medium's CDN).
 
 ## Root cause / motivation
 
@@ -13,7 +13,7 @@ Two-fold:
 
 ## Solution
 
-**Stack:** Hugo (extended) + PaperMod theme via git submodule, deployed by `actions/deploy-pages` from `main`. Hugo wins over Jekyll/Astro for this use case — single Go binary, sub-second builds for ~260 posts, native CJK support, zero npm/Ruby toolchain to maintain.
+**Stack:** Hugo (extended) + PaperMod theme via git submodule, deployed by `actions/deploy-pages` from `main`. Hugo wins over Jekyll/Astro for this use case — single Go binary, sub-second builds for about 260 posts, native CJK support, zero npm/Ruby toolchain to maintain.
 
 **Conversion:** one Python script (`scripts/convert_medium.py`) parses each `posts/*.html` from the export and produces a Hugo-flavored markdown file plus a directory of locally-downloaded images. Key transforms:
 - Title / date / canonical URL pulled from Medium's microformat markup (`h1.p-name`, `time.dt-published`, `a.p-canonical`).

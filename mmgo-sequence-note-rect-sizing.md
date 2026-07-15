@@ -26,7 +26,7 @@ the rect underneath never grew.
 A second, related issue surfaced once the rect started growing with
 text: `textmeasure.EstimateWidth` is a `chars × fontSize × 0.6`
 heuristic. For Go Regular at 14px the real glyph advance is closer to
-`× 0.45–0.5`, so the estimate overshoots by ~20–30%. Using the estimate
+`× 0.45–0.5`, so the estimate overshoots by about 20–30%. Using the estimate
 as the rect width (with no extra padding) still left visibly loose
 horizontal margin inside the box compared to mermaid's reference render.
 

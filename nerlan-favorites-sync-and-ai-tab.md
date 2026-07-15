@@ -37,7 +37,7 @@ Key decisions:
   on one device overwrites a favorite added on another. Per-item keys
   (`fav-ep-<id>`, `fav-prog-<id>`, `ai-rec-<id>`) let independent add/remove
   coexist. Gated by the same **同步到 iCloud** toggle as the file sync. Cost:
-  KVS's ~1 MB / 1024-key ceiling, shared across favorites + AI records — ample
+  KVS's about 1 MB / 1024-key ceiling, shared across favorites + AI records — ample
   for personal use, noted as a limit.
 - **Favorites: KVS authoritative.** Favorites have no file backing, so on an
   external change the local set is rebuilt from KVS — which lets *unfavoriting*

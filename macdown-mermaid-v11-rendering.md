@@ -40,7 +40,7 @@ Two contributing/adjacent issues surfaced:
   a Promise `{ svg, bindFunctions }` (v8 took a synchronous callback). It reads each
   `code.language-mermaid` block and replaces the wrapping `<div>` with the rendered SVG.
 - **Decouple** mermaid from syntax highlighting in `MPRenderer` (preview stylesheets, preview
-  scripts, and the export path), and make injection **content-aware** — only pull in the ~3.3 MB
+  scripts, and the export path), and make injection **content-aware** — only pull in the roughly 3.3 MB
   library when the rendered HTML actually contains `language-mermaid` (preview re-renders on every
   edit, so always-loading would tax every keystroke).
 - **Default** `htmlMermaid` to YES so diagrams work out of the box.

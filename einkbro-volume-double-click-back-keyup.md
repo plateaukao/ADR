@@ -14,7 +14,7 @@ With the feature enabled, **every long-press volume adjustment also flipped a
 page first**. The PR deferred the single-tap page turn from the key-*down*
 event by a 250ms window and relied on the long-press callback and key-repeat
 events to cancel it when the key was held. But Android only delivers those
-signals at the long-press timeout (~400–500ms) — well after the 250ms window
+signals at the long-press timeout (about 400–500ms) — well after the 250ms window
 expired. The deferred turn always fired mid-hold at t=250ms; the cancellation
 paths could never win the race and were effectively dead code.
 
@@ -61,7 +61,7 @@ sequenceDiagram
 ```
 
 The trade-off: a single tap's page turn now lands at release + 250ms rather
-than press + 250ms, so latency grows by the press duration (~50–100ms). That
+than press + 250ms, so latency grows by the press duration (about 50–100ms). That
 is the price of making the gesture unambiguous with respect to holds, and it
 only applies when the opt-in toggle is on — the default path still turns the
 page instantly on key-down.

@@ -6,7 +6,7 @@ Cut Android release **v1.5** (versionCode 5) to bring the Android app to the sam
 
 ## The change
 
-In the transcript / caption reader, enlarging the font (the three-step font-size button: 17 / 21 / 26 sp) made wrapped lines crowd together — the rows set `fontSize` but never set an explicit `lineHeight`, so Compose kept the default ~1.2x line box even as the type grew. The fix scales line height with the font on both the original and translation `Text` rows:
+In the transcript / caption reader, enlarging the font (the three-step font-size button: 17 / 21 / 26 sp) made wrapped lines crowd together — the rows set `fontSize` but never set an explicit `lineHeight`, so Compose kept the default about 1.2x line box even as the type grew. The fix scales line height with the font on both the original and translation `Text` rows:
 
 ```kotlin
 Text(
@@ -19,7 +19,7 @@ Text(
 
 The translation row uses its own size (`bodySize` in translation-only mode, `bodySize - 2` in bilingual mode) and scales its `lineHeight` from that same value.
 
-This mirrors the iOS change made the same day, where SwiftUI's additive `.lineSpacing(bodyFontSize * 0.3)` is applied to each row. iOS line spacing is *extra* space added on top of the natural ~1.2x line, so `0.3` there lands at roughly the same total line box as Compose's absolute `lineHeight = fontSize * 1.5`.
+This mirrors the iOS change made the same day, where SwiftUI's additive `.lineSpacing(bodyFontSize * 0.3)` is applied to each row. iOS line spacing is *extra* space added on top of the natural about 1.2x line, so `0.3` there lands at roughly the same total line box as Compose's absolute `lineHeight = fontSize * 1.5`.
 
 ```mermaid
 flowchart TD

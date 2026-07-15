@@ -16,7 +16,7 @@ Platform-specific decisions:
 - **API key in app-private `SharedPreferences`**, not the iOS Keychain. A personal app; `MODE_PRIVATE` storage is adequate and avoids the deprecated EncryptedSharedPreferences dependency.
 - **Handout theming applied at display time.** The store saves the raw HTML *fragment*; `HandoutDialog` wraps it with explicit light/dark colors chosen from `isSystemInDarkTheme()` and loads it into a `WebView`. This avoids depending on `androidx.webkit` to make a WebView honor `prefers-color-scheme`.
 - **Transcript list** is a Compose `LazyColumn` (cell reuse) wrapped in a `SelectionContainer` for copy — the idiomatic Android equivalent of the iOS `List` + context-menu approach; Compose selection doesn't have the per-row cost that forced `.textSelection` off on iOS.
-- **Long timeouts** via a dedicated OkHttp client (300 s read/write, 30-min call) so ~30-min transcriptions don't hit the default timeout.
+- **Long timeouts** via a dedicated OkHttp client (300 s read/write, 30-min call) so about 30-min transcriptions don't hit the default timeout.
 - Job state is a `StateFlow<Map<String, JobState>>`; jobs run on the store's `CoroutineScope`, so they survive the player sheet being dismissed and the icons reflect running/failed/ready via `collectAsState`.
 
 ## Trade-offs

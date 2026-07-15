@@ -38,6 +38,6 @@ in `destroy()` now guards both runnables.
 
 ## Verification
 
-Emulator: load → reload → open a second tab → close both tabs within ~2s
+Emulator: load → reload → open a second tab → close both tabs within about 2s
 of loading (pending callbacks in flight); process stays alive, crash
 buffer empty, remaining tab intact.

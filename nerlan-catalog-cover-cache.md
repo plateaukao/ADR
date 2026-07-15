@@ -81,7 +81,7 @@ flowchart TD
   newly-added ones appear at the end, so the user scrolls to reach them after a
   refresh. A "jump to latest" refresh would be more work for little gain given
   how seldom episodes are added.
-- **Covers stored at full resolution.** The endpoint returns ~1 MB PNGs shown at
+- **Covers stored at full resolution.** The endpoint returns about 1 MB PNGs shown at
   thumbnail sizes; the cache stores the original bytes (simple, matches prior
   behavior) rather than downsampling. `Caches` placement bounds the cost — the OS
   reclaims it under pressure.

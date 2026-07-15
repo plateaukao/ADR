@@ -4,7 +4,7 @@
 ## Problem
 
 EinkBro's ad-blocking was a 3,500-line C++ fork of Brave's `ad-block`
-library, wrapped in ~260 lines of JNI, last touched upstream in 2017.
+library, wrapped in about 260 lines of JNI, last touched upstream in 2017.
 No tests, no easy path to pick up fixes, memory-unsafe bloom filters
 and hashsets. Correct EasyList/uBlock Origin syntax coverage was
 slowly rotting while Brave moved to an actively-maintained Rust
@@ -36,7 +36,7 @@ means:
   `io.github.edsuns.adblockclient` package so that the JNI `find_class`
   lookup for `MatchResult` stays unchanged and Detector imports don't
   move.
-- **Rust** — a ~330-line crate in `adblock-rust-client/rust/` that
+- **Rust** — a roughly 330-line crate in `adblock-rust-client/rust/` that
   pins `adblock = "0.12"` plus `jni = "0.21"` and exposes `#[no_mangle]
   extern "system"` functions matching the Kotlin class's `external fun`
   signatures. State is held in an `EngineHandle { engine, generic_hide }`
@@ -73,7 +73,7 @@ persists the new Rust-serialized blob at the same path.
 
 ## Key Files
 
-- `adblock-rust-client/rust/src/lib.rs` — JNI bindings (~330 lines)
+- `adblock-rust-client/rust/src/lib.rs` — JNI bindings (about 330 lines)
 - `adblock-rust-client/rust/Cargo.toml`
 - `adblock-rust-client/build.gradle` — cargo-ndk Gradle task
 - `adblock-rust-client/src/main/java/io/github/edsuns/adblockrust/AdBlockRustClient.kt`
@@ -93,7 +93,7 @@ persists the new Rust-serialized blob at the same path.
    changed (0 -> 2), purging" → AdFilterImpl auto-triggers download
    of the default AdGuard Base subscription → `DownloadWorker` and
    `InstallationWorker` both return `SUCCESS` → binary file (7.1 MB,
-   ~35% smaller than the old C++ DAT) written under
+   about 35% smaller than the old C++ DAT) written under
    `files/filter_data/`.
 3. Force-stop + relaunch → FilterDataLoader.load() deserializes the
    binary with no errors. (Proven by a temporary log + permanent
@@ -133,4 +133,4 @@ persists the new Rust-serialized blob at the same path.
 - **Binary Kotlin build artifacts (`jniLibs/<abi>/*.so`) should be in
   `.gitignore`, not committed.** They're regenerated on every build
   and adding them to the tree would balloon `git clone` size by
-  ~6 MB per commit.
+  about 6 MB per commit.

@@ -19,7 +19,7 @@ Question: what's the effort to integrate VibeVoice-ASR into the current WhisperA
 | UI | SwiftUI, macOS 14+, arm64 only |
 | Inference | whisper.cpp C library via Swift C interop |
 | GPU | Metal (via whisper.cpp's Metal backend) |
-| Model format | GGML (`ggml-model.bin`, ~3 GB, Breeze-ASR-25) |
+| Model format | GGML (`ggml-model.bin`, about 3 GB, Breeze-ASR-25) |
 | Packaging | Single `.app` bundle, Developer ID signed, no external runtime |
 | Audio | `AVAssetReader` → 16 kHz mono Float32 PCM |
 
@@ -29,7 +29,7 @@ Everything is native, self-contained, and offline. This is the baseline to prese
 
 From the upstream docs:
 
-- **Model size:** 7B parameters (VibeVoice-ASR-7B). Roughly **14 GB in fp16**, ~7 GB int8-quantized — vs. 3 GB for the current GGML model.
+- **Model size:** 7B parameters (VibeVoice-ASR-7B). Roughly **14 GB in fp16**, about 7 GB int8-quantized — vs. 3 GB for the current GGML model.
 - **Official runtimes:** PyTorch/HF Transformers, or vLLM. No C/C++ port.
 - **Target hardware:** NVIDIA GPU with flash-attention. Docs recommend running inside NVIDIA's PyTorch Docker container.
 - **Apple Silicon:** Not mentioned anywhere. PyTorch MPS backend *might* work but has never been validated by Microsoft.
@@ -46,13 +46,13 @@ Bundle a Python interpreter + PyTorch + HF Transformers + VibeVoice model inside
 - No model porting work.
 
 **Cons:**
-- App bundle balloons from ~50 MB to **multi-GB** (Python runtime ~100 MB + torch ~1 GB + model ~7–14 GB).
+- App bundle balloons from about 50 MB to **multi-GB** (Python runtime about 100 MB + torch about 1 GB + model about 7–14 GB).
 - Cold-start latency: PyTorch import + 7B model load = many seconds.
 - Code signing / notarization burden: every `.so`/`.dylib` in the embedded Python needs to be signed for Gatekeeper. This is painful and brittle.
 - No Metal acceleration unless the model actually runs on MPS — likely CPU-only and slow.
 - Breaks the "native, single binary, signed, Metal-accelerated" character of the app.
 
-**Effort:** ~1–2 weeks for a prototype, but ongoing maintenance cost is high.
+**Effort:** about 1–2 weeks for a prototype, but ongoing maintenance cost is high.
 
 ### Option 2: MLX Port
 
@@ -66,7 +66,7 @@ Port the VibeVoice architecture to Apple's [MLX](https://github.com/ml-explore/m
 **Cons:**
 - **No MLX port exists yet.** Someone has to write it.
 - VibeVoice likely has custom layers/tokenizer logic that need reimplementation.
-- 7B model at fp16 still needs ~14 GB RAM — viable on 32 GB+ Macs, tight on 16 GB.
+- 7B model at fp16 still needs about 14 GB RAM — viable on 32 GB+ Macs, tight on 16 GB.
 
 **Effort:** Weeks to months, depending on how custom the architecture is. Best done upstream in the `mlx-examples` community, not in this app.
 

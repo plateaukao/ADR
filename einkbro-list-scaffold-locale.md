@@ -4,7 +4,7 @@
 
 ## Why
 
-The audit quantified ~350 lines of near-identical chrome across ten
+The audit quantified about 350 lines of near-identical chrome across ten
 config/list activities: each re-built `MyTheme { Scaffold(topBar =
 TopAppBar(title, back arrow, actions)) }` with three inconsistent
 back-navigation styles (`finish()`, `onBackPressedDispatcher`,

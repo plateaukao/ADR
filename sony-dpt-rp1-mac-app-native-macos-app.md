@@ -59,7 +59,7 @@ Registration over **HTTP :8080**, authenticated API over **HTTPS :8443**
   `PUT /auth {client_id, nonce_signed}` → store `Credentials` cookie (parsed
   manually; the jar can't read the device's `Set-Cookie` format —
   `dptrp1.py:350-360`).
-- **Documents:** `GET /documents2?entry_type=all` (flat, ~1300 cap → recursive
+- **Documents:** `GET /documents2?entry_type=all` (flat, about 1300 cap → recursive
   `/folders/{id}/entries` fallback); `GET /documents/{id}/file`; `POST
   /documents2` then `PUT /documents/{id}/file`; `PUT /documents/{id}` (move/
   rename); `POST /documents/{id}/copy`; `DELETE /documents/{id}`; `GET

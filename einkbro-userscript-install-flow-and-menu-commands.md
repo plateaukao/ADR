@@ -16,7 +16,7 @@ reachable from the browser UI:
    were unusable.
 
 While fixing the first issue, a third surfaced on-device: installing a real
-~2.3MB script killed the app with `TransactionTooLargeException`, and even
+roughly 2.3MB script killed the app with `TransactionTooLargeException`, and even
 with that fixed, the editor froze indefinitely opening the fetched script.
 
 ## Root Cause
@@ -31,7 +31,7 @@ with that fixed, the editor froze indefinitely opening the fetched script.
   map — a half-finished feature.
 - The crash: the install path downloaded the script in the browser and passed
   the entire body as an Intent extra. Intent extras cross a Binder
-  transaction capped at ~1MB; multi-MB scripts (Immersive Translate, KISS
+  transaction capped at about 1MB; multi-MB scripts (Immersive Translate, KISS
   Translator) exceed it and the exception is fatal. Same large-script class
   of problem the DB layer had already solved by moving bodies out of Room
   rows into files.
@@ -108,7 +108,7 @@ Menu commands:
   Grep for call sites, not just definitions, when verifying a feature exists.
 - Real userscripts are routinely multi-megabyte, which breaks three separate
   Android limits in one feature: Room's 2MB CursorWindow (already fixed),
-  the ~1MB Binder transaction cap for Intent extras, and Compose `TextField`
+  the roughly 1MB Binder transaction cap for Intent extras, and Compose `TextField`
   composition cost. Pass references (URLs, file paths), never bodies, across
   process/component boundaries.
 - Doing slow work before showing any UI reads as "the button is broken" —

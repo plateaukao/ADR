@@ -4,7 +4,7 @@
 
 ## What was broken
 
-Transcripts stream in per ~20-minute chunk, and the intent was for the viewer to
+Transcripts stream in per about 20-minute chunk, and the intent was for the viewer to
 open as soon as the first chunk is ready rather than waiting for the whole
 episode. In practice it often didn't show — the natural flow is to tap 逐字稿,
 then swipe the player away to keep listening while a long episode transcribes, and

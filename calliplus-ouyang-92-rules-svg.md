@@ -12,7 +12,7 @@ Secondary ask: hide 間架九十二法 (黃自元) and 大楷習字帖 (歐陽�
 Two non-obvious traps surfaced while wiring up SVG rendering:
 
 1. **`@GlideModule` must be processed by a Kotlin-aware annotation processor.** First pass wrote `SvgModule.kt`, but the project only declares `annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'` — not `kapt`. The generated `GeneratedAppGlideModuleImpl` came back with no AppGlideModule registered, so the decoder was never wired into Glide's registry.
-2. **AndroidSVG renders at the SVG's declared intrinsic size**, not the canvas size, unless `documentWidth`/`documentHeight` is set to `"100%"`. The bundled SVGs declare ~100pt × 116pt, so when rendered into a 512×512 target bitmap the strokes appeared in a small top-left corner (looked blank because the rest was white fill).
+2. **AndroidSVG renders at the SVG's declared intrinsic size**, not the canvas size, unless `documentWidth`/`documentHeight` is set to `"100%"`. The bundled SVGs declare about 100pt × 116pt, so when rendered into a 512×512 target bitmap the strokes appeared in a small top-left corner (looked blank because the rest was white fill).
 
 ## Solution
 

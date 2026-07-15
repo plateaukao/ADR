@@ -9,7 +9,7 @@ one commit (each is a few lines).
    a `Modifier.() -> Modifier` lambda; the call site chained `height(35.dp)`
    and `padding(end = 5.dp)` as two statements, so only the padding (the
    last expression) survived. Now chained properly.
-2. **Auto-hide-toolbar scroll cutoff off by ~50px.** The cutoff computed
+2. **Auto-hide-toolbar scroll cutoff off by about 50px.** The cutoff computed
    `112 * density.roundToInt()` — rounding the density (2.75 → 3) rather
    than the product. Parenthesized.
 3. **D-pad swallowed with the feature off.** `KeyHandler` returned `true`

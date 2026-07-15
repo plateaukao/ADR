@@ -103,7 +103,7 @@ User provides a GitHub Personal Access Token. App stores sync data in a private 
 
 **Cons:**
 - Requires GitHub account and PAT.
-- Gist size limit (~100MB, but practically limited to ~10MB for performance).
+- Gist size limit (about 100MB, but practically limited to about 10MB for performance).
 - GitHub API rate limits (5000 req/hr authenticated).
 - PAT management UX is not great for non-developers.
 

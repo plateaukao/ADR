@@ -4,7 +4,7 @@
 
 ## Summary
 
-Greenfield single-file Tampermonkey/Violentmonkey userscript providing bilingual "immersive" web page translation — the translation is inserted directly below each original paragraph. Unlike the reference [Immersive Translate userscript](https://greasyfork.org/scripts/523378) (which bundles ~10 engines into 21k lines), this supports exactly one engine family: the OpenAI `/v1/chat/completions` API and any OpenAI-compatible server (LM Studio, llama.cpp, OpenRouter, self-hosted proxies). Default target language is zh-TW, configurable. Verified manually in Tampermonkey and by a 9-check Playwright smoke test that runs the real userscript headlessly via GM shims.
+Greenfield single-file Tampermonkey/Violentmonkey userscript providing bilingual "immersive" web page translation — the translation is inserted directly below each original paragraph. Unlike the reference [Immersive Translate userscript](https://greasyfork.org/scripts/523378) (which bundles about 10 engines into 21k lines), this supports exactly one engine family: the OpenAI `/v1/chat/completions` API and any OpenAI-compatible server (LM Studio, llama.cpp, OpenRouter, self-hosted proxies). Default target language is zh-TW, configurable. Verified manually in Tampermonkey and by a 9-check Playwright smoke test that runs the real userscript headlessly via GM shims.
 
 ## Approach
 
@@ -53,7 +53,7 @@ flowchart TB
 
 ## Key Files
 
-- `immersive-translate-openai.user.js` — the entire userscript (~1,040 lines)
+- `immersive-translate-openai.user.js` — the entire userscript (about 1,040 lines)
 - `test/mock-server.mjs` — OpenAI-compatible mock with failure modes
 - `test/harness.html` + `test/smoke.py` — GM-shim harness + 9-check Playwright smoke test
 - `test/pages/{static-article,spa,code-blocks}.html` — manual test pages

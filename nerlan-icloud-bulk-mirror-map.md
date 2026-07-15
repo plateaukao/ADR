@@ -6,7 +6,7 @@
 
 With iCloud sync on, `AIContentStore.enableICloudSync` runs at every launch and mirrors each local artifact (transcript, handout, cues, translation — per episode) up to the container. Each `mirrorUp` call located the episode's folder via `episodeFolderLocked`, which **lists the entire container root** and calls `resourceValues(forKeys:)` on every entry to find one folder.
 
-With ~200 fully-processed episodes that's ~800 root scans × ~200 entries ≈ 160k stat calls through the iCloud daemon, on every launch, in the overwhelmingly common case where every artifact is already uploaded and the pass is a no-op.
+With about 200 fully-processed episodes that's about 800 root scans × about 200 entries ≈ 160k stat calls through the iCloud daemon, on every launch, in the overwhelmingly common case where every artifact is already uploaded and the pass is a no-op.
 
 ## Fix
 

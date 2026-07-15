@@ -12,7 +12,7 @@ Desktop mode was implemented as a user-agent *prefix* swap: replace `Mozilla/5.0
 
 2. **UA client hints still said Android.** Overriding the UA string via `WebSettings.setUserAgentString` does *not* stop Chromium WebView from sending the low-entropy client hint headers with system-default values on every request: `Sec-CH-UA-Mobile: ?1`, `Sec-CH-UA-Platform: "Android"`, and a `Sec-CH-UA` brand list containing `"Android WebView"`. On the JS side, `navigator.userAgentData.mobile` stayed `true`. A site never has to parse the UA string at all to detect mobile.
 
-3. **New tabs used stale settings.** `TabManager` speculatively pre-creates the next tab's WebView ~500 ms after each tab add. That pooled WebView snapshots the config at creation time, so a tab opened *after* toggling desktop mode carried the previous mode's UA until something reloaded its preferences.
+3. **New tabs used stale settings.** `TabManager` speculatively pre-creates the next tab's WebView about 500 ms after each tab add. That pooled WebView snapshots the config at creation time, so a tab opened *after* toggling desktop mode carried the previous mode's UA until something reloaded its preferences.
 
 This explains the confusing symptom pattern in the issue thread: baidu worked (it evidently only checks the prefix tokens) while zhihu/xiaohongshu didn't, and other minimal browsers whose desktop mode emits a clean desktop UA worked fine.
 

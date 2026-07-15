@@ -4,7 +4,7 @@
 
 ## What was broken
 
-`CoverImageCache` decoded covers with `UIImage(data:)` at whatever resolution the source served — podcast feeds routinely ship 3000×3000 art, a ~34 MB decoded bitmap — and kept them in an `NSCache` with no cost limit. Those bitmaps were then drawn at 44–56 pt in list rows. Costs: decode time on first appearance of each row (scroll hitches), and unbounded resident memory growth as the session touches more shows.
+`CoverImageCache` decoded covers with `UIImage(data:)` at whatever resolution the source served — podcast feeds routinely ship 3000×3000 art, a roughly 34 MB decoded bitmap — and kept them in an `NSCache` with no cost limit. Those bitmaps were then drawn at 44–56 pt in list rows. Costs: decode time on first appearance of each row (scroll hitches), and unbounded resident memory growth as the session touches more shows.
 
 ## Fix
 

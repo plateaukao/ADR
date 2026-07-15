@@ -4,7 +4,7 @@
 
 ## What was broken
 
-After transcripts started streaming per ~20-minute chunk, the viewer would
+After transcripts started streaming per about 20-minute chunk, the viewer would
 *sometimes* show a wall of run-together sentences — a whole chunk's worth of text
 as a single undifferentiated line — while neighbouring chunks looked fine.
 

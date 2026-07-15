@@ -13,7 +13,7 @@ With in-place translation (OpenAI/Gemini) on news.naver.com, paragraphs visibly 
 1. **Bind-time scan** — when the translate scripts are injected (and again on every MutationObserver rebind), `bindObserverToTargets()` runs `maybeRequestTranslation()` over every marked node. This path checks *and populates* the `_translateRequested` WeakSet.
 2. **IntersectionObserver** — observing the same nodes, its in-place branch guarded only on the `data-original-html` attribute. But that attribute is set when a *response is applied*, seconds after the request. The observer neither checked nor updated `_translateRequested`.
 
-An IntersectionObserver always delivers an initial batch of entries for already-intersecting elements right after `observe()`. So every visible element was requested once by the bind scan and again ~80ms later by the observer's initial delivery — deterministically, on every page. news.naver.com made it worse: the page mutates its DOM constantly (lazy modules, ad slots), each mutation re-runs the rebind loop, and scrolling re-crosses the observer's ±400px rootMargin — every such event re-fired any element whose response was still in flight. With rate-limited providers the in-flight window is long, so the duplicates compounded.
+An IntersectionObserver always delivers an initial batch of entries for already-intersecting elements right after `observe()`. So every visible element was requested once by the bind scan and again about 80ms later by the observer's initial delivery — deterministically, on every page. news.naver.com made it worse: the page mutates its DOM constantly (lazy modules, ad slots), each mutation re-runs the rebind loop, and scrolling re-crosses the observer's ±400px rootMargin — every such event re-fired any element whose response was still in flight. With rate-limited providers the in-flight window is long, so the duplicates compounded.
 
 ```mermaid
 sequenceDiagram
@@ -78,7 +78,7 @@ In `JsWebInterface.kt`, the callback is invoked even when translation fails (emp
 
 ## How it was proven
 
-Static reading suggested the race, but the numbers came from instrumenting the live WebView over CDP (debug builds expose `webview_devtools_remote_<pid>`): a JS proxy wrapped `androidApp.getTranslation` and recorded every call with element id, text, and a stack trace attributing it to its calling path. The stack traces showed exactly the predicted split — bind-scan requests followed ~80ms later by IntersectionObserver duplicates.
+Static reading suggested the race, but the numbers came from instrumenting the live WebView over CDP (debug builds expose `webview_devtools_remote_<pid>`): a JS proxy wrapped `androidApp.getTranslation` and recorded every call with element id, text, and a stack trace attributing it to its calling path. The stack traces showed exactly the predicted split — bind-scan requests followed about 80ms later by IntersectionObserver duplicates.
 
 Same article, same provider (OpenAI in-place), before vs after:
 
@@ -90,6 +90,6 @@ Same article, same provider (OpenAI in-place), before vs after:
 | Corrupted `data-original-html` backups | 33 of 47 | 0 |
 | Visible untranslated leftovers | up to 29 stuck in one run | 0 |
 
-A false lead worth remembering: the first "reproduction" showed every text requested exactly twice in two waves ~9.4s apart — but the waves turned out to be two different *modes* (the saved by-paragraph mode auto-firing, then the user's switch to in-place re-triggering translation). Per-call stack attribution on a clean single-mode run was what separated the real mechanism from the artifact.
+A false lead worth remembering: the first "reproduction" showed every text requested exactly twice in two waves about 9.4s apart — but the waves turned out to be two different *modes* (the saved by-paragraph mode auto-firing, then the user's switch to in-place re-triggering translation). Per-call stack attribution on a clean single-mode run was what separated the real mechanism from the artifact.
 
 Merged as PR #620.

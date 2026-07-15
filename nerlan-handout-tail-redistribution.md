@@ -3,7 +3,7 @@
 ## Summary
 
 NerLan generates AI "handouts" (study notes) from an episode's transcript. Long
-episodes are split into ~15-minute "Parts" (Part I / II / III …) so each handout
+episodes are split into about 15-minute "Parts" (Part I / II / III …) so each handout
 section stays digestible. Previously the split was uniform 15-minute steps with
 the **final** part taking whatever remained, which left a stub: a 35-minute
 episode split into `0–15, 15–30, 30–35`, ending on a lonely 5-minute Part III.
@@ -59,7 +59,7 @@ A constraint surfaced while wiring this up: the old `handoutSegments` split the
 transcript **evenly by character count** (each part ≈ `total / parts` chars),
 while `partTitle` labelled the parts with **uneven** 15-minute ranges. So the
 labels never actually described their content — a "Part III（30–35）" label sat
-atop a chunk holding the last *third* of the transcript (~23–35 min of speech).
+atop a chunk holding the last *third* of the transcript (about 23–35 min of speech).
 Folding both onto the shared boundaries fixed that latent mismatch: the text is
 now split in **proportion to each part's labelled time span** (cumulative char
 target `total × boundary / duration`), so under a roughly constant speaking rate
@@ -72,7 +72,7 @@ The logic is mirrored verbatim in the Android app
 ## Trade-offs
 
 - **Single redistribution, not recursive.** Merging the last two parts can leave
-  two ~8-minute parts (e.g. a 31-minute episode → `0–15, 15–23, 23–31`). That is
+  two about 8-minute parts (e.g. a 31-minute episode → `0–15, 15–23, 23–31`). That is
   intentional: the rule is "don't end on a stub," not "make every part ≥ 10 min."
   Re-balancing further would ripple boundaries backward for little gain.
 - **Proportional text split assumes a roughly constant speaking rate.** Cut

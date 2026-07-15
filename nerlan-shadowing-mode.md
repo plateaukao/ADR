@@ -85,7 +85,7 @@ are unchanged and still available.
   repeat/record. ∞ remains the "just keep looping" mode and is the escape hatch
   to avoid auto-recording.
 - **No loop lead-in.** Loops start exactly at the cue's `start`. An earlier
-  ~0.2 s lead-in (to avoid clipping the first syllable) was dropped on request;
+  about 0.2 s lead-in (to avoid clipping the first syllable) was dropped on request;
   trailing silence into the next cue is left as a natural micro-pause.
 - **Loop math in the view, not the player.** Keeps `PlayerManager` free of any
   cue/`AIContentStore` dependency. Cost: lock-screen prev/next stay

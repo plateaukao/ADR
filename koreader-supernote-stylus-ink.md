@@ -28,7 +28,7 @@ lookup returns null and every Supernote call no-ops.
 
 E-ink panels are slow. A KOReader stroke that's painted into Lua's
 `Screen.bb` then refreshed via the normal EPD waveform shows up
-~300-600 ms after the pen tip moves — way too laggy to feel like
+about 300-600 ms after the pen tip moves — way too laggy to feel like
 handwriting. Vendors have invented two very different ways to close that
 gap.
 
@@ -194,7 +194,7 @@ Supernote (Sony, by contrast, does want `refreshFast` to fire because
 its kernel DHW pixels need to be re-presented).
 
 **The page-bake and the overlay-clear are paired.** Steps "setDirty" and
-"clearAll" run ~300 ms apart. We must bake first (so KOReader's persistent
+"clearAll" run about 300 ms apart. We must bake first (so KOReader's persistent
 framebuffer has the stroke), *then* tell the firmware to wipe the overlay
 (so its ink-mode doesn't double-print on top of our persistent stroke at
 the next page refresh). Doing it in the other order, or simultaneously,
@@ -366,7 +366,7 @@ flowchart LR
 setting). With the bundled copy excluded, the on-device copy is the
 single source and there are no duplicate-loaded issues. A working
 adb-push cycle for a Lua edit is about 5 seconds; a full Docker rebuild
-takes ~5 minutes (plus a `pm clear` to force asset re-extraction
+takes about 5 minutes (plus a `pm clear` to force asset re-extraction
 because `git-rev` doesn't bump within a session). 60x speedup on the
 inner loop.
 

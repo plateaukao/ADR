@@ -60,7 +60,7 @@ gesture toggle — a filled square for pen, hollow for eraser — rather than a
 toast. The wrinkle: `showToolBadge` paints directly into `Screen.bb` and the
 picker's close repaints the whole view, so a badge painted inside the tap
 callback is immediately wiped. The fix switches the tool silently (`setTool`
-gained a `silent` flag) and schedules `showToolBadge` ~0.2s later, after the
+gained a `silent` flag) and schedules `showToolBadge` about 0.2s later, after the
 close repaint has composited, so the badge lands on the stable page and
 lingers until the next repaint — exactly like the gesture toggle.
 

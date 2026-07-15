@@ -5,7 +5,7 @@
 
 The initial Medium-export conversion produced 262 markdown files. Two issues surfaced after browsing the converted set:
 
-1. **Comment posts polluting the archive.** Medium treats user "responses" (replies on other authors' articles, comment threads under one's own posts) as posts in the export. ~70 of the 262 entries were one-line replies like "Hi, Pin", "我來試試看", "謝謝回報" — not blog content the user wanted to publish on his own site.
+1. **Comment posts polluting the archive.** Medium treats user "responses" (replies on other authors' articles, comment threads under one's own posts) as posts in the export. About 70 of the 262 entries were one-line replies like "Hi, Pin", "我來試試看", "謝謝回報" — not blog content the user wanted to publish on his own site.
 2. **No way to browse by topic.** The user owns six Medium publications (EinkBro, 韓語學習筆記, 邊跑邊拍, 衝浪滑板二三事, 電子書閱讀器使用心得及技巧分享, conference_summary) but Medium's export does not preserve which publication a post belonged to — every canonical URL points at `@danielkao` regardless. Visitors couldn't filter by topic.
 
 ## Root cause
@@ -41,5 +41,5 @@ Tag value = the publication's actual Chinese name, written into TOML frontmatter
 
 - **Medium "responses" hide as posts in the export.** The export format makes no distinction between an article you wrote and a reply you typed under someone else's article. Detect by heuristic — body length, structural absence (no images / headings / code), and reply-style titles. Don't rely on canonical URL or filename, both of which look identical to a normal post.
 - **Confirm before bulk deletion.** With 73 candidates, score-based auto-delete was tempting but would have taken out one real short post ("在 MacOS 上跑 llama.cpp server …", 84 chars) and one real short note ("Mindmap of Clean Architecture", which had an attached image). Showing the bucketed list and accepting an exception list ("delete all except these two") cost one extra round-trip and saved actual content.
-- **Heuristic publication classifier is good enough for ~200 posts.** A keyword-priority classifier with ~6 categories tagged 131/192 posts correctly with no manual intervention. The remaining 61 untagged are genuinely cross-cutting (general Flutter/Android tutorials) — forcing a tag on them would create a junk drawer rather than a useful filter. Leaving them untagged is the right call. Resist the urge to add a "misc" or "other" tag.
+- **Heuristic publication classifier is good enough for about 200 posts.** A keyword-priority classifier with about 6 categories tagged 131/192 posts correctly with no manual intervention. The remaining 61 untagged are genuinely cross-cutting (general Flutter/Android tutorials) — forcing a tag on them would create a junk drawer rather than a useful filter. Leaving them untagged is the right call. Resist the urge to add a "misc" or "other" tag.
 - **Hugo lower-cases tag URL slugs but preserves the display name.** `tags = ["EinkBro"]` → URL `/tags/einkbro/`, but the page title and tag chip still render "EinkBro". Both behaviors are correct; don't try to "fix" by lowercasing the source tag.

@@ -25,7 +25,7 @@ right because the limit applies to a different Unicode form than expected:
 2. **NFC bytes, not NFD bytes.** Budgeting the readable name by its in-memory
    (NFC) UTF-8 length was *still wrong*: the filesystem/iCloud store names
    **decomposed (NFD)**, where each Hangul syllable expands from one codepoint
-   (3 bytes) to 2–3 jamo (~3× the bytes). So a name that measured ≤250 NFC bytes
+   (3 bytes) to 2–3 jamo (about 3× the bytes). So a name that measured ≤250 NFC bytes
    ballooned past 255 once stored and was truncated again — sometimes past the `[`
    itself, leaving a folder that ended mid-jamo with no bracket at all. The fix is
    to budget by **NFD** byte length.
@@ -108,7 +108,7 @@ its next mirror-up, and the second device pulls it normally.
   form.** Any id/name packed into a path component must be budgeted in UTF-8 bytes
   of `decomposedStringWithCanonicalMapping`, not the in-memory NFC string. A
   character cap fails for CJK/emoji; an NFC-byte cap *still* fails for Hangul,
-  which expands ~3× when the filesystem stores it decomposed. (First fix used NFC
+  which expands about 3× when the filesystem stores it decomposed. (First fix used NFC
   bytes and only made it worse — letting more text through, which expanded past the
   bracket.) Reserve the must-survive part (the id) first.
 - **Make round-trip keys un-truncatable, or detect truncation.** A key embedded

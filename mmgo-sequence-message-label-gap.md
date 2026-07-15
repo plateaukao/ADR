@@ -79,5 +79,5 @@ PR: pending push to fork.
   accident. The new layout is correct; the snapshots needed to match.
 - **Keep `EstimateWidth` for layout pre-passes; `Ruler.Measure` only
   where the measured value becomes a visible dimension.** For gap
-  sizing, EstimateWidth's ~20% overestimate is *useful margin*, not a
+  sizing, EstimateWidth's about 20% overestimate is *useful margin*, not a
   bug — using a real ruler here would slightly under-pad some labels.

@@ -10,7 +10,7 @@ button showed the error icon and tapping it opened the failure dialog with a 重
 dialog. The only recovery was killing the app or discovering the long-press →
 重新產生 menu. Reproduced on the emulator with an invalid API key: after the first
 failure dialog, 重試 produced no activity for 45 seconds (a real attempt fails and
-re-shows the dialog within ~30 s).
+re-shows the dialog within about 30 s).
 
 ## Root cause
 
@@ -45,6 +45,6 @@ if (_jobs.value[k] is JobState.Running || hasTranscript(record.id)) return
 
 Verified on the emulator: with an invalid key, first tap fails and shows the dialog;
 tapping 重試 now starts a fresh run (spinner) and the second failure dialog
-auto-appears ~30 s later — the retry actually executes.
+auto-appears about 30 s later — the retry actually executes.
 
 Commit: `22b0f6f` in nerlan-android.

@@ -81,5 +81,5 @@ verify in a third-party reader) is still TODO on-device.
 - **Active maintenance status of a dependency should be part of the same
   review checklist as license, size, and API surface.** EinkBro accumulated
   an 11-year-stale dependency because nothing ever failed loudly; the cost of
-  removing it today was ~15 lines of diff, but it could have been much worse
+  removing it today was about 15 lines of diff, but it could have been much worse
   if the library had been deeper in the call tree.

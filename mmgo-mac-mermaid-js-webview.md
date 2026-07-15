@@ -57,13 +57,13 @@ Copy PNG / Save PNG buttons work without modification.
 
 ## Trade-offs
 
-- **Render latency went up.** A C-call into Go took ~5–30 ms
-  synchronously. mermaid.js in WKWebView is ~30–120 ms per render plus
-  ~5–10 ms IPC, async. First render after launch adds a one-time
-  ~150–300 ms parse cost for `mermaid.min.js`. Still well under the
+- **Render latency went up.** A C-call into Go took about 5–30 ms
+  synchronously. mermaid.js in WKWebView is about 30–120 ms per render plus
+  about 5–10 ms IPC, async. First render after launch adds a one-time
+  about 150–300 ms parse cost for `mermaid.min.js`. Still well under the
   threshold where typing feels laggy on typical diagrams; large
   diagrams may benefit from a future time-based debounce.
-- **Net size: ~−1 MB.** `libmmgo.dylib` was 4.2 MB; `mermaid.min.js` is
+- **Net size: about −1 MB.** `libmmgo.dylib` was 4.2 MB; `mermaid.min.js` is
   3.2 MB. The `.app` bundle is now 3.7 MB total.
 - **No more cgo / Go toolchain dependency.** The repo is now pure
   Swift + a vendored JS file. Updating mermaid is a single `curl`.
@@ -73,7 +73,7 @@ Copy PNG / Save PNG buttons work without modification.
 - **CLI mode is not in scope.** mmgo had a CLI; this app does not. A
   headless mode is feasible (NSApplication with `.accessory`
   activation policy hosting an off-screen WKWebView), but each
-  invocation pays a ~500 ms–1 s startup cost — fine for one-off use,
+  invocation pays a roughly 500 ms–1 s startup cost — fine for one-off use,
   painful in a shell loop. Deferred.
 
 ## Key Files

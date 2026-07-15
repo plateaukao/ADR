@@ -5,7 +5,7 @@
 ## What was broken
 
 `ListeningStatsStore` persists this device's tally as one JSON blob. Persists
-fire every ~5 s of listening, on every pause, and on completions — each as
+fire every about 5 s of listening, on every pause, and on completions — each as
 `scope.launch { ownFile.writeText(...) }` on the **parallel** IO dispatcher.
 Two consequences:
 
@@ -25,9 +25,9 @@ process death mid-write leaves the previous intact file, not a truncated one.
 
 ## Verification
 
-On the emulator: ~12 s of playback (two 5 s persist ticks) ending in a
+On the emulator: about 12 s of playback (two 5 s persist ticks) ending in a
 pause-flush — the racy sequence this targets. The file stayed valid JSON, the
-daily tally advanced by exactly the played ~10 s (420.4 → 430.5), and no
+daily tally advanced by exactly the played about 10 s (420.4 → 430.5), and no
 leftover `.tmp` remained.
 
 Commit: `3b3021c` in nerlan-android.

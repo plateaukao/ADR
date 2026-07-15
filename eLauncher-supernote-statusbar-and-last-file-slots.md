@@ -7,7 +7,7 @@
 
 ## Part 1 — the black band (bug fix)
 
-The top ~213px of the eLauncher home screen turned solid black. Nothing in the
+The top about 213px of the eLauncher home screen turned solid black. Nothing in the
 recent commits touched theming, and the committed screenshots looked fine, so it
 had to be device state. `dumpsys window` / `dumpsys activity` showed:
 

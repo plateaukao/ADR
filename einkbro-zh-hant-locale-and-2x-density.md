@@ -65,7 +65,7 @@ time, so density is scaled exactly once with no compounding across
 activities.
 
 Verified on-device: explicit Traditional Chinese app-locale renders the
-app UI in Chinese; toolbar and all chrome render ~2x larger.
+app UI in Chinese; toolbar and all chrome render about 2x larger.
 
 ## Trade-offs
 

@@ -21,7 +21,7 @@ launcher explainer reports adapter ON / permission granted, no crash.
   compile/target SDK 34, minSdk 24, Kotlin-DSL + version catalog. Minimal deps
   only (core-ktx, appcompat, material, coroutines) — no Compose/Room/Koin/Hilt.
 - **No foreground service.** All interaction runs in a bounded `goAsync()`
-  window (~10 s, wrapped in `withTimeout`) on a process-lifetime coroutine
+  window (about 10 s, wrapped in `withTimeout`) on a process-lifetime coroutine
   scope (`BgScope`). Live BLE/RFCOMM handles are parked in an in-memory
   `ConnectionRegistry` for the process lifetime.
 - **Strategy chosen from device type** (`DeviceTypeResolver`):

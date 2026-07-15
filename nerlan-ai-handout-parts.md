@@ -1,6 +1,6 @@
 2026-06-16
 
-# NerLan — AI handout: split long episodes into ~15-minute Part I/II/III sections
+# NerLan — AI handout: split long episodes into about 15-minute Part I/II/III sections
 
 ## Summary
 
@@ -14,7 +14,7 @@ The handout now adapts to length:
 
 - **≤ 15 min** — one handout with **four** sections: **內容說明** (new — a short
   content explanation), **文法重點**, **例句**, **單字**.
-- **> 15 min** — split into ~15-minute **Part I / II / III…** sections, each
+- **> 15 min** — split into about 15-minute **Part I / II / III…** sections, each
   labelled with its audio time range (e.g. `Part I（00:00–15:00）`) and each
   containing the same four sub-sections.
 
@@ -56,7 +56,7 @@ added cost is one (cheap) chat completion per part.
 boundaries (`00:00–15:00`, `15:00–30:00`, last part ends at the true duration),
 while the *content* mapping is the approximate text split. When duration is
 unknown (older records), it falls back to splitting by transcript length
-(~3500 chars ≈ 15 min) and omits the time range, showing just `Part I`.
+(about 3500 chars ≈ 15 min) and omits the time range, showing just `Part I`.
 
 **Heading levels keep the document readable.** A single chat call per part returns
 the four sections as a fragment. For multi-part episodes the four sections are

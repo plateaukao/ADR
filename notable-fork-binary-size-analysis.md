@@ -2,7 +2,7 @@
 # Notable Fork (Ethran) Binary Size Analysis
 
 ## Problem
-The Ethran/notable fork's v0.2.0 release APK is ~116 MB, which is very large for a note-taking app.
+The Ethran/notable fork's v0.2.0 release APK is about 116 MB, which is very large for a note-taking app.
 
 ## Root Cause
 
@@ -18,7 +18,7 @@ The Ethran/notable fork's v0.2.0 release APK is ~116 MB, which is very large for
 
 ### Primary contributors
 
-1. **MuPDF native library (~35 MB)** — `com.artifex.mupdf:fitz:1.26.10` added in v0.1.4 for PDF support. Ships native `.so` files for all CPU architectures (arm64-v8a, armeabi-v7a, x86, x86_64).
+1. **MuPDF native library (about 35 MB)** — `com.artifex.mupdf:fitz:1.26.10` added in v0.1.4 for PDF support. Ships native `.so` files for all CPU architectures (arm64-v8a, armeabi-v7a, x86, x86_64).
 
 2. **`minifyEnabled false` on release builds** — R8/ProGuard is disabled for both debug and release build types, so unused code and resources are never stripped.
 
@@ -45,6 +45,6 @@ The Ethran/notable fork's v0.2.0 release APK is ~116 MB, which is very large for
 
 ## Lessons Learned
 
-- MuPDF is a major size cost (~35 MB) when bundled as a universal APK. If we add PDF support to our fork, consider ABI splits or AAB distribution.
+- MuPDF is a major size cost (about 35 MB) when bundled as a universal APK. If we add PDF support to our fork, consider ABI splits or AAB distribution.
 - Always enable R8 minification for release builds — it's a free size reduction.
 - The `material-icons-extended` dependency is a known size bloat without tree-shaking.

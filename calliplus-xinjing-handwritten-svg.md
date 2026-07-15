@@ -34,11 +34,11 @@ Key changes from `~/src/ouyang/segment_calligraphy.py`:
    - Threshold to dark pixels (`< 100`).
    - Use long horizontal/vertical structuring kernels (e.g. `cv2.getStructuringElement(MORPH_RECT, (image_w//3, 1))`) with a morphological open to extract horizontal lines, and the transpose for vertical lines.
    - Sum across the orthogonal axis → 1‑D projection peaks give row/column line positions. Edges between consecutive peaks are cell boundaries.
-   - Sanity check: expect ~17 cols × ~17 rows (roughly square cells); fall back to user `--rows`/`--cols` overrides.
+   - Sanity check: expect about 17 cols × about 17 rows (roughly square cells); fall back to user `--rows`/`--cols` overrides.
 
 2. **Cell rendering for black-on-white.** Replace `cell_to_rgba`'s brightness → alpha mapping. New mapping: `alpha = 255 - clip((cell_gray - lo) * 255 / (hi - lo))` so dark ink → opaque, white paper → transparent. Keep `trim_alpha` unchanged.
 
-3. **Punctuation cell skipping.** After `trim_alpha`, measure the bounding box area of opaque pixels. If alpha-pixel count < ~3 % of cell area (punctuation marks `，` `。` `；` `！` are tiny strokes in a corner), skip writing the PNG.
+3. **Punctuation cell skipping.** After `trim_alpha`, measure the bounding box area of opaque pixels. If alpha-pixel count < about 3 % of cell area (punctuation marks `，` `。` `；` `！` are tiny strokes in a corner), skip writing the PNG.
 
 4. **Reading-order character mapping.** Take a single `--text` argument with the full 心經 (characters + punctuation, no whitespace). The script walks cells in reading order — column right-to-left, top-to-bottom within each column — and matches each non-empty cell against the next non-punctuation char in `--text`, advancing past punctuation chars `，；。！？` in `--text` as it encounters punctuation cells. Output filename: `{seq:03d}_{char}.png` (e.g. `001_般.png`, `002_若.png`).
 

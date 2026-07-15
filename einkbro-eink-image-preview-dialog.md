@@ -46,7 +46,7 @@ flowchart TD
 
 The first implementation used Material 2 `AlertDialog` with the image in the
 `text` slot. Its internal baseline layout clamps the slot's height — the
-square image collapsed into a ~40dp full-width strip that overlapped the
+square image collapsed into a roughly 40dp full-width strip that overlapped the
 title, with both `aspectRatio(1f)` and an explicit `size(240.dp)` (plain
 `size` respects incoming constraints). The existing toolbar-position dialog
 only escapes this because its content declares `height(280.dp)` on a Box.

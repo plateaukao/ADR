@@ -15,7 +15,7 @@ The vertical toolbar is a fixed **50dp-wide** strip (`width(50.dp)` in
 `ComposedToolbar`, minus a 1dp separator). The clock is rendered by a single
 `CurrentTimeText` composable that drew the full `HH:mm` string at the inherited
 base font size with `6.dp` horizontal padding on each side. At that size the
-five glyphs plus padding exceed the ~45dp of usable width, so the `Text`'s
+five glyphs plus padding exceed the roughly 45dp of usable width, so the `Text`'s
 `overflow = TextOverflow.Ellipsis` kicked in and clipped the string. The same
 composable looks fine horizontally because that bar is full-width.
 

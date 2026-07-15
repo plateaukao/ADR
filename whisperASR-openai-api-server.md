@@ -54,7 +54,7 @@ TranscriptionResult`) returning text plus timestamped segments — which maps al
 plumbing.
 
 **Share one model, not two.** `AppState` owns a single `TranscriptionService`
-(holding the ~loaded whisper context). The server is a `@MainActor @Observable`
+(holding the loaded whisper context). The server is a `@MainActor @Observable`
 singleton (`APIServer.shared`) that `AppState` *injects* its service into via
 `attach(service:)`. This avoids loading the multi-GB model twice and means every
 request serializes on the same existing serial `whisperQueue` — whisper's context
@@ -67,7 +67,7 @@ dependencies, so the HTTP library choice mattered. FlyingFox is pure Swift on
 `Network.framework` and pulls in no transitive packages (FlyingSocks ships in the
 same repo), keeping the dependency surface to a single pin. It hands over the request
 body as `Data`; the one genuinely fiddly part — parsing `multipart/form-data` with
-binary file content — is a focused ~80-line `MultipartParser` rather than another
+binary file content — is a focused about 80-line `MultipartParser` rather than another
 dependency.
 
 **Config that behaves sensibly at runtime.** The bearer token is read from

@@ -68,7 +68,7 @@ flowchart TD
 
 **Readiness probes.** A first integration against a real custom server (a
 self-built whisper.cpp HTTP server) surfaced how opaque failures were, so two
-probes were added. `verifyTranscription` POSTs a generated ~0.5 s silent WAV and
+probes were added. `verifyTranscription` POSTs a generated about 0.5 s silent WAV and
 only checks the HTTP status — it deliberately does *not* reuse `transcribe`,
 which treats an empty transcript as a decode failure (silence legitimately
 transcribes to nothing). `verifyChat` does a one-token chat round-trip. The UI

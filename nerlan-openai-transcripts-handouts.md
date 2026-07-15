@@ -34,9 +34,9 @@ flowchart TD
 
 Design constraints discovered while building:
 
-- **OpenAI's 25 MB upload cap.** A 30-min MP3 can exceed it, so audio is transcoded to mono 16 kHz AAC (`SpeechAudioExporter`, AVAssetReader→AVAssetWriter) before upload — ~7 MB for 30 min, and the ideal format for speech recognition. Falls back to the source file if transcoding fails.
+- **OpenAI's 25 MB upload cap.** A 30-min MP3 can exceed it, so audio is transcoded to mono 16 kHz AAC (`SpeechAudioExporter`, AVAssetReader→AVAssetWriter) before upload — about 7 MB for 30 min, and the ideal format for speech recognition. Falls back to the source file if transcoding fails.
 - **Request timeouts.** Transcribing a 30-min episode takes minutes server-side; the default 60 s URLSession request timeout tripped. `OpenAIService` uses a dedicated session (300 s request / 1800 s resource); the audio fetch got a 300 s timeout too.
-- **Raw ASR has no sentence breaks** (especially CJK). After transcription the raw text is re-segmented into one-sentence-per-line by the chat model with a strict "don't translate or reword, only punctuate and split" prompt. Long transcripts are chunked (~4000 chars, split at sentence boundaries) so no single response is truncated. Segmentation failure falls back to saving the raw transcript so a paid transcription is never lost.
+- **Raw ASR has no sentence breaks** (especially CJK). After transcription the raw text is re-segmented into one-sentence-per-line by the chat model with a strict "don't translate or reword, only punctuate and split" prompt. Long transcripts are chunked (about 4000 chars, split at sentence boundaries) so no single response is truncated. Segmentation failure falls back to saving the raw transcript so a paid transcription is never lost.
 - **Transcript scroll performance.** `ScrollView`+`LazyVStack` with `.textSelection(.enabled)` on every row stutters at hundreds of rows. Switched to `List` (UITableView cell reuse) and removed per-row `.textSelection` (the dominant cost) — copy is offered via a lazy long-press context menu plus a copy-all toolbar button.
 - **Handout rendering.** The model returns an HTML *body fragment* only; the app wraps it in a styled, dark-mode-aware document (`AIContentStore.wrapHTML`) so it controls fonts/padding/viewport. `HandoutView` loads it once via a coordinator-guarded `WKWebView`.
 

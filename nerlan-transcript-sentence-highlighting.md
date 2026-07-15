@@ -73,7 +73,7 @@ flowchart TD
 
 - **View updates without per-tick churn.** `TranscriptView` reads playback
   position via `.onReceive` and writes the active-sentence index to `@State` only
-  when it changes, so `body` re-renders ~once per sentence rather than on every
+  when it changes, so `body` re-renders about once per sentence rather than on every
   0.5 s clock tick — keeping the perf-conscious `List` design intact.
 
 - **Segmentation fidelity (constraint discovered while testing Korean).** The
@@ -103,7 +103,7 @@ flowchart TD
   must regenerate an episode to gain highlighting. This was an explicit,
   acceptable choice over a migration.
 
-- **Highlight granularity follows ASR segments** (~breath groups), not words, and a
+- **Highlight granularity follows ASR segments** (roughly breath groups), not words, and a
   sentence that whisper split across two segments inherits the first segment's
   time. Good enough for follow-along; word-level was not worth the complexity.
 

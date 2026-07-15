@@ -31,7 +31,7 @@ deterministic and verifiable:
 3. Collect every `![[NAME]]` embed; resolve `NAME` from the source dir then
    recursively upward (the vault); copy into `static/images/<slug>/`; rename
    space/unsafe filenames to kebab-case; optimize with `sips` (≤1400px,
-   PNG screenshots → JPEG q85, target ~150–350 KB).
+   PNG screenshots → JPEG q85, target about 150–350 KB).
 4. Write `content/posts/<slug>.md` with the repo's **TOML `+++`** front
    matter, first image as `[cover].image`, body copied verbatim with only the
    `![[…]]` embeds rewritten to `![](/images/<slug>/…)`.

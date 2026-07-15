@@ -6,7 +6,7 @@
 Opening an EPUB file in EinkBro failed with two symptoms:
 
 1. With network **off**, the app showed the "You appear to be offline" error screen — even though opening a local EPUB should not need network.
-2. With network **on**, the EPUB reader activity flashed on screen for ~0.5s and disappeared without ever displaying the book.
+2. With network **on**, the EPUB reader activity flashed on screen for about 0.5s and disappeared without ever displaying the book.
 
 No crash appeared in logcat; the `EpubReaderActivity` was simply destroyed seconds after launch with no visible error.
 
@@ -33,7 +33,7 @@ Instead, the base `IntentDispatchDelegate.dispatchIntent` ran its generic `ACTIO
 }
 ```
 
-`epubManager.showEpubReader(viewUri)` starts a **new** `EpubReaderActivity` via intent, and the current one immediately finishes. Because `EpubReaderActivity` is `singleInstance`, the relaunch was delivered to the finishing instance as `onNewIntent` — and the task collapsed with `numActivities=0` inside ~20ms of being displayed.
+`epubManager.showEpubReader(viewUri)` starts a **new** `EpubReaderActivity` via intent, and the current one immediately finishes. Because `EpubReaderActivity` is `singleInstance`, the relaunch was delivered to the finishing instance as `onNewIntent` — and the task collapsed with `numActivities=0` inside about 20ms of being displayed.
 
 That's why the activity vanished with no crash, no `EpubReader` log lines, and no `Failed to open epub` exception: the override branch that *would* have logged anything never ran.
 
@@ -89,4 +89,4 @@ if (request?.isForMainFrame == true) {
 
 - **Extracting logic into a delegate can silently break subclass polymorphism.** When a base class method is `open` specifically so subclasses can override the handling, callers inside the base class must still go through the polymorphic method — not reach past it to the delegate. The refactor preserved the *shape* of `BrowserActivity.dispatchIntent` (still delegating one level deep) but the `onCreate` call site stopped using it. A grep for `intentDispatchDelegate.dispatchIntent` at refactor time would have flagged two suspicious direct calls.
 - **Error handlers should be scoped by URL scheme, not blanket main-frame checks.** `loadDataWithBaseURL` with a `file://` base means "local content rendered as if it came from this origin" — WebView treats it as a main-frame navigation and can raise `onReceivedError` on it. Any global error-interception logic needs to exclude non-network schemes, otherwise it will stomp local content loads (EPUB chapters, offline viewers, help pages, etc).
-- **When an activity "disappears with no crash," look for `finish()` in the dispatch path before suspecting the WebView or lifecycle.** The logcat showed `numActivities=0` within ~20ms of `Displayed` — that's the fingerprint of self-finishing, not a crash. Grepping the intent handling path for `finish()` landed on the bug immediately.
+- **When an activity "disappears with no crash," look for `finish()` in the dispatch path before suspecting the WebView or lifecycle.** The logcat showed `numActivities=0` within about 20ms of `Displayed` — that's the fingerprint of self-finishing, not a crash. Grepping the intent handling path for `finish()` landed on the bug immediately.

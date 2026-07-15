@@ -4,7 +4,7 @@
 
 ## What it does and why
 
-`CachingPlayerItem` (the opt-in "串流時自動快取" path) routes the audio stream through an `AVAssetResourceLoaderDelegate` so every received byte can be kept and, when complete, persisted as an offline copy. The keep-every-byte buffer was a `Data` in memory — fine for a 30-minute NER lesson (~30 MB), but a two-hour podcast at 128 kbps holds **100+ MB resident for the whole playback**, plus a second full copy at the completion hand-off. That's jetsam territory in the background.
+`CachingPlayerItem` (the opt-in "串流時自動快取" path) routes the audio stream through an `AVAssetResourceLoaderDelegate` so every received byte can be kept and, when complete, persisted as an offline copy. The keep-every-byte buffer was a `Data` in memory — fine for a 30-minute NER lesson (about 30 MB), but a two-hour podcast at 128 kbps holds **100+ MB resident for the whole playback**, plus a second full copy at the completion hand-off. That's jetsam territory in the background.
 
 ## How it works now
 

@@ -36,7 +36,7 @@ The effort is **almost entirely about the dictionary**, not the code:
 
 | Method | Engine effort | Data availability | Notes |
 |---|---|---|---|
-| **速成 / 簡易** (Quick) | ~zero | **reuse cj_data** | Just first+last Cangjie radical → trivial derivation from the PR's own data. Easiest possible win. |
+| **速成 / 簡易** (Quick) | about zero | **reuse cj_data** | Just first+last Cangjie radical → trivial derivation from the PR's own data. Easiest possible win. |
 | **行列 30 (Array)** | low | open (rime-array, GPL) | Numeric keys, simple max-match — same engine shape as Cangjie. |
 | **大易 (Dayi)** | low | open (rime-dayi) | Same as above. |
 | **注音 (Bopomofo)** | medium | open (rime, libchewing) | Most popular in Taiwan, but needs tone keys + phonetic→char mapping with heavier candidate ranking. More than a radical lookup. |

@@ -20,5 +20,5 @@ Created `index.html` with all HTML, CSS, and JavaScript in one file:
 - `index.html` — the entire game (342 lines)
 
 ## Lessons Learned
-- A full 2048 clone fits comfortably in a single file (~340 lines) with no dependencies.
+- A full 2048 clone fits comfortably in a single file (about 340 lines) with no dependencies.
 - Using CSS Grid for the board background and absolutely-positioned tile elements allows smooth transition animations on tile movement.

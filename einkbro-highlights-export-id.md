@@ -7,7 +7,7 @@
 Exporting highlights from a single article's screen always produced
 empty/wrong output. `HighlightsRoute` — the nav-route enum — declared its
 screen *title* resource in a field misleadingly named `articleId`, and
-`exportHighlights()` passed `highlightsRoute.articleId` (a ~2-billion
+`exportHighlights()` passed `highlightsRoute.articleId` (a about 2-billion
 `R.string` constant) to `dumpSingleArticleHighlights(articleId: Int)`,
 which expects a Room database ID. No article ever matches, so the dump was
 empty. The real article ID only exists in the nav backstack arguments

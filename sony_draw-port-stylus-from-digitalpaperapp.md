@@ -20,7 +20,7 @@ New standalone Android app that reproduces the stylus writing canvas of the Sony
    - `StylusView` extends `SurfaceView`, filters touch events to `TOOL_TYPE_STYLUS`, hands them to `InkStrokeEditor`. Enables DHW + registers the view's global rect as the allow-area on `surfaceChanged`.
    - `InkStrokeEditor` is the heart of Sony's algorithm: each segment is rasterised as a tapered quad (length = old-radius → new-radius) plus a filled circle at each endpoint. This is what avoids the visible gaps that `drawLine()` produces when the pen moves faster than the stroke is wide. The polygon construction is copied verbatim from `InkStrokeEditor.drawPath`.
    - `StrokeDetector` replays `getHistoricalX/Y/Pressure` before the current sample so sub-frame batched points are not lost — same logic as Sony's `StrokeDetector.addPoint`.
-   - `RenderingThread` keeps an off-screen ARGB-8888 "stroke bitmap" that the editor draws into, then locks the surface in `UPDATE_MODE_NOWAIT_NOCONVERT_DU_SP1_IGNORE` (1-bit, ~120ms) while the pen is moving, and a `UPDATE_MODE_NOWAIT_GC16_PARTIAL_SP1_IGNORE` partial refresh on pen-up so the result lands as clean 16-grey.
+   - `RenderingThread` keeps an off-screen ARGB-8888 "stroke bitmap" that the editor draws into, then locks the surface in `UPDATE_MODE_NOWAIT_NOCONVERT_DU_SP1_IGNORE` (1-bit, about 120ms) while the pen is moving, and a `UPDATE_MODE_NOWAIT_GC16_PARTIAL_SP1_IGNORE` partial refresh on pen-up so the result lands as clean 16-grey.
 
 6. **Verify on device.** First boot logs show all three hooks working:
    ```

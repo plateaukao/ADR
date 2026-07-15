@@ -17,9 +17,9 @@ The UI thread was backed up to the point the input dispatcher killed it.
 
 Two compounding problems inside `PaintView.renderSegment` / `stampAlongSubSegment`:
 
-1. **Double subdivision.** The code subdivided the centripetal Catmull-Rom curve to 1-pixel granularity (`subdiv = max(8, (int) segDist)`) *and then* walked each 1-px sub-segment a second time to decide where to stamp (`spacing = width × 0.06`). The inner walk normally produced at most one stamp per 1-px sub-segment, so the outer loop was ~17× more subdivisions than needed. Each outer step called `catmullRomCentripetal`, which recomputed four `Math.pow(Math.hypot(...), 0.5)` knots on every step — none of the knots vary within a segment.
+1. **Double subdivision.** The code subdivided the centripetal Catmull-Rom curve to 1-pixel granularity (`subdiv = max(8, (int) segDist)`) *and then* walked each 1-px sub-segment a second time to decide where to stamp (`spacing = width × 0.06`). The inner walk normally produced at most one stamp per 1-px sub-segment, so the outer loop was about 17× more subdivisions than needed. Each outer step called `catmullRomCentripetal`, which recomputed four `Math.pow(Math.hypot(...), 0.5)` knots on every step — none of the knots vary within a segment.
 
-2. **Per-touch amplification.** `brush_move` called `addFilteredSample` for every historical `MotionEvent` sample **plus** the current one, and each `addSample` ran a full `renderSegment`. A single `ACTION_MOVE` with 10 historical samples → 11 `renderSegment` calls → for a 200-px segment that's ~200 subdivisions × ~4 `Math.pow` calls = ~800 pow calls × 11 = **~8 800 pow calls per MOVE event**, plus thousands of `drawBitmap` / `Matrix` operations, at 60+ Hz touch rate. Plus `new PointF(...)` on every sample feeding the GC, and `ArrayList.remove(0)` at O(n) when the ring overflowed.
+2. **Per-touch amplification.** `brush_move` called `addFilteredSample` for every historical `MotionEvent` sample **plus** the current one, and each `addSample` ran a full `renderSegment`. A single `ACTION_MOVE` with 10 historical samples → 11 `renderSegment` calls → for a 200-px segment that's about 200 subdivisions × about 4 `Math.pow` calls = about 800 pow calls × 11 = **about 8 800 pow calls per MOVE event**, plus thousands of `drawBitmap` / `Matrix` operations, at 60+ Hz touch rate. Plus `new PointF(...)` on every sample feeding the GC, and `ArrayList.remove(0)` at O(n) when the ring overflowed.
 
 Detected via:
 - `adb logcat` showed the ANR line and recent `Choreographer` skipped-frame warnings.
@@ -27,7 +27,7 @@ Detected via:
 
 ## Solution
 
-Three-part rewrite of the hot path in `PaintView` (~80-line delta):
+Three-part rewrite of the hot path in `PaintView` (about 80-line delta):
 
 1. **Collapse subdivision into the stamp loop.** New subdivision count is `ceil(segDist / spacing)` where `spacing = avgWidth × SPACING_FACTOR`, capped at `MAX_STAMPS_PER_SEGMENT = 256` so an ultra-long flick can't pin the UI thread. Each step stamps exactly once — `stampAlongSubSegment` is deleted.
 
@@ -43,7 +43,7 @@ On a Pixel 7 API 34 emulator with the release-style debug build:
 
 - Fast full-canvas horizontal / vertical / diagonal swipes (the scenario that produced `Skipped 143 frames`) now draw without stalls.
 - `adb shell dumpsys gfxinfo info.plateaukao.calliplus framestats` over a stroke session reported:
-  - **Janky frames: 43 / ~10 000 = 0.43 %**
+  - **Janky frames: 43 / about 10 000 = 0.43 %**
   - 50th %ile 19 ms, 95th %ile 21 ms (within 60 fps budget).
 - `adb logcat` clean: no `Skipped frames`, no `ANR`, no GC-histogram warnings during drawing.
 - Visual behavior preserved — centripetal Catmull-Rom smoothing, velocity-modulated width via smoothstep, and tapered stroke end (收筆) all render as before.

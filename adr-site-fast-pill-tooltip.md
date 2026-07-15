@@ -1,7 +1,7 @@
 # ADR Site: Replace native `title` tooltip with a fast custom hover hint
 
 ## Problem
-Hovering a calendar pill in the viewer (`docs/`) showed the project + full title only after the browser's built-in `title` delay (~500–700 ms, varies by browser/OS). On a calendar where the pill text itself is aggressively truncated, that delay made the tooltip feel slow enough that users would move on before it appeared.
+Hovering a calendar pill in the viewer (`docs/`) showed the project + full title only after the browser's built-in `title` delay (about 500–700 ms, varies by browser/OS). On a calendar where the pill text itself is aggressively truncated, that delay made the tooltip feel slow enough that users would move on before it appeared.
 
 ## Root Cause
 `appendPills` set `btn.title = ...`. The `title` attribute uses the OS-level tooltip, whose delay is not exposed to the page. There is no CSS or JS hook to make it appear sooner.

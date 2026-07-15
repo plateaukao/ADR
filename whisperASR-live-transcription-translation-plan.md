@@ -36,7 +36,7 @@ SwiftUI `List` virtualization (`List` is already lazy), watchdog stall-detection
 
 ## Key Files
 
-- `Sources/AudioRecorder.swift` — resampling (callback at ~line 680).
+- `Sources/AudioRecorder.swift` — resampling (callback at around line 680).
 - `Sources/AppState.swift` — live transcription loop (lines 200–360), translation queue (lines 440–530).
 - `Sources/TranslationService.swift` — whole file (errors + HTTP call).
 - `Sources/RecordingView.swift` — minimal banner to display `liveError` / `liveTranslationError`.

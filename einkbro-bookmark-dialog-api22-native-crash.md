@@ -91,7 +91,7 @@ allocation.
 // after : itemsIndexed { … Item(modifier = tapModifier) }   // no graphicsLayer
 ```
 
-One file, ~35 insertions / ~79 deletions. **Trade-off:**
+One file, about 35 insertions / about 79 deletions. **Trade-off:**
 drag-to-reorder bookmarks is gone. It is intrinsically tied to the
 crashing `graphicsLayer` path and is impractical on an e-ink device
 anyway; reordering can be re-added later via a non-drag mechanism if
@@ -99,7 +99,7 @@ wanted.
 
 ## Directions Tested (and why each was wrong)
 
-This took ~16 build/test cycles. Every wrong turn was eliminated by a
+This took about 16 build/test cycles. Every wrong turn was eliminated by a
 **single-variable isolation test**, not by reasoning alone. Recorded
 here because the *path* is the lesson.
 

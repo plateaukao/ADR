@@ -2,7 +2,7 @@
 
 # WhisperASR: reject oversized API uploads with 413 instead of buffering them
 
-The OpenAI-compatible endpoints read the entire request body into memory (`request.bodyData`), then the multipart parser subdata-copies the file part out of it, and the upload is also staged to a temp file — transiently ~2–3× the upload size in RAM, with no limit on what a client may send. With LAN access enabled, one huge (or malicious, or simply mistaken — think a client posting a screen recording) upload could drive the app into memory pressure.
+The OpenAI-compatible endpoints read the entire request body into memory (`request.bodyData`), then the multipart parser subdata-copies the file part out of it, and the upload is also staged to a temp file — transiently about 2–3× the upload size in RAM, with no limit on what a client may send. With LAN access enabled, one huge (or malicious, or simply mistaken — think a client posting a screen recording) upload could drive the app into memory pressure.
 
 Uploads are now capped at 1 GB, which comfortably covers hours of audio in any common format:
 

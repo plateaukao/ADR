@@ -11,7 +11,7 @@ Three issues:
 
 2. **Install screen not showing**: `installApkFromFile` called `context.startActivity()` from `Dispatchers.IO`. On some devices/Android versions, starting activities from a background thread can silently fail.
 
-3. **10+ second delay after download**: After download completed, `zipInputStream.copyTo(fos)` extracted the full APK (~20-30MB) with no progress feedback. On E-ink devices with slow flash I/O, this appeared as a hang.
+3. **10+ second delay after download**: After download completed, `zipInputStream.copyTo(fos)` extracted the full APK (about 20-30MB) with no progress feedback. On E-ink devices with slow flash I/O, this appeared as a hang.
 
 ## Solution
 - Changed `lifecycleScope.launch` to `withContext` so the suspend lambda properly awaits, and the `finally` block runs at the correct time.

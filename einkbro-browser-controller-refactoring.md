@@ -7,7 +7,7 @@
 
 ## Root Cause
 
-The original `BrowserController` (inherited from Ninja Browser, ~14 methods) grew to 83 methods as features were added (translation, TTS, AI chat, e-ink gestures, split screen, EPUB). A prior refactoring (commit `605239a7`) extracted sub-interfaces (`TabController`, `NavigationController`, `ViewStateController`, `TranslationController`, `TtsController`, `InputController`) and delegate classes, but:
+The original `BrowserController` (inherited from Ninja Browser, about 14 methods) grew to 83 methods as features were added (translation, TTS, AI chat, e-ink gestures, split screen, EPUB). A prior refactoring (commit `605239a7`) extracted sub-interfaces (`TabController`, `NavigationController`, `ViewStateController`, `TranslationController`, `TtsController`, `InputController`) and delegate classes, but:
 
 1. `BrowserController` still extends all 6 sub-interfaces, so consumers still get the full surface
 2. `InputController` alone has 38 methods mixing 8+ unrelated concerns
@@ -19,23 +19,23 @@ The original `BrowserController` (inherited from Ninja Browser, ~14 methods) gre
 
 | Project | Pattern | Interface Size | Key Insight |
 |---------|---------|----------------|-------------|
-| **Ninja** (ancestor) | Single flat `BrowserController` | ~14 methods | Original god-interface |
-| **FOSS Browser** | Trimmed flat `BrowserController` | ~8 methods | Fewer features = smaller interface |
-| **Lightning Browser** | MVP Contract (View/Model/Navigator) | ~43 across 3 interfaces | Separates rendering, data, navigation |
+| **Ninja** (ancestor) | Single flat `BrowserController` | about 14 methods | Original god-interface |
+| **FOSS Browser** | Trimmed flat `BrowserController` | about 8 methods | Fewer features = smaller interface |
+| **Lightning Browser** | MVP Contract (View/Model/Navigator) | about 43 across 3 interfaces | Separates rendering, data, navigation |
 | **DuckDuckGo** | Layered MVVM + Command pattern | Distributed across ViewModels | Two ViewModel scopes; `WebViewClientListener` decouples WebView |
 | **Firefox/Fenix** | Redux-like Store + Middleware | No controller interface at all | Unidirectional data flow; most scalable |
-| **GeckoView** | Focused Delegates | ~6 small interfaces | Purest ISP; each concern is its own tiny interface |
+| **GeckoView** | Focused Delegates | about 6 small interfaces | Purest ISP; each concern is its own tiny interface |
 
 ## Current Consumer Analysis
 
 | Consumer | Methods Used | Could Accept |
 |----------|-------------|--------------|
-| `EBWebView` | `updateProgress`, `updateTitle`, `addHistory`, `loadInSecondPane`, `resetTranslateUI`, `showTranslation`, `handleKeyEvent`, `isActionModeActive`, `dismissActionMode` | Narrow callback interface (~7 methods) |
+| `EBWebView` | `updateProgress`, `updateTitle`, `addHistory`, `loadInSecondPane`, `resetTranslateUI`, `showTranslation`, `handleKeyEvent`, `isActionModeActive`, `dismissActionMode` | Narrow callback interface (about 7 methods) |
 | `Album` | `isCurrentAlbum`, `isAtTop`, `refreshAction`, `jumpToTop`, `showAlbum`, `removeAlbum` | `TabController + NavigationController` subset |
 | `GestureHandler` | 23 methods across Tab, Navigation, Input, ViewState | Composite of sub-interfaces |
 | `KeyHandler` | 14 methods + `as? Context` cast | Composite of sub-interfaces |
-| `ToolbarActionHandler` | ~35 methods (nearly everything) | Full `BrowserController` (justified) |
-| `MenuActionHandler` | ~25 methods | Full `BrowserController` (justified) |
+| `ToolbarActionHandler` | about 35 methods (nearly everything) | Full `BrowserController` (justified) |
+| `MenuActionHandler` | about 25 methods | Full `BrowserController` (justified) |
 | `ChatWebInterface`/`JsHelper` | `addNewTab` only | Lambda `(String) -> Unit` |
 | `TouchAreaViewController` | None directly (passes to GestureHandler) | Same as GestureHandler |
 | `AiChatDelegate` | `activity as BrowserController` for hidden WebView | Narrow callback |
@@ -45,8 +45,8 @@ The original `BrowserController` (inherited from Ninja Browser, ~14 methods) gre
 
 ### Phase 1: Make Sub-Interfaces Work (narrowing consumer dependencies)
 
-- Create `WebViewCallback` interface for `EBWebView` (~7 methods) instead of full `BrowserController`
-- Create `AlbumCallback` for `Album` (~6 methods)
+- Create `WebViewCallback` interface for `EBWebView` (about 7 methods) instead of full `BrowserController`
+- Create `AlbumCallback` for `Album` (about 6 methods)
 - `GestureHandler` accepts composite of only needed sub-interfaces
 - `KeyHandler` accepts composite of only needed sub-interfaces
 - `JsHelper` accepts `(String) -> Unit` lambda for `addNewTab`

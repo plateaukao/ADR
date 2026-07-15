@@ -41,7 +41,7 @@ from the Sony DPT-CP1 that KOReader already supports.
   refreshes**, because the firmware is already showing the ink.
   KOReader's delayed-commit path bakes the finished stroke into the
   framebuffer at `setDirty(view, "fast")` time, after which the plugin
-  fires `supernoteInkClearAll()` (~300ms later) to wipe the firmware
+  fires `supernoteInkClearAll()` (about 300ms later) to wipe the firmware
   overlay so the next stroke starts clean.
 
 ### Layer-by-layer wiring (per `koreader-eink-stylus-support` skill)

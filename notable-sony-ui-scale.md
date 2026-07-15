@@ -4,8 +4,8 @@
 
 On a DPT-CP1 the toolbar buttons, settings icon, and page-thumbnail
 labels rendered too small to use comfortably. The panel is 13.3" /
-1404 × 1872 / ~150 dpi; Notable's UI was sized for Onyx devices at
-~227 dpi, so dp-based dimensions came out roughly two-thirds of the
+1404 × 1872 / about 150 dpi; Notable's UI was sized for Onyx devices at
+about 227 dpi, so dp-based dimensions came out roughly two-thirds of the
 intended physical size on Sony hardware.
 
 This commit adds a per-vendor UI scale factor: Onyx stays at 1f

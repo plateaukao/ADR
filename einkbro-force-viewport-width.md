@@ -32,7 +32,7 @@ Bundling viewport injection into the `desktop` toggle would silently change
 behaviour for every existing happy user — sites that *do* honour viewport
 would suddenly horizontally overflow on small e-ink screens, forcing pinch
 zoom-out. Different e-ink devices also have different native widths (Boox
-~1404px, Kindle ~1072px, Supernote ~1404px), so a single hardcoded fallback
+about 1404px, Kindle about 1072px, Supernote about 1404px), so a single hardcoded fallback
 value would be wrong somewhere.
 
 Instead, the option is a **nullable per-site stepper nested under Desktop

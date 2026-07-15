@@ -17,7 +17,7 @@ Investigation of the app startup path and WebView instance lifecycle revealed se
 
 2. **User agent string fetched per-WebView** — `WebSettings.getDefaultUserAgent(context)` is called inside `updateUserAgentString()`, which runs in every `EBWebView` constructor via `initPreferences()`. This is an expensive synchronous call to the Chromium engine that returns the same value every time. With 10 saved tabs, it runs 10 times on the main thread during startup.
 
-3. **Wasteful preloading during tab restoration** — When restoring N saved tabs, `addAlbum()` is called N times in a loop. Each call (except the first) consumes the preloaded WebView and schedules a new preload 500ms later. During a batch restore of 10 tabs, this creates ~9 throwaway preloaded WebViews that are immediately consumed by the next iteration, wasting CPU cycles on unnecessary WebView construction.
+3. **Wasteful preloading during tab restoration** — When restoring N saved tabs, `addAlbum()` is called N times in a loop. Each call (except the first) consumes the preloaded WebView and schedules a new preload 500ms later. During a batch restore of 10 tabs, this creates about 9 throwaway preloaded WebViews that are immediately consumed by the next iteration, wasting CPU cycles on unnecessary WebView construction.
 
 4. **No memory pressure handling** — The app has no `onTrimMemory()` override. When the system signals memory pressure, background tabs continue consuming memory. With many open tabs, this can lead to the system killing the process rather than the app gracefully reducing its footprint.
 
@@ -95,7 +95,7 @@ The full app startup sequence was traced from `Application.onCreate()` through t
 4. `setupAdBlock()` — creates `AdFilter` instance, starts background coroutine for filter downloads
 
 ### BrowserActivity.onCreate()
-1. `MainActivityLayout.create()` — programmatic creation of ~25 views with ConstraintSet
+1. `MainActivityLayout.create()` — programmatic creation of about 25 views with ConstraintSet
 2. `initToolbar/SearchPanel/InputBar/Overview/TouchArea` — UI setup
 3. `dispatchIntent()` → `initSavedTabs()` — restores tabs:
    - Each `addAlbum()` call creates an `EBWebView` (or reuses preloaded one)
@@ -106,10 +106,10 @@ The full app startup sequence was traced from `Application.onCreate()` through t
 5. `postDelayed(1000ms)` → `checkAdBlockerList()` — downloads default filters if needed
 
 ### Estimated main-thread timeline (10 saved tabs):
-- Koin DI + database init: ~100-200ms
-- Layout creation: ~100-200ms
-- WebView creation (10 tabs): ~300-500ms (was ~500-800ms before UA caching + preload fix)
-- First page load request sent: ~500-900ms after onCreate
+- Koin DI + database init: about 100-200ms
+- Layout creation: about 100-200ms
+- WebView creation (10 tabs): about 300-500ms (was about 500-800ms before UA caching + preload fix)
+- First page load request sent: about 500-900ms after onCreate
 
 ---
 

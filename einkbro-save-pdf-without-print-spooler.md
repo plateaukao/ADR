@@ -57,7 +57,7 @@ EPUB/MHT export, that matches user intent.
   — new `savePdfFilePickerLauncher`, `showPdfFilePicker()`, `savePdfToUri(...)`,
   `finalizePdf(...)`. Holds the actual print-adapter driving logic.
 - `app/src/main/java/info/plateaukao/einkbro/view/handlers/MenuActionHandler.kt`
-  — replaced ~130 lines of in-line PDF logic with one-line dispatch.
+  — replaced about 130 lines of in-line PDF logic with one-line dispatch.
 - `app/src/main/java/info/plateaukao/einkbro/browser/BrowserAction.kt` — new
   `SavePdf` action.
 - `app/src/main/java/info/plateaukao/einkbro/browser/BrowserController.kt` —

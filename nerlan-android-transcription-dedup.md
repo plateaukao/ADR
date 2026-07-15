@@ -5,7 +5,7 @@
 ## What was broken
 
 Transcription is the app's most expensive operation — audio download, transcode,
-then a paid OpenAI transcription per ~20-minute chunk. Two paths could start it
+then a paid OpenAI transcription per about 20-minute chunk. Two paths could start it
 for the same episode at the same time:
 
 - `runHandout` needs a transcript, and called `runTranscript(record)` directly
@@ -40,7 +40,7 @@ OpenAI quota, so it deserves a logcat line, and it is how the fix was verified.
 ## Verification
 
 On the emulator with an invalid API key: tapped 逐字稿, then AI 講義 on the same
-episode 3 seconds later (well inside the ~30 s run). Both buttons showed running
+episode 3 seconds later (well inside the roughly 30 s run). Both buttons showed running
 state and both failed together when the shared run failed — and logcat contained
 exactly **one** `transcription run started` line.
 

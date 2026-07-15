@@ -33,7 +33,7 @@ building. Both facts shaped the design:
 - **Uploads are downscaled** (`readCoverFile`): images over 1200px on the long
   side are redrawn to a canvas and re-encoded as JPEG q0.9. A full-resolution
   photo serialized into sessionStorage alongside the chapter HTML could exceed
-  the ~5 MB quota and break the batch mid-run. Small images pass through
+  the roughly 5 MB quota and break the batch mid-run. Small images pass through
   untouched; a decode failure falls back to the raw data URL.
 - **Reuse the existing end-of-batch fetch.** `fetch()` handles `data:` URLs
   transparently, and the existing blob-type / WebP→JPEG conversion in

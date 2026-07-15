@@ -17,7 +17,7 @@ undo) running on a DPT-CP1 with sony_draw-grade in-stroke latency.
 Dropped Sony flavor `minSdk` from 26 back to 22 and worked through every
 runtime failure surfaced by an actual launch on the device:
 
-- **Manifest merger**: ~50 androidx / Compose AAR packages declare
+- **Manifest merger**: about 50 androidx / Compose AAR packages declare
   `minSdkVersion=23+` in their AAR manifests. `app/src/sony/AndroidManifest.xml`
   lists them all under `tools:overrideLibrary`. List enumerated by
   scanning `~/.gradle/caches/.../transformed/**/AndroidManifest.xml` for
@@ -69,7 +69,7 @@ runtime failure surfaced by an actual launch on the device:
     draws the segment as a filled tapered polygon with circular endcaps
     into the stroke bitmap, then locks the surface canvas with
     `EpdHelper + EinkMode.DU`, composites page bitmap + stroke bitmap,
-    unlocks. ~120 ms per push — the "fast" feedback.
+    unlocks. About 120 ms per push — the "fast" feedback.
   - `ACTION_UP`: fires `onStrokePoints` so Notable's existing
     `handleDraw` → `page.addStrokes` → `page.windowedBitmap` →
     `refreshManager.refreshUi` path runs. That refresh uses
@@ -120,7 +120,7 @@ the page-bitmap blit.
 ## Key Files
 
 **New (`app/src/sony/`)**:
-- `AndroidManifest.xml` — `tools:overrideLibrary` for ~50 androidx /
+- `AndroidManifest.xml` — `tools:overrideLibrary` for about 50 androidx /
   Compose packages.
 - `java/com/ethran/notable/editor/eink/sony/SonyLiveStroke.kt` —
   process-wide live overlay holder.

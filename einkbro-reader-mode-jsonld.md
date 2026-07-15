@@ -17,7 +17,7 @@ Use JSON-LD only to **identify** the correct article's DOM container, then let R
 
 - New asset `app/src/main/assets/jsonld_article.js` exposes `window.getReadabilityScopedDocument()`:
   - Walks `<script type="application/ld+json">` tags (single objects, arrays, `@graph` wrappers) and finds an entry whose `@type` is one of `NewsArticle` / `Article` / `BlogPosting` / `ReportageNewsArticle` / `OpinionNewsArticle` / `ReviewArticle` / `TechArticle` / `ScholarlyArticle` / `BackgroundNewsArticle` / `AnalysisNewsArticle`.
-  - Takes the first ~80 normalized characters of `articleBody` as a signature, then scans candidate containers (`[itemprop="articleBody"]`, `article[id]`, `section[id*="article"]`, `[class*="article-body"]`, etc.) for the deepest element whose `innerText` contains the signature.
+  - Takes the first about 80 normalized characters of `articleBody` as a signature, then scans candidate containers (`[itemprop="articleBody"]`, `article[id]`, `section[id*="article"]`, `[class*="article-body"]`, etc.) for the deepest element whose `innerText` contains the signature.
   - Builds a minimal `HTMLDocument` containing:
     - `<base href>` so relative URLs resolve,
     - copied `og:*` / `twitter:*` / `description` / `author` / `canonical` meta tags and JSON-LD scripts, so Readability's metadata extractor still derives title/byline/siteName correctly,

@@ -111,7 +111,7 @@ or the counter double-counts.
   LWW ledger). This is the same backup-favoring tradeoff the iCloud file sync makes;
   a deleted favorite re-appears if any peer still has it. Acceptable for a personal
   backup/bridge, and consistent with Android.
-- **No server-side change feed**, so sync runs on launch, on sign-in, and ~2.5s
+- **No server-side change feed**, so sync runs on launch, on sign-in, and about 2.5s
   after a local change (debounced) — not push-driven. Fine for single-user,
   low-frequency edits.
 - **Metadata files sync sequentially** (they're tiny single files); only the

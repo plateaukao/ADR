@@ -36,7 +36,7 @@ All numbers are the signed arm64 release APK, measured by building each variant:
 
 The naive +6.18 MB decomposes into three parts, two of them removable:
 
-1. **BouncyCastle, ~4.2 MB.** The POM pulls in bcprov/bcpkix/bcutil as compile-scope
+1. **BouncyCastle, about 4.2 MB.** The POM pulls in bcprov/bcpkix/bcutil as compile-scope
    dependencies, needed only for encrypted PDFs. R8 strips the unused *classes*, but it
    cannot strip Java *resources* — and BouncyCastle ships post-quantum crypto data files
    (`lowmc.properties` alone is 1.5 MB, the SIKE `p*.properties` another 2.5 MB) that
@@ -47,7 +47,7 @@ The naive +6.18 MB decomposes into three parts, two of them removable:
    used only for text extraction and rendering, never by COS-level merging. All of them
    live under a single asset directory, so one addition to `androidResources.
    ignoreAssetsPattern` (`!tom_roush`) drops them at asset-merge time.
-3. **Reachable dex, ~330 KB.** The parser, COS model and writer that the feature
+3. **Reachable dex, about 330 KB.** The parser, COS model and writer that the feature
    actually uses. This is the real cost.
 
 One more `-dontwarn com.gemalto.jp2.**` is required regardless: pdfbox-android
@@ -68,7 +68,7 @@ time.
 **Forking lite and rebasing onto 2.0.27** was measured rather than argued: consuming
 the bare 2.0.27 `classes.jar` (which is exactly what a perfect source fork would
 deliver — no consumer proguard keep rules, no assets) lands at +318 KB. A fork's total
-achievable saving over the config approach is therefore **~16 KB**: the AAR's consumer
+achievable saving over the config approach is therefore **about 16 KB**: the AAR's consumer
 rules force-keep the `documentinterchange` package and `SecurityHandler` subclasses,
 and after dex compression that force-kept code costs almost nothing. Owning a
 crypto-adjacent PDF-parser fork indefinitely for 16 KB is a bad trade. (If those 16 KB
@@ -79,7 +79,7 @@ without forking.)
 `java.awt`; native options (qpdf, mupdf) cost multiple MB per ABI; a hand-rolled
 incremental-update merger would need a real xref/object-stream parser to survive
 arbitrary user files (Supernote-annotated PDFs included) and is a correctness liability
-to save ~300 KB; rasterizing through `PdfRenderer` destroys text.
+to save about 300 KB; rasterizing through `PdfRenderer` destroys text.
 
 A pleasant surprise closed the study: **TOC support costs zero additional bytes.**
 `PDFMergerUtility` already references the outline classes (it merges source outlines

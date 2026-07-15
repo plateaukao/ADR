@@ -25,7 +25,7 @@ EinkBro has a "Google in-place" translation mode that injects Google's JS librar
 
 ### Approach
 
-Reuse ~95% of the existing paragraph translation pipeline. The only change is in the JavaScript callback: instead of writing to a sibling `<p>`, replace the original element's text content. This is controlled via a `window._translateInPlace` flag set from Kotlin before loading the monitor script.
+Reuse about 95% of the existing paragraph translation pipeline. The only change is in the JavaScript callback: instead of writing to a sibling `<p>`, replace the original element's text content. This is controlled via a `window._translateInPlace` flag set from Kotlin before loading the monitor script.
 
 ### Translation Flow (In-Place)
 

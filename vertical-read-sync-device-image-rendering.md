@@ -5,7 +5,7 @@ Commit: `2506ccc` — "sync: adopt device's image-only page rendering for vertic
 ## Summary
 
 The `2-cre-rotate-japanese-book.lua` patch running on the e-ink device
-(`/sdcard/koreader/patches/`) had diverged ~200 lines ahead of the
+(`/sdcard/koreader/patches/`) had diverged about 200 lines ahead of the
 repo's latest committed version. The extra code was hand-debugged work
 (JPEG-decoder segfault workaround, alpha-blit fix) that had never been
 pushed back to git and existed nowhere but the device — i.e. unbacked.
@@ -15,7 +15,7 @@ the repo is finally the latest.
 ## Approach
 
 Three versions existed: an old stale copy in an untracked `patches/`
-subfolder (~411 lines), the repo's tracked root file on `main` (445
+subfolder (about 411 lines), the repo's tracked root file on `main` (445
 lines), and the device file (647 lines). The device was newest. Pulled
 the device file, verified `luac -p`, and committed it over the tracked
 root path `2-cre-rotate-japanese-book.lua`. Only that one file was

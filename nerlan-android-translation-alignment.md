@@ -5,7 +5,7 @@
 ## What was broken
 
 The transcript screen shows each sentence with its translation on the row below
-it. `translateSentences` sends ~40-sentence batches and instructs the model to
+it. `translateSentences` sends about 40-sentence batches and instructs the model to
 return exactly one line per input line; rule 3 of the prompt explicitly allows a
 blank answer for an untranslatable line (e.g. punctuation-only). But the
 reconciliation step did

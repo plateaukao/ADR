@@ -12,14 +12,14 @@ the offline-replay purpose exactly when it mattered.
 
 ## Fix
 
-`LeastRecentlyUsedCacheEvictor(2 GB)`. Spoken-audio episodes run ~3–8 MB per
+`LeastRecentlyUsedCacheEvictor(2 GB)`. Spoken-audio episodes run about 3–8 MB per
 5-minute episode (larger for hour-long shows), so 2 GB keeps roughly the last
 30–60 played episodes and evicts the oldest-played first, gracefully.
 
 ## Verification
 
 On the emulator with 串流時自動快取 enabled: streaming a fresh episode wrote a
-`.v3.exo` span into `cache/audio` (~2 MB after a few seconds) — the cache
+`.v3.exo` span into `cache/audio` (about 2 MB after a few seconds) — the cache
 write path works through the LRU evictor. (One catch found while verifying:
 `shouldWrite` is read per episode *load*, so an episode already playing when
 the toggle flips keeps its no-write source — documented behavior in the

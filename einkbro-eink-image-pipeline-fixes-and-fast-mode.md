@@ -24,14 +24,14 @@ cutting cost elsewhere.
   only) and re-encoded as JPEG — served with MIME `image/gif`. Now GIFs pass
   through untouched before the body is even read, keeping animation and
   streaming.
-- **Memory hazard.** A 12MP blog photo meant ~48 MB ARGB decode + a full
+- **Memory hazard.** A 12MP blog photo meant about 48 MB ARGB decode + a full
   `IntArray` copy + a third copy when the decode was immutable, times
   several concurrent WebView threads. Real OOM territory on 2–3 GB devices.
 
 ## Cost profile and what was done about it
 
 Stage benchmark (exact port of the pipeline, 1600×1200 @ 50%, fast laptop
-core — e-reader SoCs are ~4–6× slower): decode 25 ms, tone+saturation 9 ms,
+core — e-reader SoCs are about 4–6× slower): decode 25 ms, tone+saturation 9 ms,
 Floyd-Steinberg dither 42 ms, JPEG q85 encode 47 ms. Decode/encode dominate
 and everything scales with pixel count, so the biggest single win is
 decoding less:

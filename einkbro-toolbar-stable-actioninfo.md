@@ -6,7 +6,7 @@
 
 The toolbar is EinkBro's hottest Compose path: `updateIcons()` in
 `ComposeToolbarViewController` runs twice per page load (loading start/end),
-on every TTS state transition, on ~10 preference changes, and on locale or
+on every TTS state transition, on about 10 preference changes, and on locale or
 orientation changes. Each call re-parsed the toolbar config from
 SharedPreferences and built a brand-new `List` of brand-new
 `ToolbarActionInfo` objects.
@@ -24,7 +24,7 @@ detection:
 On top of that, `CreateToolbarIcon` computed `calculateSpacerWidth` and
 `calculateTitleWidth` — each about five full list traversals with
 intermediate allocations — **per icon, per recomposition**: O(N²) work per
-toolbar pass with ~10 icons. And `updatePageInfo`, called from the WebView
+toolbar pass with about 10 icons. And `updatePageInfo`, called from the WebView
 scroll listener on every scroll event, allocated two lists just to check
 whether the PageInfo icon is configured.
 
