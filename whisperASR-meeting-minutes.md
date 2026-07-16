@@ -36,6 +36,8 @@ Each map step extracts detailed plain-text notes (decisions, action items, names
 
 The GitHub Pages site (`docs/index.html`) gained a featured Meeting Minutes card. Its screenshot was produced by rendering the app's exact HTML shell (same CSS, dark appearance) with sample bilingual minutes through an offscreen `WKWebView` snapshot — pixel-identical to what the minutes window displays, without needing to burn an API call. The download button now points at the `releases/latest/download` URL instead of a pinned version, so it can no longer go stale (it still pointed at v0.5 when v0.7 was current).
 
+The page is now bilingual: a 中文/EN button in the nav swaps every text node through a `data-i18n` key dictionary in the page's own script — a single HTML file, no duplicated page to keep in sync. The choice persists in localStorage, and browsers reporting a Chinese locale default to Traditional Chinese. The models screenshot was refreshed to the current seven-model catalog (Nemotron 3.5 included), and the copy corrected from six to seven models.
+
 ## Generation state and the window
 
 `MinutesGenerator` is a main-actor `@Observable` singleton holding the current phase (idle / generating / completed / failed), the HTML fragment, and the source item. A UUID generation token guards against a superseded task's late progress or result clobbering a newer run. The window is a single SwiftUI `Window` scene; failed states show the error with an "Open Settings" shortcut (the common failure is a missing API key), and regeneration is available for any prompt as long as the source item still exists.
