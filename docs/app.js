@@ -445,10 +445,179 @@ async function renderMermaidIn(container) {
     try {
       const { svg } = await mermaid.render(id, src);
       block.innerHTML = svg;
+      block.classList.add("mmd-zoomable");
+      block.dataset.tip = "Click to zoom";
+      block.addEventListener("click", () => openLightbox(src));
     } catch (err) {
       block.innerHTML = `<div class="mermaid-error">Mermaid render error: ${escapeHtml(err.message || String(err))}\n\n${escapeHtml(src)}</div>`;
     }
   }
+}
+
+// ----- Mermaid lightbox (click a diagram to zoom/pan) -----
+// Diagrams shrink to fit the 900px viewer panel (mermaid caps the SVG at
+// max-width: 100%), so wide flowcharts become unreadable. Clicking one opens
+// it fullscreen: wheel / pinch to zoom, drag to pan, double-click to toggle
+// fit vs. enlarged, Escape or ✕ to close.
+const lightbox = {
+  el: null, stage: null, wrap: null, label: null,
+  open: false, scale: 1, tx: 0, ty: 0, nw: 0, nh: 0,
+  pointers: new Map(), pinchDist: 0,
+};
+
+function lightboxApply() {
+  lightbox.wrap.style.transform = `translate(${lightbox.tx}px, ${lightbox.ty}px) scale(${lightbox.scale})`;
+  lightbox.label.textContent = `${Math.round(lightbox.scale * 100)}%`;
+}
+
+function lightboxZoomTo(newScale, cx, cy) {
+  const s = Math.min(10, Math.max(0.1, newScale));
+  const k = s / lightbox.scale;
+  lightbox.tx = cx - k * (cx - lightbox.tx);
+  lightbox.ty = cy - k * (cy - lightbox.ty);
+  lightbox.scale = s;
+  lightboxApply();
+}
+
+function lightboxFitScale() {
+  const r = lightbox.stage.getBoundingClientRect();
+  return Math.min(10, Math.max(0.1,
+    Math.min((r.width - 48) / lightbox.nw, (r.height - 48) / lightbox.nh)));
+}
+
+function lightboxFit() {
+  const r = lightbox.stage.getBoundingClientRect();
+  lightbox.scale = lightboxFitScale();
+  lightbox.tx = (r.width - lightbox.nw * lightbox.scale) / 2;
+  lightbox.ty = (r.height - lightbox.nh * lightbox.scale) / 2;
+  lightboxApply();
+}
+
+function setupLightbox() {
+  const el = document.createElement("div");
+  el.className = "mmd-lightbox hidden";
+  el.innerHTML = `
+    <div class="mmd-stage"></div>
+    <div class="mmd-controls">
+      <button data-act="out" data-tip="Zoom out">−</button>
+      <span class="mmd-zoom-label">100%</span>
+      <button data-act="in" data-tip="Zoom in">+</button>
+      <button data-act="one" data-tip="Actual size">1:1</button>
+      <button data-act="fit" data-tip="Fit to screen">Fit</button>
+      <button data-act="close" data-tip="Close (Esc)">×</button>
+    </div>`;
+  document.body.appendChild(el);
+  lightbox.el = el;
+  lightbox.stage = el.querySelector(".mmd-stage");
+  lightbox.label = el.querySelector(".mmd-zoom-label");
+
+  el.querySelector(".mmd-controls").addEventListener("click", (ev) => {
+    const btn = ev.target.closest("button");
+    if (!btn) return;
+    const r = lightbox.stage.getBoundingClientRect();
+    const cx = r.width / 2, cy = r.height / 2;
+    switch (btn.dataset.act) {
+      case "in": lightboxZoomTo(lightbox.scale * 1.25, cx, cy); break;
+      case "out": lightboxZoomTo(lightbox.scale / 1.25, cx, cy); break;
+      case "one": lightboxZoomTo(1, cx, cy); break;
+      case "fit": lightboxFit(); break;
+      case "close": closeLightbox(); break;
+    }
+  });
+
+  // Wheel zoom, centered on the cursor. macOS trackpad pinch also arrives
+  // here (as ctrl+wheel), so it zooms too.
+  lightbox.stage.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const r = lightbox.stage.getBoundingClientRect();
+    lightboxZoomTo(lightbox.scale * Math.exp(-ev.deltaY * 0.002),
+      ev.clientX - r.left, ev.clientY - r.top);
+  }, { passive: false });
+
+  // One pointer drags to pan; two pinch to zoom (touch).
+  lightbox.stage.addEventListener("pointerdown", (ev) => {
+    lightbox.stage.setPointerCapture(ev.pointerId);
+    lightbox.pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (lightbox.pointers.size === 2) {
+      const [a, b] = [...lightbox.pointers.values()];
+      lightbox.pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+    }
+  });
+  lightbox.stage.addEventListener("pointermove", (ev) => {
+    const p = lightbox.pointers.get(ev.pointerId);
+    if (!p) return;
+    if (lightbox.pointers.size === 1) {
+      lightbox.tx += ev.clientX - p.x;
+      lightbox.ty += ev.clientY - p.y;
+      lightboxApply();
+    }
+    p.x = ev.clientX;
+    p.y = ev.clientY;
+    if (lightbox.pointers.size === 2) {
+      const [a, b] = [...lightbox.pointers.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (lightbox.pinchDist > 0) {
+        const r = lightbox.stage.getBoundingClientRect();
+        lightboxZoomTo(lightbox.scale * (d / lightbox.pinchDist),
+          (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+      }
+      lightbox.pinchDist = d;
+    }
+  });
+  const endPointer = (ev) => {
+    lightbox.pointers.delete(ev.pointerId);
+    lightbox.pinchDist = 0;
+  };
+  lightbox.stage.addEventListener("pointerup", endPointer);
+  lightbox.stage.addEventListener("pointercancel", endPointer);
+
+  lightbox.stage.addEventListener("dblclick", (ev) => {
+    const r = lightbox.stage.getBoundingClientRect();
+    const fit = lightboxFitScale();
+    if (Math.abs(lightbox.scale - fit) < 0.01) {
+      lightboxZoomTo(Math.max(1, fit * 2), ev.clientX - r.left, ev.clientY - r.top);
+    } else {
+      lightboxFit();
+    }
+  });
+}
+
+async function openLightbox(src) {
+  if (!lightbox.el) setupLightbox();
+  const wrap = document.createElement("div");
+  wrap.className = "mmd-zoom-wrap";
+  lightbox.stage.innerHTML = "";
+  lightbox.stage.appendChild(wrap);
+  lightbox.wrap = wrap;
+  lightbox.el.classList.remove("hidden");
+  lightbox.open = true;
+  try {
+    const { svg } = await mermaid.render(`mmd-zoom-${Date.now()}`, src);
+    wrap.innerHTML = svg;
+  } catch {
+    closeLightbox();
+    return;
+  }
+  const svgEl = wrap.querySelector("svg");
+  // Undo mermaid's responsive sizing (width:100%; max-width) so the CSS
+  // transform is the only thing controlling scale.
+  const vb = svgEl.viewBox.baseVal;
+  lightbox.nw = vb && vb.width ? vb.width : svgEl.getBoundingClientRect().width;
+  lightbox.nh = vb && vb.height ? vb.height : svgEl.getBoundingClientRect().height;
+  svgEl.style.maxWidth = "none";
+  svgEl.style.width = `${lightbox.nw}px`;
+  svgEl.style.height = `${lightbox.nh}px`;
+  wrap.style.width = `${lightbox.nw}px`;
+  wrap.style.height = `${lightbox.nh}px`;
+  lightboxFit();
+}
+
+function closeLightbox() {
+  lightbox.open = false;
+  lightbox.el.classList.add("hidden");
+  lightbox.stage.innerHTML = "";
+  lightbox.pointers.clear();
+  lightbox.pinchDist = 0;
 }
 
 // ----- Routing (hash-based) -----
@@ -562,6 +731,10 @@ function wire() {
     btn.addEventListener("click", () => openSibling("newer"));
   });
   document.addEventListener("keydown", (ev) => {
+    if (lightbox.open) {
+      if (ev.key === "Escape") closeLightbox();
+      return;
+    }
     if (ev.key === "Escape") closeViewer();
     if (!state.currentEntry) return;
     if (ev.key === "ArrowLeft") openSibling("older");

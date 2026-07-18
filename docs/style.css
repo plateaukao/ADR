@@ -421,6 +421,63 @@ main#calendar {
   justify-content: center;
   overflow-x: auto;
 }
+.mmd-zoomable { cursor: zoom-in; }
+
+/* ==== Mermaid zoom lightbox ==== */
+.mmd-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+}
+.mmd-lightbox.hidden { display: none; }
+.mmd-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+.mmd-stage:active { cursor: grabbing; }
+.mmd-zoom-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+.mmd-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 2px;
+  box-shadow: var(--shadow);
+}
+.mmd-controls button {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.mmd-controls button:hover { background: var(--accent-soft); }
+.mmd-zoom-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 3.2em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .mermaid-error {
   color: #b00020;
   background: #fbeaea;
