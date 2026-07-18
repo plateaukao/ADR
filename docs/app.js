@@ -407,6 +407,10 @@ async function openEntry(entry) {
   body.innerHTML = `<p class="muted">Loading…</p>`;
   body.scrollTop = 0;
   viewer.classList.remove("hidden");
+  // Keep aria-hidden in sync with visibility: consumers like screen readers and
+  // browser reader modes (Readability) discard aria-hidden="true" subtrees, so a
+  // stale value makes the open article invisible to them.
+  viewer.setAttribute("aria-hidden", "false");
   document.getElementById("viewer-backdrop").classList.remove("hidden");
   document.body.style.overflow = "hidden";
 
@@ -428,7 +432,9 @@ async function openEntry(entry) {
 
 function closeViewer() {
   state.currentEntry = null;
-  document.getElementById("viewer").classList.add("hidden");
+  const viewer = document.getElementById("viewer");
+  viewer.classList.add("hidden");
+  viewer.setAttribute("aria-hidden", "true");
   document.getElementById("viewer-backdrop").classList.add("hidden");
   document.body.style.overflow = "";
   // openEntry replaced the hash with the entry slug; restore the view+filter URL.
