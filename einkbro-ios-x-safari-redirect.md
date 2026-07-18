@@ -63,3 +63,18 @@ iPhone simulator: navigating into an x.com post from Google search results rende
 X's web UI inside EinkBro (NASA post with replies), with no leave-app dialog. X's
 "Open X" app-upsell interstitial still appears — that is normal mobile-web
 behavior, identical to real Safari, and dismissible.
+
+## Follow-up: reload loop on a real device
+
+On a physical iPhone that had visited x.com before the UA fix, the login page
+reload-looped. Sticky client state — x.com's `mx` app-preference cookie and/or a
+cached service worker from the pre-fix sessions — kept re-issuing the escape
+immediately after every strip-and-reload, so the fallback ping-ponged forever.
+(A fresh simulator never loops because it has no such state.)
+
+The strip now has a loop guard with a 5-second sliding window: the first escape
+strips and loads as before, but a re-escape arriving within the window is
+swallowed — the rendered page stays put and a one-time toast ("Blocked a reload
+loop") explains what happened. Each sighting extends the window, so a tight loop
+costs exactly one reload total. Clearing x.com cookies/site data removes the
+sticky state for good.
