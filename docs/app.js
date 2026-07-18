@@ -463,6 +463,7 @@ const lightbox = {
   el: null, stage: null, wrap: null, label: null,
   open: false, scale: 1, tx: 0, ty: 0, nw: 0, nh: 0,
   pointers: new Map(), pinchDist: 0,
+  hadPinch: false, lastTap: 0, lastTapX: 0, lastTapY: 0, lastTouchUp: -1000,
 };
 
 function lightboxApply() {
@@ -491,6 +492,17 @@ function lightboxFit() {
   lightbox.tx = (r.width - lightbox.nw * lightbox.scale) / 2;
   lightbox.ty = (r.height - lightbox.nh * lightbox.scale) / 2;
   lightboxApply();
+}
+
+// Double-click / double-tap: toggle between fit and enlarged at the point.
+function lightboxToggleZoom(clientX, clientY) {
+  const r = lightbox.stage.getBoundingClientRect();
+  const fit = lightboxFitScale();
+  if (Math.abs(lightbox.scale - fit) < 0.01) {
+    lightboxZoomTo(Math.max(1, fit * 2), clientX - r.left, clientY - r.top);
+  } else {
+    lightboxFit();
+  }
 }
 
 function setupLightbox() {
@@ -537,8 +549,11 @@ function setupLightbox() {
   // One pointer drags to pan; two pinch to zoom (touch).
   lightbox.stage.addEventListener("pointerdown", (ev) => {
     lightbox.stage.setPointerCapture(ev.pointerId);
-    lightbox.pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    lightbox.pointers.set(ev.pointerId, {
+      x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY,
+    });
     if (lightbox.pointers.size === 2) {
+      lightbox.hadPinch = true;
       const [a, b] = [...lightbox.pointers.values()];
       lightbox.pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
     }
@@ -564,21 +579,37 @@ function setupLightbox() {
       lightbox.pinchDist = d;
     }
   });
+  // Mobile Safari/Chrome don't deliver dblclick for touch when
+  // touch-action: none, so detect double-tap by hand on pointerup.
   const endPointer = (ev) => {
+    const p = lightbox.pointers.get(ev.pointerId);
     lightbox.pointers.delete(ev.pointerId);
     lightbox.pinchDist = 0;
+    if (lightbox.pointers.size > 0) return;
+    const pinched = lightbox.hadPinch;
+    lightbox.hadPinch = false;
+    if (ev.type !== "pointerup" || ev.pointerType !== "touch" || pinched || !p) return;
+    lightbox.lastTouchUp = ev.timeStamp;
+    const moved = Math.hypot(ev.clientX - p.x0, ev.clientY - p.y0);
+    if (moved >= 12) { lightbox.lastTap = 0; return; }
+    if (ev.timeStamp - lightbox.lastTap < 350 &&
+        Math.hypot(ev.clientX - lightbox.lastTapX, ev.clientY - lightbox.lastTapY) < 40) {
+      lightbox.lastTap = 0;
+      lightboxToggleZoom(ev.clientX, ev.clientY);
+    } else {
+      lightbox.lastTap = ev.timeStamp;
+      lightbox.lastTapX = ev.clientX;
+      lightbox.lastTapY = ev.clientY;
+    }
   };
   lightbox.stage.addEventListener("pointerup", endPointer);
   lightbox.stage.addEventListener("pointercancel", endPointer);
 
   lightbox.stage.addEventListener("dblclick", (ev) => {
-    const r = lightbox.stage.getBoundingClientRect();
-    const fit = lightboxFitScale();
-    if (Math.abs(lightbox.scale - fit) < 0.01) {
-      lightboxZoomTo(Math.max(1, fit * 2), ev.clientX - r.left, ev.clientY - r.top);
-    } else {
-      lightboxFit();
-    }
+    // Browsers may synthesize dblclick from touch taps too; the pointerup
+    // double-tap path owns touch, so ignore dblclick near a touch pointerup.
+    if (ev.timeStamp - lightbox.lastTouchUp < 700) return;
+    lightboxToggleZoom(ev.clientX, ev.clientY);
   });
 }
 
@@ -743,6 +774,9 @@ function wire() {
 }
 
 function setupTooltip() {
+  // Hover tooltips are meaningless on touch screens; a tap would only
+  // flash one briefly before the click handler hides it.
+  if (matchMedia("(hover: none)").matches) return;
   const el = document.createElement("div");
   el.className = "tt";
   document.body.appendChild(el);

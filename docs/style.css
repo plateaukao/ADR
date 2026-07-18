@@ -48,6 +48,10 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+/* Stop iOS Safari inflating text in landscape */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Kill double-tap-to-zoom on controls so rapid prev/next taps don't zoom the page */
+button, select { touch-action: manipulation; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
   color: var(--text);
@@ -62,6 +66,8 @@ body {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 20px;
+  padding-left: calc(20px + env(safe-area-inset-left));
+  padding-right: calc(20px + env(safe-area-inset-right));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -117,6 +123,9 @@ body {
 
 main#calendar {
   padding: 20px;
+  padding-left: calc(20px + env(safe-area-inset-left));
+  padding-right: calc(20px + env(safe-area-inset-right));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
 /* ==== Month grid ==== */
@@ -303,7 +312,11 @@ main#calendar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   padding: 14px 20px;
+  padding-left: calc(20px + env(safe-area-inset-left));
+  padding-right: calc(20px + env(safe-area-inset-right));
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
 }
@@ -339,11 +352,21 @@ main#calendar {
 }
 .viewer-nav:hover:not(:disabled) { background: var(--accent-soft); }
 .viewer-nav:disabled { opacity: 0.35; cursor: default; }
-#viewer-body { padding: 24px 32px 60px; overflow: auto; flex: 1; }
+#viewer-body {
+  padding: 24px 32px 60px;
+  padding-left: calc(32px + env(safe-area-inset-left));
+  padding-right: calc(32px + env(safe-area-inset-right));
+  overflow: auto;
+  flex: 1;
+  overscroll-behavior: contain;
+}
 .viewer-foot {
   display: flex;
   justify-content: space-between;
   padding: 10px 20px;
+  padding-left: calc(20px + env(safe-area-inset-left));
+  padding-right: calc(20px + env(safe-area-inset-right));
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
   background: var(--surface-2);
 }
@@ -447,8 +470,8 @@ main#calendar {
 }
 .mmd-controls {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: calc(14px + env(safe-area-inset-top));
+  right: calc(14px + env(safe-area-inset-right));
   display: flex;
   align-items: center;
   gap: 2px;
@@ -487,12 +510,107 @@ main#calendar {
   white-space: pre-wrap;
 }
 
+/* ==== Phones / small screens ==== */
 @media (max-width: 720px) {
+  .topbar {
+    gap: 8px;
+    padding: 10px 12px;
+    padding-left: calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
+  }
+  .controls { width: 100%; gap: 8px; }
+  /* Taller buttons = comfortable tap targets; narrow enough that
+     view-switch + nav-buttons share one row on 360px screens */
+  .view-switch button, .nav-buttons button { padding: 10px 9px; }
+  .period-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* 16px stops iOS Safari from zooming the page when the select is focused */
+  #project-filter { font-size: 16px; padding: 8px 10px; max-width: 52%; }
+
+  main#calendar {
+    padding: 10px;
+    padding-left: calc(10px + env(safe-area-inset-left));
+    padding-right: calc(10px + env(safe-area-inset-right));
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
   .day-cell { min-height: 70px; }
-  .week-grid .day-cell { min-height: 200px; }
-  .topbar { gap: 8px; padding: 10px 12px; }
-  main#calendar { padding: 10px; }
-  .pill { font-size: 11px; }
+
+  /* Week view: date header stacks above the pills instead of a fixed
+     140px column that eats half a phone screen */
+  .week-grid .day-cell {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .week-grid .day-cell .daynum { display: flex; align-items: baseline; gap: 6px; }
+  .week-grid .day-cell .daynum .dow-name { display: inline; }
+  .week-grid .day-cell .daynum .daynum-big { font-size: 16px; }
+
+  /* Wrap long titles instead of truncating; bigger tap targets */
+  .week-grid .pill, .day-view .pill {
+    white-space: normal;
+    font-size: 12.5px;
+    padding: 8px 10px;
+  }
+
+  .day-view { padding: 14px; }
+  .list-month { padding: 12px 14px; }
+  .list-row { grid-template-columns: 56px 1fr; padding: 10px 0; }
+
   .viewer { width: 100%; }
-  #viewer-body { padding: 16px 18px 60px; }
+  .viewer-head {
+    padding: 10px 12px;
+    padding-left: calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
+  }
+  .viewer-actions { gap: 8px; }
+  .viewer-nav { padding: 8px 14px; }
+  #viewer-close { font-size: 24px; padding: 4px 8px; }
+  #viewer-body {
+    padding: 16px 14px 60px;
+    padding-left: calc(14px + env(safe-area-inset-left));
+    padding-right: calc(14px + env(safe-area-inset-right));
+  }
+  /* Wide tables scroll inside the article instead of stretching it */
+  .markdown-body table { display: block; overflow-x: auto; }
+  /* Long identifiers in prose/inline code must break, not overflow */
+  .markdown-body { overflow-wrap: break-word; }
+  .markdown-body code { overflow-wrap: anywhere; }
+}
+
+/* Phones portrait: month cells are ~50px wide — text pills are unreadable,
+   so show them as color bars (calendar-app style). Bars don't take taps;
+   tapping the day opens the Day view, where full pills are shown. */
+@media (max-width: 600px) {
+  .month-grid .day-cell { min-height: 60px; padding: 4px 4px 6px; gap: 3px; }
+  .month-grid .pill {
+    pointer-events: none;
+    height: 6px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: var(--pill-color, var(--accent));
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
+  }
+  .month-grid .day-cell .muted { margin-left: 0; font-size: 9px; }
+  .dow-cell { padding: 6px 2px; font-size: 10px; }
+}
+
+/* Touch screens have no hover — give controls pressed-state feedback */
+@media (hover: none) {
+  .view-switch button:not(.active):active,
+  .nav-buttons button:active,
+  .viewer-nav:active:not(:disabled),
+  .mmd-controls button:active,
+  .pill:active { background: var(--accent-soft); }
 }
