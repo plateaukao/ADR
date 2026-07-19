@@ -18,14 +18,11 @@ flowchart TD
     A -- no: fullscreen or hide-on-scroll --> C{Info bar setting enabled?}
     C -- no --> D[Nothing: page is full-bleed]
     C -- yes --> E{Info bar position}
-    E -- Bottom --> F[Strip at bottom edge, padded above the home indicator]
-    E -- Top --> G[Strip at top, padded below the notch when the root reserves no top inset]
+    E -- Bottom --> F[Strip flush at the physical bottom edge, home indicator overlays it]
+    E -- Top --> G[Strip flush at the physical top edge]
 ```
 
-Since the strip now renders at the actual screen edges, it also gets the safe-area treatment introduced for the toolbar in the previous change:
-
-- **Bottom position**: it is by definition the bottom-most chrome (the toolbar is always hidden when it shows), so it takes the home-indicator padding — content lifted above the gesture band, background painted down to the physical edge.
-- **Top position**: fullscreen removes the root layout's top inset, which put the strip under the Dynamic Island. It now wraps in a `windowInsetsPadding(WindowInsets.statusBars)` of its own — Compose inset padding is consumption-aware, so in normal (non-fullscreen) mode where the root already reserved the top, this adds nothing.
+Unlike the toolbar (which is padded above the home indicator so its buttons don't collide with the system gesture), the info bar is deliberately **full-bleed**: it has no tap targets, and in fullscreen the content area should extend into the safe areas. At Bottom it sits flush at the physical edge with the home indicator overlaying it; at Top it sits at the physical top. A first iteration gave it the same safe-area padding as the toolbar; that was reverted on review — insets exist here to protect interactivity, and a non-interactive strip doesn't need protecting.
 
 ## Verification detour: pref injection lies
 
