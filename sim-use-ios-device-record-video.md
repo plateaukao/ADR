@@ -68,51 +68,50 @@ type was deleted — every cross-platform verb now routes on real devices.
 
 ## Verification status
 
-Unit tests cover the even-dimension rounding and UDID normalisation, and the
-error path ran live. The happy path could **not** be verified on this
-hardware — and the reason is the interesting part.
+Verified live on the cabled iPhone 17 Pro: 8.4 s of real footage — H.264 at
+1206×2622 (the native 3× of the 402×874 point grid), 337 frames at ~40 fps
+native VFR, ~5.1 Mbps, clean SIGINT stop with the moov atom finalized, and an
+extracted frame showing the actual home screen.
 
-### macOS refuses to publish this device, and QuickTime agrees
+Getting there took a wrong diagnosis and three real bugs, all worth
+recording.
 
-With the iPhone 17 Pro (iOS 27) cabled to the Mac (macOS 26, Darwin 25.5) and
-`devicectl` reporting `transportType = wired, pairingState = paired`,
-recording still failed. Layer by layer, everything on our side works:
+### The false "macOS gates this device" diagnosis
 
-- the CMIO opt-in returns status 0;
-- `iOSScreenCapture.plugin` genuinely loads into the process (confirmed via
-  `DYLD_PRINT_LIBRARIES`);
-- discovery runs and finds **zero** CMIO devices.
+The first cabled run found zero capture devices, and the system log seemed to
+explain why: `iOSScreenCaptureAssistant` connected to the phone over usbmux
+(port 32498) and logged `UnsupportedAMDevice_block_invoke initializing
+sSupportAllDevices to F`. QuickTime produced the identical log, which was
+read as "Apple's own app can't record this phone either — OS-level device
+gate". The user then recorded the phone in QuickTime just fine.
 
-The system log names the culprit. `iOSScreenCaptureAssistant` — the
-system-wide daemon behind this path — starts, subscribes to usbmuxd, connects
-to the phone on usbmux **port 32498** (the screen-capture service) five
-times, then logs:
+The misread: that daemon line is printed on **every normal startup** (it is a
+static being initialized, not a verdict), and the QuickTime "control" only
+reproduced the same normal startup. The real lesson: *a control experiment
+that produces the same log as the failing case proves nothing unless the log
+line is known to be a failure marker.* What settled it in the end was a
+positive control — the user's screenshot of QuickTime happily recording.
 
-    CMIO_DPA_ISR_Server_Assistant.cpp:2070:UnsupportedAMDevice_block_invoke
-        initializing sSupportAllDevices to F
+### The three actual bugs
 
-…and publishes no device (`devicesArrived ()` empty). The binary carries a
-matching feature-flag string, `iOSScreenCaptureAssistant.allow_all_devices`,
-alongside `GetAMDeviceValeriaMode` — "Valeria" being Apple's internal name
-for the iPhone-over-USB capture feature.
+1. **Run-loop starvation.** CMIO delivers device arrivals through
+   main-run-loop callbacks. Discovery slept on `Task.sleep` and never
+   serviced the run loop, so the in-process device list stayed empty forever
+   — indistinguishable from an unsupported phone. A probe that pumped
+   `CFRunLoopRunInMode` saw the iPhone on its first tick. Discovery and the
+   record waits now run on the main actor and pump the run loop.
+2. **Stale identity assumption.** The capture device's `uniqueID` used to be
+   the phone's UDID; current macOS mints a fresh UUID (`modelID` is just
+   "iOS Device"). The only surfaced link back to the phone is its **name**,
+   so matching now goes uniqueID → devicectl-reported name → sole connected
+   iOS device (after a settling period, with a note).
+3. **Ctrl+C starvation.** Pumping the run loop in a tight main-actor loop
+   blocks the main *dispatch* queue — exactly where `SignalObserver`
+   schedules its SIGINT DispatchSource. The first live stop hung
+   indefinitely: the cancellation flag never set, and the finish watchdog
+   (armed inside that same starved handler) never armed. Each pump slice is
+   now followed by `Task.yield()`, which lets main-queue jobs land between
+   slices. The stop then worked: flag set, session torn down, MP4 finalized.
 
-The decisive control: **QuickTime Player produces the identical log** — same
-port-32498 connects, same `UnsupportedAMDevice` evaluation, no device. Since
-the assistant is system-wide, Apple's own app cannot record this phone
-either. The gate is Apple's device-support policy (plausibly an iOS-27
-handset against a macOS-26 host), not a sim-use defect.
-
-### What that changed in the code
-
-The original error text said "plug in USB" — actively misleading when the
-cable is already in. It now ranks the three real causes (not on USB / another
-app holds the device / macOS refuses this device), and hands the user the
-QuickTime cross-check that distinguishes a local problem from a gated device,
-plus the fallbacks that do work: `screenshot`, or recording from the phone's
-own Control Center.
-
-The implementation is kept as-is rather than reverted: it is correct up to
-the OS boundary and will record on any Mac + device pairing macOS admits.
-Flipping the `allow_all_devices` feature flag was deliberately **not**
-attempted — it needs root, changes system state on the user's machine, and
-the evidence does not say it would help.
+The bugs compounded: #1 made the phone invisible, which made the wrong
+diagnosis available; #3 only became observable after #1 and #2 were fixed.
