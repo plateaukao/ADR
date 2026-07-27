@@ -68,8 +68,51 @@ type was deleted — every cross-platform verb now routes on real devices.
 
 ## Verification status
 
-Unit tests cover the even-dimension rounding and UDID normalisation; the
-no-USB error path ran live end-to-end (CMIO opt-in → discovery timeout →
-actionable error). The happy path — actual footage — still needs a cabled
-device; that run will also answer the one genuine unknown, whether the
-legacy CMIO opt-in still surfaces DAL devices on this macOS release.
+Unit tests cover the even-dimension rounding and UDID normalisation, and the
+error path ran live. The happy path could **not** be verified on this
+hardware — and the reason is the interesting part.
+
+### macOS refuses to publish this device, and QuickTime agrees
+
+With the iPhone 17 Pro (iOS 27) cabled to the Mac (macOS 26, Darwin 25.5) and
+`devicectl` reporting `transportType = wired, pairingState = paired`,
+recording still failed. Layer by layer, everything on our side works:
+
+- the CMIO opt-in returns status 0;
+- `iOSScreenCapture.plugin` genuinely loads into the process (confirmed via
+  `DYLD_PRINT_LIBRARIES`);
+- discovery runs and finds **zero** CMIO devices.
+
+The system log names the culprit. `iOSScreenCaptureAssistant` — the
+system-wide daemon behind this path — starts, subscribes to usbmuxd, connects
+to the phone on usbmux **port 32498** (the screen-capture service) five
+times, then logs:
+
+    CMIO_DPA_ISR_Server_Assistant.cpp:2070:UnsupportedAMDevice_block_invoke
+        initializing sSupportAllDevices to F
+
+…and publishes no device (`devicesArrived ()` empty). The binary carries a
+matching feature-flag string, `iOSScreenCaptureAssistant.allow_all_devices`,
+alongside `GetAMDeviceValeriaMode` — "Valeria" being Apple's internal name
+for the iPhone-over-USB capture feature.
+
+The decisive control: **QuickTime Player produces the identical log** — same
+port-32498 connects, same `UnsupportedAMDevice` evaluation, no device. Since
+the assistant is system-wide, Apple's own app cannot record this phone
+either. The gate is Apple's device-support policy (plausibly an iOS-27
+handset against a macOS-26 host), not a sim-use defect.
+
+### What that changed in the code
+
+The original error text said "plug in USB" — actively misleading when the
+cable is already in. It now ranks the three real causes (not on USB / another
+app holds the device / macOS refuses this device), and hands the user the
+QuickTime cross-check that distinguishes a local problem from a gated device,
+plus the fallbacks that do work: `screenshot`, or recording from the phone's
+own Control Center.
+
+The implementation is kept as-is rather than reverted: it is correct up to
+the OS boundary and will record on any Mac + device pairing macOS admits.
+Flipping the `allow_all_devices` feature flag was deliberately **not**
+attempted — it needs root, changes system state on the user's machine, and
+the evidence does not say it would help.
