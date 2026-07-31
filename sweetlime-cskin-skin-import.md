@@ -160,6 +160,24 @@ number layouts keep their return keys. The toolbar's 中英 button was also
 rerouted through the same soft-key switch path the removed keys used, so
 behavior is identical to pressing the key it replaces.
 
+## Round 4: toolbar keyboard modes and nav-bar-aware hide key
+
+The toolbar's keyboard buttons were split to match 元書 semantics: the
+keyboard icon (function 7) toggles the symbol keyboard exactly like the
+bottom-row 123 key, while the dialpad icon (function 9) opens the numeric
+phone keypad (`MODE_PHONE`); the toolbar stays visible in both, so there is
+always a way back to the text keyboard.
+
+The bottom-left hide-IME key (code -3, long-press = IME picker) joined the
+removal set with a twist: it goes away only when the system shows a
+*button* navigation bar — detected via `Settings.Secure navigation_mode`
+(gesture mode = 2 keeps the key) with `config_showNavigationBar` as the
+pre-Android-10 fallback — AND the skin toolbar has its own collapse
+button, since back on a button nav bar already dismisses the keyboard.
+Removed keys hand their edge flags to the row's new outermost keys so
+edge touch detection is preserved, and navigation-mode changes trigger
+the same view rebuild as night-mode flips.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
