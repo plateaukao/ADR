@@ -138,6 +138,14 @@ Verified on the emulator with the user's own e-ink-oriented export: 2px
 black key borders and white keys applied, icon toolbar swaps with the
 candidate strip, and swiping down on Q feeds `1` into the composing buffer.
 
+One cold-start race followed: `CandidateInInputViewContainer.requestLayout()`
+recomputes the voice/expand block's visibility on every layout pass, and an
+empty candidate view forced that block (weight 1) visible again after
+`showSkinToolbar()` had hidden it — squeezing the toolbar into half the row
+on first launch. The container now keeps the right-button block hidden
+whenever the skin toolbar is visible, making the toolbar's full-width state
+authoritative rather than racing the relayout.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
