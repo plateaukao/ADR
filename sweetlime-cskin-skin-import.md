@@ -178,6 +178,13 @@ Removed keys hand their edge flags to the row's new outermost keys so
 edge touch detection is preserved, and navigation-mode changes trigger
 the same view rebuild as night-mode flips.
 
+A follow-up widened the rule: when the toolbar carries the 中英 button,
+the hide-IME key is removed unconditionally — its long-press role
+(opening the system input-method picker) moves to the toolbar, where
+long-pressing the 中英 globe calls
+`InputMethodManager.showInputMethodPicker()`. The nav-bar + collapse
+combination remains as the alternative trigger for skins without 中英.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
