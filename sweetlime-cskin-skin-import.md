@@ -203,6 +203,17 @@ keyboard switch re-renders it correctly.
 - Space-row width variant (`spaceKeyLayout`) is not applied; it would need
   alternate bottom-row layout XMLs and is orthogonal to skin plumbing.
 
+## Post-release fix: backspace regression
+
+The skin-toolbar branch added to `clearSuggestions()` skipped
+`hideCandidateView()`'s state resets, leaving `hasCandidatesShown` stuck
+true after the bar was cleared. `handleBackspace()` consults that flag when
+nothing is composing, so every backspace "cleared" the empty candidate list
+instead of sending DEL — composing characters deleted fine, committed text
+never did. The branch now performs the same resets as `hideCandidateView()`
+(`hasCandidatesShown` / `hasChineseSymbolCandidatesShown`), and the v7.2.0
+tag and release APK were rebuilt on the fixed commit.
+
 ## Shipped
 
 Released as **v7.2.0 (720)** on GitHub with the signed `app-release.apk`
