@@ -185,6 +185,13 @@ long-pressing the 中英 globe calls
 `InputMethodManager.showInputMethodPicker()`. The nav-bar + collapse
 combination remains as the alternative trigger for skins without 中英.
 
+The space bar also went 元書-style: with the skin active it drops the
+glyph icon and draws the current input mode in a small font — "English"
+in English mode, otherwise the active IM's display name (注音, 自建, …)
+resolved from the activated-IM list, with 中 as the fallback. The label
+comes from a LIMEService provider callback read at draw time, so every
+keyboard switch re-renders it correctly.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
