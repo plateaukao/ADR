@@ -202,3 +202,8 @@ keyboard switch re-renders it correctly.
   blocks are ignored.
 - Space-row width variant (`spaceKeyLayout`) is not applied; it would need
   alternate bottom-row layout XMLs and is orthogonal to skin plumbing.
+
+## Shipped
+
+Released as **v7.2.0 (720)** on GitHub with the signed `app-release.apk`
+attached: https://github.com/plateaukao/sweetlime/releases/tag/v7.2.0
