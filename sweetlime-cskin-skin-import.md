@@ -226,6 +226,24 @@ re-laid-out the row on every composition — visibly flickery on e-ink) to a
 FrameLayout overlay: the toolbar never moves, and the candidate layer just
 covers it with INVISIBLE/VISIBLE flips that trigger no layout pass.
 
+## Post-release: partial toolbar coverage and a view-drift bug
+
+Custom IMs often return only a handful of candidates, and the full-width
+candidate strip hid the whole toolbar for them. `CandidateView.onMeasure`
+now wraps to content width when a skin is active (enforced regardless of
+the parent's measure spec, with room reserved for the expand button on
+overflow), so short lists cover only the toolbar's left side and the
+remaining buttons stay visible and tappable while composing — matching
+元書. Stock (non-skin) keeps the full-width bar.
+
+Debugging this surfaced a long-standing bug: `onConfigurationChanged()`
+recreates the whole input-view tree via `initialViewAndSwitcher(true)` but
+never calls `setInputView()`, so the window keeps displaying the old tree
+while every field (toolbar setup, skin listeners, candidate view) points
+at the new orphan. With night mode on, uiMode config changes made the
+drift frequent — visible as an icon-less toolbar. `initialViewAndSwitcher`
+now re-attaches the new tree itself whenever it replaces a live one.
+
 ## Shipped
 
 Released as **v7.2.0 (720)** on GitHub with the signed `app-release.apk`
