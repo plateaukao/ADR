@@ -146,6 +146,20 @@ on first launch. The container now keeps the right-button block hidden
 whenever the skin toolbar is visible, making the toolbar's full-width state
 authoritative rather than racing the relayout.
 
+## Round 3: toolbar functions replace bottom-row keys
+
+Like 元書, a toolbar that already offers 中英 switching makes the bottom-row
+EN/中 key redundant. `SkinKeyboardTweaker` now post-processes every keyboard
+`LIMEKeyboardSwitcher` builds while the skin is active: if the toolbar
+config contains the 中英 function, the EN (code -9) and 中 (code -10) keys
+are removed; if it contains the symbol or number-keyboard function, the
+bottom-row 123 key (code -2) goes too. A removed key's footprint is handed
+to the space bar (keys between shift over, space widens), so the row stays
+flush. Only keyboards containing letter keys are touched — symbol and
+number layouts keep their return keys. The toolbar's 中英 button was also
+rerouted through the same soft-key switch path the removed keys used, so
+behavior is identical to pressing the key it replaces.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
