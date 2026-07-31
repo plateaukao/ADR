@@ -101,6 +101,43 @@ The skin's swipe/long-press flags map onto what Sweet LIME actually has:
 - Swipe hint text flags are ignored — Sweet LIME draws no swipe hints, and
   hiding its key sub-labels (IM code hints) instead would be wrong.
 
+## Round 2: the real export format, icons, and per-key swipe
+
+Testing with a genuinely exported skin (not the repo docs) surfaced that the
+live designer 2.0.0 writes **schemaVersion 2**: palette and groups moved
+under `globalSettings`, toolbar buttons under `toolbar`, and gestures became
+feature-name lists under `swipe` (`globalEnabledFeatures`, per-feature
+`row1..row4` membership lists). The first-pass parser silently defaulted
+every field — the skin "applied" but looked identical to the Light theme.
+The parser now branches on `schemaVersion` and supports both, plus v2-only
+fields e-ink skins lean on: `textSystem` (function-key text), per-class
+border colors/sizes, and `toolbarBg`.
+
+Two fidelity gaps against the 元書 reference were closed at the same time:
+
+- **Toolbar icons.** Text labels clipped at skin font sizes and read poorly;
+  the toolbar now uses bundled Material vector drawables (settings, globe,
+  translate, keyboard, dialpad, select-all, copy/cut/paste, undo/redo,
+  arrows, collapse) tinted with the skin's `toolbarColor`, and spans the
+  full keyboard width — the candidate bar's voice/expand block hides while
+  the toolbar is visible.
+
+- **Per-key swipe.** The `.cskin` also ships the 元書 keyboard definitions;
+  `lib/swipeData.libsonnet` is regular enough to line-scan without a Jsonnet
+  engine. Its swipe_up/swipe_down maps now drive two things: hint glyphs
+  drawn in the key corners (swipe-up output top-left, swipe-down output
+  bottom-right, using the skin's hint color/size and row visibility flags),
+  and actual vertical-swipe input on letter keys, detected in PointerTracker
+  from the down-key travel. `character` actions route through the IM like a
+  keypress, `symbol` actions commit directly, and `shortcut` actions map to
+  cut/copy/paste/select-all/line-start/line-end/tab. The row gesture flags
+  gate both the hints and the actions, so the earlier "flags with nothing to
+  gate" situation resolved itself: the flags now control real per-key swipes.
+
+Verified on the emulator with the user's own e-ink-oriented export: 2px
+black key borders and white keys applied, icon toolbar swaps with the
+candidate strip, and swiping down on Q feeds `1` into the composing buffer.
+
 ## Scope decisions
 
 - Symbol/emoji side-panel styling and one-hand mode: intentionally skipped.
