@@ -214,6 +214,18 @@ never did. The branch now performs the same resets as `hideCandidateView()`
 (`hasCandidatesShown` / `hasChineseSymbolCandidatesShown`), and the v7.2.0
 tag and release APK were rebuilt on the fixed commit.
 
+## Post-release: long-press hints and flicker-free toolbar
+
+Two refinements landed after the first 7.2.0 build (the tag was moved each
+time). Long-press on letter keys now synthesizes a popup from the key's
+swipe-hint characters (hold q -> ! and 1), since letter keys carry no XML
+popup of their own — matching 元書's long-press bubble; shortcut-type hints
+are excluded and the per-row longPress flag still gates it. And the
+toolbar/candidate swap was reworked from GONE/VISIBLE toggling (which
+re-laid-out the row on every composition — visibly flickery on e-ink) to a
+FrameLayout overlay: the toolbar never moves, and the candidate layer just
+covers it with INVISIBLE/VISIBLE flips that trigger no layout pass.
+
 ## Shipped
 
 Released as **v7.2.0 (720)** on GitHub with the signed `app-release.apk`
