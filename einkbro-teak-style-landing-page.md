@@ -1,0 +1,22 @@
+2026-08-07
+
+# EinkBro: Teak-Style Docs Landing Page
+
+The docs site's home page (`docs/index.html`) was a centered text hero — app name, tagline, and two generic buttons (User Guide / Download) — with the actual download links buried a click away. It has been redesigned after teakbrowser.app's landing page: a clean two-column hero that puts the real download actions and a device screenshot in the first viewport.
+
+## What changed
+
+**Hero.** Left column: title, tagline, a one-sentence pitch, and two rows of download buttons — the store buttons first (Google Play Store, Apple App Store, solid style), then the sideload row (GitHub Releases, GitHub Pre-release, F-Droid, outlined and smaller). Everything a visitor needs to install the app is visible without scrolling, on desktop and phone. Right column: a real start-page screenshot captured from a Hisense A7 (with status bar, so it reads as a genuine device screen).
+
+**Phone bezel in pure CSS.** The screenshot sits in a frame built entirely from asymmetric borders: 8px ink borders on the sides, 20px top and bottom (forehead/chin), 26px outer radius with the screen's corner radius matched to it. Because the bezel is CSS rather than a pre-composited image, the screenshot can be recaptured and swapped as a bare PNG (`docs/images/hero_screenshot.png`, 900×1800) with no image editing.
+
+**Features section.** The old "Screenshots" thumbnail gallery became "Features": each of the 12 screenshots now carries a bold title and a one-line description placed *above* the image (below-the-image captions made it ambiguous which text belonged to which screenshot). The caption text is plain — no card box — and the screenshot itself gets the rounded-corner-plus-hairline treatment, matching the reference site. Markup keeps `<img>` before `<figcaption>` for semantics; `flex-direction: column-reverse` flips the visual order.
+
+**Less distraction.** Hover effects (background wash + border thickening) were removed from the six feature cards on the home page and from the download/bug-report cards — decorative motion that fights the e-ink editorial aesthetic the site is going for.
+
+The zh-tw page received the identical structure with translated copy, sharing the same stylesheet and hero image.
+
+## Notes
+
+- The responsive behavior was verified at 1440px, ~500px, and a true 390px viewport. Headless Chrome enforces a ~500px minimum window width and silently crops narrower `--window-size` requests, so the 390px check was done by rendering the page inside a 390px-wide iframe (media queries follow the iframe's viewport).
+- The hero screenshot was captured over adb (`screencap`) because the sim-use Android bridge in the Homebrew 0.10.0 install currently fails at `android init` with a missing resource bundle.
