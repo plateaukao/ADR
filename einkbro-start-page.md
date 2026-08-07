@@ -76,7 +76,14 @@ page's behavior:
   grid from recently-used bookmarks plus Bookmarks/History shortcuts; it was
   replaced by an explicit model (`startPageItems` in preferences) with a "+"
   tile opening a native dialog: choose from bookmarks, enter title/URL
-  manually, or delete an item. The page re-renders after each mutation.
+  manually, or delete an item. The page re-renders after each mutation. The
+  dialog is a plain tappable list — no title bar, no radio buttons — since a
+  single-shot action menu doesn't need selection state.
+
+Tile icons resolve through a three-step chain: the favicon the browser already
+stored for the domain (embedded into the page as a png data uri, so it renders
+offline and instantly), else the site's `/favicon.ico`, else a capital-letter
+placeholder drawn in CSS.
 
 ## A newline-stripping asset loader broke the inline script
 
