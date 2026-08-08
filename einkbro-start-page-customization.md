@@ -71,12 +71,12 @@ letters are forced dark for that reason.
 - `background-size: contain`, not `cover`: a wide image on a tall phone screen
   would otherwise show only a zoomed center crop. Contain shows the whole
   image, like its thumbnail.
-- The letterbox areas above and below the contained image continue the image's
-  own edge colors instead of showing bare white: at render time the average
-  color of the top and bottom pixel rows is computed from a tiny decoded copy,
-  and painted behind the image as a two-stop split gradient. For images with a
-  uniform paper-like background this makes the whole screen read as one
-  continuous sheet.
+- The image is anchored to the bottom of the screen (`center bottom`): the
+  search bar and tiles live near the top, so the artwork stays clear of them.
+  The area above the image continues the image's own top-edge color — the
+  average of its top pixel row, computed from a tiny decoded copy — as a solid
+  backing. For images with a uniform paper-like background this makes the
+  whole screen read as one continuous sheet.
 - Labels stay readable over the image with a stacked white text-shadow halo on
   the wordmark and tile names, not solid white pills — no boxes over the
   artwork. Tile icon squares keep a white fill so favicons stay legible.

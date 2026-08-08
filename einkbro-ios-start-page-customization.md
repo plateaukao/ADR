@@ -35,8 +35,9 @@ flowchart TD
   with UIImage — which transparently handles HEIC sources and EXIF rotation,
   both things the Android BitmapFactory path had to handle explicitly — then
   draws into a UIGraphics context for the downscale and re-encodes (PNG stays
-  PNG, everything else JPEG). Edge colors and brightness come from a 32x32
-  RGBA CGBitmapContext raster composited over white.
+  PNG, everything else JPEG). The top-edge fill color and brightness come from a 32x32
+  RGBA CGBitmapContext raster composited over white; the image anchors to
+  the bottom of the screen with the top-edge color filling the area above.
 - `HostBridge` gained `isSystemDarkMode()` (trait collection) so
   `DarkMode.SYSTEM` resolves outside a composable.
 
@@ -52,6 +53,7 @@ three new strings were added to all eight iOS locales with the same
 translations as the Android repo.
 
 Verified on the simulator end to end: rename via typed input, watercolor
-background (whole image contained, cream edge-fill, light theme, halo),
+background (whole image contained at the bottom, cream fill above, light
+theme, halo),
 dark background (dark theme, black halo), and removal restoring the plain
 page.
