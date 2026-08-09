@@ -219,6 +219,14 @@ function renderMonth(root) {
     cell.appendChild(head);
 
     appendPills(cell, items, 4, { compact: true });
+    // Phone-width month cells can't fit a readable pill; CSS swaps the pills
+    // for this plain per-day count on narrow screens.
+    if (items.length) {
+      const count = document.createElement("div");
+      count.className = "day-count";
+      count.textContent = items.length;
+      cell.appendChild(count);
+    }
     cell.addEventListener("click", (ev) => {
       if (ev.target.closest(".pill")) return;
       navigate({ view: "day", cursor: new Date(d) });
@@ -297,12 +305,20 @@ function renderList(root) {
     heading.textContent = new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
     block.appendChild(heading);
     const items = groups.get(k).sort((a, b) => b._date - a._date);
+    let prevDay = "";
     for (const e of items) {
+      // One date label per day, above that day's first article, instead of a
+      // date column repeated on every row.
+      const dayKey = isoDay(e._date);
+      if (dayKey !== prevDay) {
+        prevDay = dayKey;
+        const label = document.createElement("div");
+        label.className = "list-day-label";
+        label.textContent = e._date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        block.appendChild(label);
+      }
       const row = document.createElement("div");
       row.className = "list-row";
-      const when = document.createElement("div");
-      when.className = "when";
-      when.textContent = e._date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
       const what = document.createElement("div");
       what.className = "what";
       const a = document.createElement("a");
@@ -316,7 +332,6 @@ function renderList(root) {
         s.textContent = e.summary;
         what.appendChild(s);
       }
-      row.appendChild(when);
       row.appendChild(what);
       block.appendChild(row);
     }

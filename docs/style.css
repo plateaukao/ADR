@@ -172,6 +172,8 @@ main#calendar {
   justify-content: space-between;
 }
 .day-cell .daynum .count { font-weight: 500; }
+/* Article-count fallback for narrow screens; pills carry the info elsewhere */
+.day-cell .day-count { display: none; }
 
 /* ==== Week grid (single column, one row per day) ==== */
 .week-grid {
@@ -271,15 +273,14 @@ main#calendar {
 }
 .list-month { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; box-shadow: var(--shadow); }
 .list-month h2 { margin: 0 0 10px 0; font-size: 16px; }
-.list-row {
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: 12px;
-  padding: 6px 0;
+.list-day-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 8px 0 2px;
   border-top: 1px solid var(--border);
 }
-.list-row:first-of-type { border-top: none; }
-.list-row .when { color: var(--text-muted); font-size: 12px; }
+.list-month h2 + .list-day-label { border-top: none; padding-top: 0; }
+.list-row { padding: 4px 0; }
 .list-row .what { font-size: 13.5px; }
 .list-row .what .proj {
   display: inline-block;
@@ -356,19 +357,10 @@ main#calendar {
   padding: 24px 32px 60px;
   padding-left: calc(32px + env(safe-area-inset-left));
   padding-right: calc(32px + env(safe-area-inset-right));
+  padding-bottom: calc(60px + env(safe-area-inset-bottom));
   overflow: auto;
   flex: 1;
   overscroll-behavior: contain;
-}
-.viewer-foot {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  padding-left: calc(20px + env(safe-area-inset-left));
-  padding-right: calc(20px + env(safe-area-inset-right));
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
 }
 
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 90; }
@@ -563,7 +555,7 @@ main#calendar {
 
   .day-view { padding: 14px; }
   .list-month { padding: 12px 14px; }
-  .list-row { grid-template-columns: 56px 1fr; padding: 10px 0; }
+  .list-row { padding: 8px 0; }
 
   .viewer { width: 100%; }
   .viewer-head {
@@ -578,6 +570,7 @@ main#calendar {
     padding: 16px 14px 60px;
     padding-left: calc(14px + env(safe-area-inset-left));
     padding-right: calc(14px + env(safe-area-inset-right));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
   }
   /* Wide tables scroll inside the article instead of stretching it */
   .markdown-body table { display: block; overflow-x: auto; }
@@ -591,18 +584,18 @@ main#calendar {
    tapping the day opens the Day view, where full pills are shown. */
 @media (max-width: 600px) {
   .month-grid .day-cell { min-height: 60px; padding: 4px 4px 6px; gap: 3px; }
-  .month-grid .pill {
-    pointer-events: none;
-    height: 6px;
-    padding: 0;
-    border: none;
-    border-radius: 3px;
-    background: var(--pill-color, var(--accent));
-    font-size: 0;
-    line-height: 0;
-    color: transparent;
+  /* Even a single word doesn't fit a day cell at this width — hide the
+     pills (and "+N more") and show just the per-day article count */
+  .month-grid .pill, .month-grid .day-cell .muted { display: none; }
+  .month-grid .day-count {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
   }
-  .month-grid .day-cell .muted { margin-left: 0; font-size: 9px; }
   .dow-cell { padding: 6px 2px; font-size: 10px; }
 }
 
