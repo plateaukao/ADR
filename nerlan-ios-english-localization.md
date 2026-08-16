@@ -109,3 +109,38 @@ Built clean, then installed to iPhone 16 / iOS 26.4 and launched twice with
 renders throughout the browse tab and the full Settings screen — including the
 long explanatory footers — while the translation-language picker correctly still
 reads 繁體中文. Chinese is unchanged from before the change.
+
+## Two gaps the screenshots found that reading the code did not
+
+Capturing App Store screenshots of the English build turned up two leaks. Both
+are worth recording because neither shows up as a build warning, a missing key,
+or anything else a compiler will tell you about — the app just quietly draws
+Chinese.
+
+**Language labels were translated in the wrong place.** The player badge, the
+download group headers, and the stats rows drew a raw 語言 label: `英語` sitting
+in an otherwise-English screen. The obvious fix — translate
+`PodcastFeedParser.mappedLanguage` at the source — is wrong twice over. That
+same string primes the transcription prompt (`OpenAIService.transcriptionPrompt`
+is written around the Chinese term), and it is the grouping key persisted in
+`downloads.json` and `favorites.json`, so changing it would alter what the model
+is told *and* silently re-key every saved record. The label therefore stays
+Chinese in storage and is translated only where it is drawn, through
+`localizedLanguageName`, which passes anything outside a known set straight
+through — catalog language names come from the API and can't be mapped.
+
+**Runtime-built keys are invisible to the extractor.** `RecordGrouping`,
+`DownloadFilter` and `ChartRange` draw their labels with
+`LocalizedStringKey(rawValue)` — a key assembled at runtime from a stored
+string. `SWIFT_EMIT_LOC_STRINGS` only sees literals, so `語言`, `快取`, `日`,
+`週` and `月` were never extracted, were absent from the catalog, and fell
+through to the key. The grouping toggle read **"Shows | 語言"**. They're now in
+the catalog explicitly, with a comment saying why they can't be extracted.
+
+The general lesson: deriving the key list from the compiler is the right way to
+get *specifiers* right, but it is not a completeness check. Anything that
+reaches the UI without passing through a string literal — a runtime-built key, a
+stored value, a `String` that only later lands in a `Text` — is invisible to it,
+and the only reliable way to find those is to run the app in the target locale
+and look. A sweep of every tab, the show detail, the player and all three pages
+of Settings is what confirmed the rest was clean.
