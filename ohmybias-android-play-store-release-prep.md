@@ -62,9 +62,12 @@ Play 自 2026-08-31 起強制 target API 36，距今兩週 — 以 35 送審沒�
   Console 隱私權政策欄填 repo 的 GitHub URL — 這也是本次 commit 需要立即
   push 的原因（URL 要先存在才能填）。
 
+- 手機截圖四張（候選、聯想、設定頁、表情面板）以模擬器實際打字擷取
+  （sim-use 驅動、走真實 IME 路徑）後入 repo，GPP 一併上傳。
+
 ## 尚待完成
 
-- 手機截圖（listing 至少 2 張）— 模擬器擷取後入 repo 讓 GPP 一併上傳。
-- 使用者在 console 完成：服務帳戶授權、資料安全表單（無收集）、內容分級、
+- 使用者在 console 完成：**服務帳戶授權**（play-publisher@calliplus 加進新 app，
+  兩次上傳都撞 PERMISSION_DENIED 卡在這）、資料安全表單（無收集）、內容分級、
   廣告聲明（無）。
-- 首次 `publishPlayReleaseBundle --release-status draft` 於授權後重跑。
+- 授權後重跑首次上傳：`./gradlew publishPlayReleaseBundle --release-status draft`。
