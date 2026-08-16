@@ -82,7 +82,22 @@ loudly.
 
 `./gradlew test` is green: 230 tests, 0 failures, 0 errors.
 
-The gap this leaves open is process, not code. Nothing prevents the suite from
-going red and staying red — it broke in one commit and was found several commits
-later, by accident. Gating CI on `./gradlew test` is the obvious follow-up and has
-not been done here.
+## Correction: CI was already running the tests
+
+An earlier draft of this document claimed nothing gated CI on the test suite.
+That was wrong, and asserted without checking. `.github/workflows/` has always had
+a `test` job running `./gradlew testDebugUnitTest lintDebug`, and it behaved
+perfectly — it went red at `407f21cab`, the exact commit that broke the suite, and
+stayed red for `330e8a58b` and `205070456` before going green again at the repair.
+
+The signal existed. Nobody read it.
+
+The real hole was next to it: the `build` job carried no `needs:`, so it ran in
+parallel with `test` rather than after it. All three red commits still compiled,
+signed, and published a rolling `snapshot` pre-release to the Releases page. A
+broken suite blocked nothing and shipped artifacts anyway.
+
+Fixed in `cad8fadda` by adding `needs: test` to the build job, so the release
+build only runs on a green suite. Worth noting what this does *not* fix: CI
+failing is still only visible to someone who looks at it. The gate now stops bad
+snapshots from shipping, but it does not make a red `main` noticeable.
