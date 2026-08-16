@@ -94,5 +94,6 @@ iOS 版標成不支援（設計器顯示「僅 Android」）— 鍵盤 extension
 清單只剩一個「符號面板」；主控台無錯誤。（改了 module 要換 port 重開，
 Chrome 對 ES module 的快取不吃 `?v=` 蓋在 index.html 上。）
 
-設計器已推上 GitHub Pages（`ohmybias-skin` `8dfc268` ＋ `24d6c25`）。App 端改動待 commit —
-舊版 App 讀到 ID 32 會依既有規則降級成空白格，兩邊不同步也不會壞。
+兩邊都已推上去：設計器 `ohmybias-skin` `8dfc268` ＋ `24d6c25`（GitHub Pages），
+App `ohmybias-android` `78a9ae9`。順序上先出設計器也無妨 — 舊版 App 讀到 ID 32
+會依既有規則降級成空白格，兩邊不同步不會壞。
