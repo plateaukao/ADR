@@ -4,11 +4,135 @@
 
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
 
+// ----- Mermaid theming -----
+// A "base" theme matched to the site palette in style.css. Colors are
+// duplicated here because mermaid bakes them into the SVG at render time —
+// it cannot resolve CSS custom properties.
+const mmdDark = matchMedia("(prefers-color-scheme: dark)").matches;
+const mc = mmdDark
+  ? {
+      text: "#ececec", muted: "#9b9ea6", faint: "#22242a",
+      border: "#3c3f48", line: "#8b8e96",
+      nodeBg: "#2a335a", nodeBorder: "#55679c",
+      noteBg: "#3a331c", noteBorder: "#6b5c2e",
+      shadow: "rgba(0, 0, 0, 0.35)",
+    }
+  : {
+      text: "#1f1f1e", muted: "#6b6b67", faint: "#fafaf8",
+      border: "#e3e3df", line: "#8f8f8a",
+      nodeBg: "#e6edfb", nodeBorder: "#a9bfe9",
+      noteBg: "#fff5d6", noteBorder: "#e3cf90",
+      shadow: "rgba(30, 41, 59, 0.12)",
+    };
+
 mermaid.initialize({
   startOnLoad: false,
-  theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default",
   securityLevel: "loose",
+  theme: "base",
+  flowchart: { curve: "basis" },
+  themeVariables: {
+    darkMode: mmdDark,
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif',
+    fontSize: "14px",
+    // flowchart / generic nodes
+    primaryColor: mc.nodeBg,
+    primaryTextColor: mc.text,
+    primaryBorderColor: mc.nodeBorder,
+    secondaryColor: mc.faint,
+    secondaryBorderColor: mc.border,
+    tertiaryColor: mc.faint,
+    tertiaryBorderColor: mc.border,
+    tertiaryTextColor: mc.muted,
+    lineColor: mc.line,
+    textColor: mc.text,
+    titleColor: mc.text,
+    clusterBkg: mc.faint,
+    clusterBorder: mc.border,
+    edgeLabelBackground: mc.faint,
+    // sequence diagrams
+    actorBorder: mc.nodeBorder,
+    actorLineColor: mc.muted,
+    signalColor: mc.line,
+    signalTextColor: mc.text,
+    labelBoxBkgColor: mc.faint,
+    labelBoxBorderColor: mc.border,
+    labelTextColor: mc.text,
+    loopTextColor: mc.text,
+    noteBkgColor: mc.noteBg,
+    noteBorderColor: mc.noteBorder,
+    noteTextColor: mc.text,
+    activationBkgColor: mc.faint,
+    activationBorderColor: mc.nodeBorder,
+  },
+  // Rounded corners + a soft lift on filled shapes. rx/ry work as CSS
+  // geometry properties in all modern browsers and win over the rx="…"
+  // attributes mermaid emits, so one rule rounds every rectangle.
+  themeCSS: `
+    .node rect, rect.actor, .cluster rect,
+    .statediagram-cluster rect { rx: 8px; ry: 8px; }
+    .note, .legend rect { rx: 6px; ry: 6px; }
+    .activation0, .activation1, .activation2 { rx: 3px; ry: 3px; }
+    .node rect, .node circle, .node ellipse, .node polygon, rect.actor {
+      filter: drop-shadow(0 1px 1.5px ${mc.shadow});
+    }
+    .edgeLabel { border-radius: 4px; }
+    .cluster rect { stroke-dasharray: 4 3; }
+  `,
 });
+
+// Author style/classDef fills are baked into the SVG and can fight the
+// theme's label color (light text on a light hard-coded fill in dark mode,
+// and vice versa). After each render, recolor every node/cluster label to
+// contrast with the fill actually behind it.
+function fillLuminance(el) {
+  const f = getComputedStyle(el).fill;
+  const m = f && f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?\s*\)/);
+  if (!m) return null;
+  if (m[4] !== undefined && parseFloat(m[4]) === 0) return null;
+  return (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255;
+}
+
+function fixLabelContrast(container) {
+  for (const g of container.querySelectorAll("g.node, g.cluster")) {
+    const shape = g.querySelector("rect, polygon, circle, ellipse, path");
+    if (!shape) continue;
+    const lum = fillLuminance(shape);
+    if (lum === null) continue;
+    const color = lum > 0.55 ? "#1f1f1e" : "#ececec";
+    for (const label of g.querySelectorAll(".nodeLabel, .cluster-label span, text")) {
+      label.style.color = color;
+      label.style.fill = color;
+    }
+  }
+
+  // Edge labels: blend each label's chip into the surface it sits on — the
+  // innermost containing cluster's fill (author fills included) — and pick a
+  // contrasting text color. The chip must stay (it masks the edge line under
+  // the text) but becomes invisible.
+  const clusters = [];
+  for (const g of container.querySelectorAll("g.cluster")) {
+    const rect = g.querySelector("rect");
+    if (!rect) continue;
+    const lum = fillLuminance(rect);
+    if (lum === null) continue;
+    clusters.push({ box: rect.getBoundingClientRect(), lum, fill: getComputedStyle(rect).fill });
+  }
+  if (!clusters.length) return;
+  for (const span of container.querySelectorAll("span.edgeLabel")) {
+    const b = span.getBoundingClientRect();
+    if (!b.width) continue;
+    const cx = b.x + b.width / 2;
+    const cy = b.y + b.height / 2;
+    let best = null;
+    for (const c of clusters) {
+      if (cx < c.box.left || cx > c.box.right || cy < c.box.top || cy > c.box.bottom) continue;
+      if (!best || c.box.width * c.box.height < best.box.width * best.box.height) best = c;
+    }
+    if (!best) continue;
+    span.style.backgroundColor = best.fill;
+    span.style.color = best.lum > 0.55 ? "#1f1f1e" : "#ececec";
+  }
+}
 
 // ----- marked configuration -----
 // One renderer that:
@@ -466,6 +590,7 @@ async function renderMermaidIn(container) {
     try {
       const { svg } = await mermaid.render(id, src);
       block.innerHTML = svg;
+      fixLabelContrast(block);
       block.classList.add("mmd-zoomable");
       block.dataset.tip = "Click to zoom";
       block.addEventListener("click", () => openLightbox(src));
@@ -646,6 +771,7 @@ async function openLightbox(src) {
   try {
     const { svg } = await mermaid.render(`mmd-zoom-${Date.now()}`, src);
     wrap.innerHTML = svg;
+    fixLabelContrast(wrap);
   } catch {
     closeLightbox();
     return;
