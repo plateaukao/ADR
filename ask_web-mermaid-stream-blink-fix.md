@@ -19,8 +19,9 @@ contentDiv.innerHTML = renderMarkdown(currentStreamContent);
 Two compounding costs:
 
 1. **The diagram's source is long.** A 10–50 line diagram streams as many
-   tokens, and each token triggered a full `innerHTML` rebuild — so the raw
-   ```mermaid source grew in a code block while everything around it churned.
+   tokens, and each token triggered a full `innerHTML` rebuild — so the
+   raw `` ```mermaid `` source grew in a code block while everything around
+   it churned.
 2. **Diagrams were rebuilt from an SVG string each chunk.** The cache stored
    the SVG as text and did `wrap.innerHTML = svg` on every re-render, so the
    browser re-parsed and re-laid-out each finished diagram (fonts,
