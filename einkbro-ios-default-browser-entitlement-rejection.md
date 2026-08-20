@@ -79,4 +79,8 @@ Shipped as **1.3.1 build 10**. `CFBundleShortVersionString` had to rise rather t
 
 ## The transferable rule
 
-For any Apple **managed** entitlement, ship the `Info.plist` prerequisites in a released build *first*, then request. The request is graded against what is already on the store, never against a description of what is planned. More generally, "this change has no runtime effect yet" is an argument for landing it early, not for postponing it.
+**A stated requirement is a requirement.** That is the whole lesson, and it did not need discovering — Apple's criteria said the schemes must be in `CFBundleURLTypes`, and the correct response to that sentence was to put them there before submitting. Instead the requirement was weighed against a guess about how it would be enforced ("a reviewer will accept a commitment"), and the guess won. Requirements are not inputs to a cost/benefit judgement about enforcement; they are preconditions.
+
+The specific corollary: for any Apple **managed** entitlement, ship the `Info.plist` prerequisites in a released build *first*, then request. The request is graded against what is already on the store, never against a description of what is planned.
+
+The general one: "this change has no runtime effect yet" is an argument for landing it early, not for postponing it.
