@@ -44,3 +44,17 @@ mmap 版是零 heap（只有觸碰到的頁面），預算降成 1 MB；`release
 - `xcodebuild` app + extension（simulator）成功；appex 內有三個 `.bin`、沒有注音 JSON。
 - 模擬器經 IME 實打 `,,zh` ㄅㄚ → 巴／八／吧／芭（模擬器要先 ⇧⌘K 斷開硬體鍵盤，
   軟鍵盤才會出現；這一步 osascript 被 accessibility 權限擋住，由使用者手動按）。
+
+## 追加：容器 app 不再隨附資料檔（`7f70e26`）
+
+量整個 `.app`（Release 裝置版）時發現 `Resources/` 被打包了**兩份**——synchronized folder 同時掛在
+app 與 appex 兩個 target 上。容器 app 的 Shared 層只用 `CINTable()` 顯示「已載入」狀態；
+`t2s`/`s2t` 是 lazy getter、app 從不呼叫，缺檔也只退化成空 map。於是在 `Resources` group 加一個
+`PBXFileSystemSynchronizedBuildFileExceptionSet`，把六個資料檔從 `OhMyBias` target 排除，appex 原樣。
+
+| | 原始 | bin 化後 | 再拿掉 app 那份 |
+|---|---|---|---|
+| `.app` 裝置上 | 4,608 KB | 3,028 KB | **2,492 KB**（−46%） |
+| zip 後（≈ 下載） | 1,780 KB | 1,456 KB | **1,159 KB**（−35%） |
+
+驗證：Release 裝置版 app 層零資料檔、appex 六個齊全；模擬器 app 啟動設定頁正常；host 測試 116/116。
