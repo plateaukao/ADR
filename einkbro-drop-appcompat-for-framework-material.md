@@ -3,7 +3,7 @@
 # EinkBro: drop AppCompat in favour of framework Material (APK -9%)
 
 Third cut in the APK-size series, after Material Components and WorkManager.
-AppCompat showed up as ~200 KB of dex, but the app's use of it was thin:
+AppCompat showed up as about 200 KB of dex, but the app's use of it was thin:
 framework-equivalent replacements existed for every call site, and the real
 surprise was how much more than 200 KB it took with it. The arm64 release APK
 goes from 4.79 MB to 4.38 MB, `classes.dex` from 5.58 to 5.26 MB, and
@@ -44,7 +44,7 @@ but by then R8 has already kept the classes. So AppCompat has to leave the
 classpath entirely: it is excluded from `constraintlayout` and
 `koin-android`, removed from `adblock-client` (which declared it but never
 used it), and the unused `koin-android-compat` dependency goes with it. That
-second step was worth another ~120 KB of dex and all of the resource savings.
+second step was worth another about 120 KB of dex and all of the resource savings.
 
 ## The dialog border that disappeared
 
@@ -96,7 +96,7 @@ no errors.
 ## Where this leaves the APK
 
 4.38 MB, down from 6.19 MB at the start of the series (-29%). The dex is
-now Compose (~1.3 MB), the app's own code (~1 MB), pdfbox + fontbox (350 KB,
+now Compose (about 1.3 MB), the app's own code (about 1 MB), pdfbox + fontbox (350 KB,
 Save-as-PDF), OkHttp + okio (195 KB, needed for the Edge TTS WebSocket and
 SSE streaming) and Kotlin/coroutines runtime. No single-purpose library is
 left to remove.

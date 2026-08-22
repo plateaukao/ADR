@@ -84,7 +84,7 @@ translated into 31. The other 57 came from AppCompat and Material: the
 strings for date pickers, time pickers, chips, badges and so on, translated
 into every locale Google ships. Each such config is not just its string
 bytes - every config chunk of the `string` type carries an entry-offset
-table for all ~780 string entries (about 3 KB), whether or not that locale
+table for all about 780 string entries (about 3 KB), whether or not that locale
 defines them.
 
 ```mermaid
@@ -122,7 +122,7 @@ resolves with no `ResourceType` warnings in logcat.
 
 ## What is left on the table
 
-The dex breakdown after this change, by library: Compose (~1.3 MB across
+The dex breakdown after this change, by library: Compose (about 1.3 MB across
 ui/foundation/material/runtime/animation), pdfbox + fontbox (350 KB,
 deliberate - the Save-as-PDF feature), `androidx.work` (161 KB, used only by
 ad-filter's filter-list downloader and replaceable with a coroutine), OkHttp

@@ -3,11 +3,11 @@
 # EinkBro: replace WorkManager with a coroutine filter updater
 
 Follow-up to the Material Components / locale-filter cut: the next library on
-the APK Analyzer list was `androidx.work` at ~160 KB of dex. It was used for
+the APK Analyzer list was `androidx.work` at about 160 KB of dex. It was used for
 exactly one thing - the two-step chain that downloads an ad-filter list and
 compiles it into the native ad-block client - and that chain is now a plain
 coroutine pipeline in the `ad-filter` module. The arm64 release APK drops from
-4.89 MB to 4.79 MB and `classes.dex` loses ~195 KB.
+4.89 MB to 4.79 MB and `classes.dex` loses about 195 KB.
 
 ## What WorkManager was doing
 
@@ -112,7 +112,7 @@ from the UI.
 
 ## What is left
 
-After this change the dex is dominated by Compose (~1.3 MB), the app's own
-code (~1 MB), pdfbox + fontbox (350 KB, the Save-as-PDF feature), OkHttp
+After this change the dex is dominated by Compose (about 1.3 MB), the app's own
+code (about 1 MB), pdfbox + fontbox (350 KB, the Save-as-PDF feature), OkHttp
 (120 KB) and AppCompat widgets (110 KB). There are no more single-purpose
 libraries to remove; further size work would be feature-level.
