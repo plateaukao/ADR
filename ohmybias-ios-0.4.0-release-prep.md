@@ -47,3 +47,13 @@ xcodebuild -exportArchive \
    `RequestsOpenAccess`，要說明剪貼簿指令 `,,V` 的用途且資料不離開裝置）。
 4. 審查備註要說明：liu.cin 由使用者自行匯入、app 不隨附 — 審查員需要一份 .cin 才測得到中文輸入，
    附測試步驟（設定 → 一般 → 鍵盤 → 新增 OhMyBias 米 → 允許完整取用）。
+
+## 上傳結果（20:27）
+
+`UPLOAD SUCCEEDED with no errors, 1 warning`，Delivery UUID `5725bc72-79be-48ec-b477-bdfebaf5c532`。
+警告 90737「Missing Document Configuration」：宣告了 `CFBundleDocumentTypes`（.cskin 關聯）就得補
+`LSSupportsOpeningDocumentsInPlace`。app 用 `startAccessingSecurityScopedResource` 直接讀原檔套用皮膚、
+不複製進 Inbox，所以填 `YES`（commit 在 v0.4.0 之後，下一個 build 生效；build 4 不受影響）。
+
+build 上傳後先出現在 TestFlight 分頁（Processing），處理完（10–30 分鐘、Apple 會寄信）才會進
+App Store 分頁的 build 選單。
