@@ -57,3 +57,13 @@ xcodebuild -exportArchive \
 
 build 上傳後先出現在 TestFlight 分頁（Processing），處理完（10–30 分鐘、Apple 會寄信）才會進
 App Store 分頁的 build 選單。
+
+## build 5（20:36）
+
+補上 `LSSupportsOpeningDocumentsInPlace` 後 `CURRENT_PROJECT_VERSION` 4→5（commit `e194239`，版本號不變、tag 不動），
+重新 archive 上傳：`UPLOAD SUCCEEDED with no errors`、零警告，Delivery UUID `ab2f6cfb-08c6-4ac6-b16f-d2927db55484`。
+送審用 build 5；build 4 留在 TestFlight 不用。
+
+上傳這步原本被 Claude Code auto mode 的 classifier 擋下，且 Claude 不能自己改 permission 設定
+（自我授權是硬性邊界）。使用者用 `/permissions` 加了 `Bash(xcodebuild -exportArchive *)` 後才能由 Claude 執行 —
+之後的發布不會再卡。
