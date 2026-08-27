@@ -75,3 +75,22 @@ with chunk 0's text at 02:45:08.
 More chunks means more sentence boundaries land on a cut, and each chunk costs one
 extra `segmentTranscript` chat call. The old 20-minute chunks already accepted the
 first; the second is a few seconds per chunk against minutes saved.
+
+## Follow-up the same day: no whole-episode download first
+
+Testing a 113-minute episode showed the remaining length-dependent step:
+`runTranscript` began by downloading the *entire* MP3 to cache (`audioFile()`,
+~100 MB for a two-hour show) and only then started chunk 0. The transcoder now
+reads the source in place — a local download if there is one, otherwise the remote
+URL through the player's `AudioCache` data source (cache-aware, follows
+cross-protocol redirects), handed to Transformer via a `DefaultAssetLoaderFactory`.
+Each 5-minute chunk pulls only its own bytes with HTTP range reads, so the wait for
+the first text no longer depends on episode length; the whole episode is still
+transcribed, chunk after chunk, to the end.
+
+Chunks are planned from the feed's `durationSeconds` (the source is probed only
+when that is unknown). Feed durations are approximate, so the last chunk is
+clipped only at its start and runs to the real end, and a last chunk that fails
+to transcode is treated as end-of-audio rather than an error. On the A7 the
+113-minute episode had chunk 0 transcoded 24 s after the tap, with no up-front
+download; the transcoder then ran two chunks ahead while chunk 0 uploaded.
