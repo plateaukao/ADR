@@ -26,6 +26,7 @@ flowchart LR
 
 兩道防線：
 
-- `release.sh` 結尾多跑一次 `ARCH=$(uname -m) ohmybias.sh build`，讓 `build/` 回到本機架構。
+- `release.sh` 的編譯順序改為「另一架構 → 本機架構」（`uname -m` 排最後），跑完 `build/`
+  自然就是本機版，不必多編一次。
 - `ohmybias.sh install` 先用 `lipo -archs` 比對 `build/` 的 binary 與 `$ARCH`（預設 `uname -m`），
   不符就中止並提示改跑 `./ohmybias.sh` 重編——即使日後 `build/` 又被別的流程換掉，也不會再裝錯。
