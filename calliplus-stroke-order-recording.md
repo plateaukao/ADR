@@ -72,3 +72,11 @@ clean band. The output is, per stroke, a median polyline, a width, and outline p
 whose union is the whole glyph; `coverage` below 100% flags a missed stroke.
 `preview_all.py` batches a directory and writes an interactive HTML page (animation,
 step-through, hand-written trace replay, play-all with a speed slider).
+
+## Continuing later
+
+The step-by-step procedure for recording more characters — install the kept recorder APK on
+the Supernote, find where the recordings left off, pull, check the preview page, export into
+`assets/92_ou_strokes`, reinstall the normal build — is documented in the project's
+`CLAUDE.md` under "Stroke-order recordings", so any later session can pick it up from the
+phrase "continue recording hand-written data".
