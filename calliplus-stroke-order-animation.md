@@ -77,3 +77,16 @@ the run ends.
   recording and testing.
 * The Supernote's e-ink refresh makes continuous animation look rough; the emulator was
   used to verify the motion, the tablet to verify the controls.
+
+## Follow-up (same day)
+
+* Long-press on a character no longer animates it alone: it starts the play-all run
+  (either mode) *from* that character, so a session can be resumed anywhere in the book.
+  `RuleBlockAdapter` reports the choice through `OnPlayFromListener`, and
+  `StrokeAnimSequencer.start(fromIndex)` takes the starting character.
+* The single-character screen (`CharActivity`) has the same two animations as bottom
+  buttons in the existing round style, visible only when the character has stroke data.
+  The `StrokeAnimView` sits between the glyph and the `PaintView`, so the user can still
+  draw over a finished animation; it stays until the button is pressed again or the user
+  moves to another character. The 👁 hide-glyph button was removed as useless, which also
+  keeps the seven-button row on screen on a phone.
