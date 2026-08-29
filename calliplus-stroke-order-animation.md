@@ -92,3 +92,9 @@ the run ends.
   keeps the seven-button row on screen on a phone.
 * Reveal speed tuned down to 0.7x (630 px/s at 1x on a 512 px glyph) — the stroke motion
   read as rushed at the original 900 px/s. Hand-written replay is unchanged.
+* Pacing was rewritten per stroke: time proportional to length (glyph-wide stroke =
+  1/(630/512) s at 1x), 100 ms floor at any speed, and a 1 s look at the gray template
+  before the first stroke. The previous "distance per second" model finished short strokes
+  within one frame, so speed changes were imperceptible. Big-view buttons: press while
+  running = stop, press after it finished = replay; their icons are dark-gray variants so
+  the round buttons' red lighting tint (which only colours dark pixels) applies.
