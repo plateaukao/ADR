@@ -90,3 +90,5 @@ the run ends.
   draw over a finished animation; it stays until the button is pressed again or the user
   moves to another character. The 👁 hide-glyph button was removed as useless, which also
   keeps the seven-button row on screen on a phone.
+* Reveal speed tuned down to 0.7x (630 px/s at 1x on a 512 px glyph) — the stroke motion
+  read as rushed at the original 900 px/s. Hand-written replay is unchanged.
