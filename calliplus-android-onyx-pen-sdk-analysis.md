@@ -130,9 +130,12 @@ Transaction codes on this firmware (declared `public static int`, **not final**)
 | `PEN_UP` | 16711784 | – |
 | `MAP_EPD_TO_VIEW` / `MAP_FROM_RAW_TOUCH_POINT` / `MAP_TO_RAW_TOUCH_POINT` | 16711723 / 25 / 26 | x, y → x, y |
 | `GET_EPD_WIDTH` / `GET_EPD_HEIGHT` | 16711727 / 16711712 | → float |
-| `GET_MAX_TOUCH_PRESSURE` | 1048618 | → float (4095) |
+| `GET_MAX_TOUCH_PRESSURE` | 1048618 | → float (4095) — a good capability probe |
+| `REFRESH_SCREEN` | 16711681 | left, top, width, height, mode — e.g. `HAND_WRITING_REPAINT_MODE` 524290 (= EPDC_FLAG_HANDWRITE_GU 524288 \| GU 2) erases ink in the rect |
+| `REPAINT_EVERY_THING_WITH_MODE` | 16711715 | mode (GU 2, GC 98 …) |
+| `APPLY_APP_SCOPE_UPDATE` | 16711684 | appName.hashCode(), enable, clearFlag, repeatMode, repeatLimit |
 | `SET_SCREEN_HANDWRITING_REGION_MODE` | 1048620 | int |
-| `IS_PEN_STATE_VALID` / `GET_PEN_STATE` | 1048641 / 1048643 | → int |
+| `IS_PEN_STATE_VALID` / `GET_PEN_STATE` | 1048641 / 1048643 | → int; **per-process** — valid is 0 until the caller has a window, so not a capability probe |
 | `SET_ERASER_RAW_DRAWING_ENABLED` | 1048833 | enable, style |
 | `SET_BRUSH_RAW_DRAWING_ENABLED` | 1048834 | enable |
 
@@ -156,6 +159,36 @@ the Onyx additions are on the blocklist. The SDK therefore only works with a byp
 library; a raw Binder client needs none, because `ServiceManager.getService` is merely
 greylisted.
 
+### 7. How the framework tags frames with an update mode
+
+`ViewRootImpl` keeps a `ViewUpdateHelper` instance whose `UpdateEntry(rect, mode)` list is
+filled on every `invalidate` from `View.getDefaultUpdateMode()` (the hidden setter is what
+the SDK's `EpdController.setViewDefaultUpdateMode(view, HAND_WRITING_REPAINT_MODE)`
+reaches) and flattened into `Surface.addEpdc(int[])` when the frame is posted. That is
+the only way to make a *frame* carry `HAND_WRITING_REPAINT_MODE`; it is hidden, so an
+SDK-free app can only use the standalone `REFRESH_SCREEN` transaction (see below).
+
+## Refresh behaviour around the ink overlay (measured, Regal mode)
+
+The EPD driver logs every panel update (`logcat -s SDM`: `update_to_display … waveform_mode,
+Rect`) and the controller's decisions (`HWEpdcManager: ### AF 30` = automatic full
+refresh after 30 partial updates). Findings, each from a tap-zone experiment in the
+throwaway app:
+
+- While the pen is DRAWING, ordinary app frames do not disturb the overlay (scrolling the
+  grid under the ink is fine).
+- A plain app repaint does not remove the ink. `PEN_PAUSE` + any app frame removes it
+  with a **full-screen flash**; so does `PEN_STOP` + restart.
+- `PEN_PAUSE` → `REFRESH_SCREEN(rect, HAND_WRITING_REPAINT_MODE)` → `PEN_DRAWING` removes
+  the ink in `rect` **without** a flash — as long as no app frame follows. After such a
+  cycle the *next* app frame flashes whenever it comes (0 ms, 250 ms, 1 s later), unless
+  `REPAINT_EVERY_THING(GU)` is sent right after resuming; then frames ≥ ~100 ms later are
+  quiet but a frame at 0 ms still flashes. `ENABLE_POST`, `APPLY_APP_SCOPE_UPDATE(GU)`
+  and a full-screen `REFRESH_SCREEN(GU)` made no difference.
+- Independently of the pen, a burst of partial updates (an `ObjectAnimator` crossfade at
+  30 fps) triggers the controller's auto-full-refresh (`AF 30`) — a flash that looks
+  identical. E-ink builds should not animate.
+
 ## Empirical verification (throwaway app `booxpentest`, 850 KB, zero Onyx code)
 
 | Probe | Result |
@@ -163,7 +196,7 @@ greylisted.
 | `transact` to SurfaceFlinger | replies: `maxPressure=4095`, EPD `2480×1860`, `isPenStateValid=true`; after our START/DRAWING sequence `getPenState()==2` |
 | Pen on the glass (user) | firmware inked instantly, **only inside the region limit** (a line 200 px above the bottom was respected) |
 | Stylus `MotionEvent`s while inking | still delivered to the view (`tool=2`) |
-| Clear | pause + `ENABLE_POST(1)` + `View.invalidate()` cleared the overlay; stop + full restart also cleared |
+| Clear | pause + app frame clears with a flash; pause + `REFRESH_SCREEN(HW-GU)` + resume + `REPAINT_EVERY_THING(GU)` clears quietly (see the refresh section) |
 | `/dev/input/event3` from the app | open + blocking read allowed, no `avc: denied` |
 | `screencap` | does not include the overlay |
 
@@ -179,5 +212,10 @@ greylisted.
    `/dev/input/event3` directly is permitted and the native reader's behaviour is simple
    to replicate; `MAP_FROM_RAW_TOUCH_POINT` converts digitizer units to screen px.
 4. The risk is code drift: the codes are non-final statics in `framework.jar`. Guard with
-   `IS_PEN_STATE_VALID` / `GET_MAX_TOUCH_PRESSURE` sanity checks (done) and re-pull
-   `framework.jar` from any new Boox model to compare `ViewUpdateHelper`.
+   a `GET_MAX_TOUCH_PRESSURE` sanity check (done; `IS_PEN_STATE_VALID` is per-process and
+   unsuitable) and re-pull `framework.jar` from any new Boox model to compare
+   `ViewUpdateHelper`.
+5. What the SDK still has over the raw route is per-frame update modes: repainting a view
+   with `HAND_WRITING_REPAINT_MODE` needs the hidden `View.setDefaultUpdateMode`, i.e. a
+   hidden-API exemption. That is the remaining tool if the flash on pane repaints ever
+   needs fixing.

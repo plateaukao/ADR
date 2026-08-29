@@ -4,7 +4,7 @@
 
 CalliPlus now supports firmware-inked handwriting (手寫 / 描紅) on Boox e-ink tablets the
 same way it already did on Supernote — and it does so **without importing
-`com.onyx.android.sdk:onyxsdk-pen`**. Commit `a529c4b` on `calliplus_android`.
+`com.onyx.android.sdk:onyxsdk-pen`**. Commits `a529c4b` and `70fba3c` on `calliplus_android`.
 The SDK itself is dissected in the companion ADR
 [calliplus-android-onyx-pen-sdk-analysis](calliplus-android-onyx-pen-sdk-analysis.md).
 
@@ -18,6 +18,11 @@ The SDK itself is dissected in the companion ADR
 - Settings gains a 手寫筆 category with 筆畫粗細 (1–30 px) — the Boox stroke width.
   It is hidden on devices without a firmware pen.
 - Boox gets the same two-column grid layouts as Supernote (both are 10" tablets).
+- In the two-pane screens the character pane's practice square is firmware-inked
+  whenever the pane is showing, pen icon or not: its software `PaintView` was unusably
+  slow in Boox's Regal refresh mode. The stylus goes to the firmware only; finger drawing
+  stays the app's own; the pane's slider sets the firmware width there; 清除 / prev / next
+  wipe the overlay too.
 - Small extras that came out of testing on the device: the settings screen has an Up
   button, and `IntListPreference` no longer shows "null" above "目前設定" when a
   preference has no summary of its own.
@@ -60,12 +65,15 @@ flowchart TB
 ```
 
 - `boox/BooxInk` — `isBoox()` (build identity, for layout/menu decisions), `isAvailable()`
-  (Boox **and** SurfaceFlinger answers `IS_PEN_STATE_VALID` — the transaction codes are
-  non-final firmware statics, so a firmware that renumbers them simply gets no pen),
-  `start(width)`, `setRegion(rects)`, `setStrokeWidth`, `pause()`, `stop()`.
+  (Boox **and** SurfaceFlinger answers `GET_MAX_TOUCH_PRESSURE` — the transaction codes
+  are non-final firmware statics, so a firmware that renumbers them simply gets no pen;
+  only a positive probe is cached), `start(width)`, `resume(width)`, `setRegion(rects)`,
+  `setStrokeWidth`, `pause()`, `clearRegion(rect)`, `settleAfterClear()`, `stop()`.
 - `BaseActivity` — the pen lifecycle now covers both devices behind `hasPen`. New
   `penRegionView`: subclasses point it at the grid, and on Boox its on-screen rectangle
-  becomes the firmware's region limit. `isPenDevice()` (Supernote ∨ Boox) gates the
+  becomes the firmware's region limit; with the pane showing, the practice square's
+  rectangle is added (`booxRegions()`), and `CharPanel.onShowingChanged` /
+  `onPenSizeChanged` plus `PaintView.setOnClearListener` keep the pen in step. `isPenDevice()` (Supernote ∨ Boox) gates the
   pen/clear actions, the 2-column grids and the settings category. The existing
   `dispatchTouchEvent` stylus/palm filtering carries over unchanged — stylus MotionEvents
   still reach the app while the firmware inks.
@@ -81,23 +89,26 @@ sequenceDiagram
     participant A as BaseActivity
     participant B as BooxInk
     participant SF as SurfaceFlinger
-    U->>A: tap pen icon (手寫 / 描紅)
-    A->>A: inkDrawingEnabled = true, adapter.setFaint(true)
-    A->>B: start(width)  [post to next frame]
-    B->>SF: SET_PEN_STATE(1 START)
-    B->>SF: SET_STROKE_STYLE, SET_STROKE_COLOR, SET_STROKE_WIDTH
-    B->>SF: SET_PEN_STATE(2 DRAWING), BRUSH_RAW(1), ERASER_RAW(0)
-    A->>B: setRegion(grid rect on screen)
+    U->>A: tap pen icon, or the pane opens
+    A->>B: start(width) / resume(width)
+    B->>SF: SET_PEN_STATE(1), style, color, SET_STROKE_WIDTH, SET_PEN_STATE(2)
+    A->>B: setRegion(grid rect and/or practice square)
     B->>SF: SET_REGION_LIMIT
-    Note over SF: pen strokes inside the grid are inked by the firmware
-    U->>A: tap trashcan
+    Note over SF: strokes inside the regions are inked by the firmware
+    U->>A: tap trashcan / pane clear
+    Note over A: wait 300 ms (600 in the pane) so the button's own repaint has landed
     A->>B: pause()
-    B->>SF: ENABLE_POST(1), SET_PEN_STATE(3 PAUSE)
-    A->>A: grid.invalidate()  (next frame drops the overlay)
-    A->>B: start + setRegion again after 150 ms
+    B->>SF: SET_PEN_STATE(3)
+    A->>B: clearRegion(rect) per region
+    B->>SF: REFRESH_SCREEN(rect, HAND_WRITING_REPAINT_MODE)
+    A->>B: resume(width) + setRegion
+    B->>SF: SET_PEN_STATE(2), SET_REGION_LIMIT
+    A->>B: settleAfterClear()
+    B->>SF: REPAINT_EVERY_THING(GU)
+    Note over SF: any app frame within ~100 ms of this still flashes
     U->>A: leave screen
     A->>B: stop()
-    B->>SF: ENABLE_POST(1), SET_PEN_STATE(0 STOP)
+    B->>SF: ENABLE_POST(1), SET_PEN_STATE(0)
 ```
 
 ## Things learned on the device
@@ -105,9 +116,24 @@ sequenceDiagram
 - **Style resets width.** The first build sent width before style and the 筆畫粗細
   setting had no effect: selecting a stroke style loads that style's default width, so
   the order must be style → width. The SDK demo does the same.
-- **Clearing.** SurfaceFlinger drops the ink overlay on the next frame the app posts
-  after `ENABLE_POST(1)`; pause + invalidate the grid + restart 150 ms later is enough.
-  A full stop/restart also works. Both were tried in a throwaway test app before wiring.
+- **Probe.** `IS_PEN_STATE_VALID` is per-process and answers 0 until the app has a
+  window; probing it in `MainActivity.onContentChanged` cached "unsupported" for the
+  whole process and silently disabled everything. `GET_MAX_TOUCH_PRESSURE` (a device
+  constant) is the probe now.
+- **Clearing without a flash.** Any app frame posted while the pen is paused — or within
+  ~100 ms after a pause/resume cycle — gets a full, flashing refresh from SurfaceFlinger.
+  Found by tapping zones in a throwaway app: `PEN_PAUSE` → `REFRESH_SCREEN(region,
+  HAND_WRITING_REPAINT_MODE)` → `PEN_DRAWING` → `REPAINT_EVERY_THING(GU)` erases the ink
+  quietly, and a frame 100–200 ms later is fine, but a frame at 0 ms flashes. The clear
+  is therefore deferred 300 ms past the tap (600 ms in the pane) so the button's own
+  un-press repaint lands first. Quiet for the grid trashcan.
+- **The pane still flashes** on 清除 / prev / next in Regal mode (open). The EPD log
+  (`SDM update_to_display`) showed the app emitting partial updates every ~35 ms —
+  `CalliImageView`'s 400 ms crossfade — after which the panel forces a full refresh
+  (`HWEpdcManager: AF 30`, "auto full after 30 partials"). The crossfade is now skipped
+  on e-ink, but the pane's own repaints on those actions still trip the flash; the SDK
+  avoids it by tagging the app's *frame* with `HAND_WRITING_REPAINT_MODE` through hidden
+  `View`/`Surface` methods, which needs a hidden-API exemption. Left for another day.
 - **Width units.** The SDK's default is 7.2 px; its demo converts millimetres with
   `mm × dpi / 25.4`, so 30 px ≈ 2.5 mm on the Tab Ultra C. 80 was tried and was far too
   much once the grids went two-column.
@@ -121,3 +147,5 @@ sequenceDiagram
   probe is the guard; re-verify on a newer-firmware Boox when one is available.
 - The Supernote stroke size (`sizeEmr`) is a different unit and was left untouched; the
   new setting only affects Boox.
+- On Boox, stylus strokes over the practice square are no longer in the `PaintView`
+  bitmap, so "save handwriting" there only contains finger strokes.
