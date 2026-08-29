@@ -98,3 +98,6 @@ the run ends.
   within one frame, so speed changes were imperceptible. Big-view buttons: press while
   running = stop, press after it finished = replay; their icons are dark-gray variants so
   the round buttons' red lighting tint (which only colours dark pixels) applies.
+* Hand-written replay showed a dot at the first stroke's pen-down point during the 1 s
+  pause: the current stroke was drawn "up to t = 0", a zero-length path that the round
+  line cap renders as a dot. The current stroke is now skipped until time has elapsed.
