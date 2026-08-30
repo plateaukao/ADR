@@ -11,7 +11,7 @@ install from then on. A fresh install still shows nothing.
 
 This is the same gesture the app already uses for the radio catalog: pasting any
 `www.ner.gov.tw` URL into the same field reveals the 國立教育廣播電台 programs
-(see [ship as a podcast player](nerlan-ship-as-podcast-player.md)).
+(commit `da9232a`, "Ship as a podcast player; reveal the radio catalog only on request").
 
 ```mermaid
 flowchart TB
