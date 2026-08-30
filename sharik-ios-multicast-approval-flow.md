@@ -9,11 +9,9 @@ approval alone did not make `xcodebuild` succeed.
 ```mermaid
 flowchart TD
     A[Apple approves the request] --> B[Portal: Capability Requests shows Assigned]
-    B --> C[Identifiers -> info.plateaukao.sharik -> Capabilities:
-tick Multicast Networking + Save]
+    B --> C[Portal: tick Multicast Networking on the App ID and Save]
     C --> D[Save invalidates existing profiles]
-    D --> E[xcodebuild -allowProvisioningUpdates regenerates the profile
-with com.apple.developer.networking.multicast]
+    D --> E[xcodebuild -allowProvisioningUpdates regenerates the profile with the entitlement]
     E --> F[devicectl install + launch on iPhone 17 Pro]
     F --> G[Live test: beacon received, got-it reply, HTTP download saved]
 ```
