@@ -51,5 +51,18 @@ Verification: every affected glyph was re-rendered into a labelled contact sheet
 and checked by eye against its label and rule header; the full book (all 92 rules)
 was reviewed the same way to confirm nothing else is displaced.
 
-The fix is on `master` (commit `3e5ca7b`) and is not yet released; 4.11.0 on Play
-still carries the bug.
+## Stale image cache after the fix
+
+Replacing an asset under the same name is not enough on a device that has
+already shown it: Glide keys its disk cache by URL, so the first install of the
+fixed build on the Boox still drew the old glyphs until the app's cache was
+cleared. A follow-up commit (`d928802`) makes `Changelog.showIfUpdated` — which
+already notices a version change — wipe Glide's disk cache in the background, so
+updating users see the corrected glyphs without any manual step.
+
+(On the Boox's Android 11, `pm clear --cache-only` was accepted but behaved like a
+plain `pm clear` and wiped the app's data, including the external
+`files/strokes/` recordings; they had all been pulled and were pushed back.)
+
+The fix is on `master` (commits `3e5ca7b` and `d928802`) and is not yet released;
+4.11.0 on Play still carries the bug.
