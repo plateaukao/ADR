@@ -66,3 +66,22 @@ plain `pm clear` and wiped the app's data, including the external
 
 The fix is on `master` (commits `3e5ca7b` and `d928802`) and is not yet released;
 4.11.0 on Play still carries the bug.
+
+
+## Full audit against the printed pages (2026-08-31)
+
+The user reported the texts still looked mixed up (rules 47, 62, 83). The
+original scan pages in `~/src/ouyang/images/` carry their own printed rule
+numbers (第N法), so every one of the 31 pages was read and compared against the
+app. Result: the printed book confirms the fix — 第四十六法 右占者 is 俄墉陳陽,
+第四十七法 左占者 is 動獻歐亂, 第六十二法 is 早卒中軍, 第八十三法 從「卩」 is
+御卿仰仰, exactly as the app now has them. The mixed-up pairing the user saw was
+the pre-fix state still visible on Play 4.11.0 and on devices with a stale
+Glide cache.
+
+The audit also surfaced twelve glyphs whose label named the wrong character
+(渴→竭, 訽→詢, 匈→訇, 俏→僇, 𢅛→憲, 卅→此, 焉→爲, 駕→鴛, 宽→寃, 鑒→鑿, 獵→殲,
+衛→銜) and three rule headers that don't match the print (86 從「癶」,
+87 從「祭」, 88 從「乑」); all corrected in a follow-up commit, with the stroke
+recordings and exports renamed to follow. Rule 89's printed header is partly
+ambiguous (從「象」 kept, chars are 象×4).
