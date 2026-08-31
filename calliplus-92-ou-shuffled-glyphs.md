@@ -85,3 +85,19 @@ The audit also surfaced twelve glyphs whose label named the wrong character
 87 從「祭」, 88 從「乑」); all corrected in a follow-up commit, with the stroke
 recordings and exports renamed to follow. Rule 89's printed header is partly
 ambiguous (從「象」 kept, chars are 象×4).
+
+## Duplicated characters were also being dropped (cd1e162)
+
+The user's screenshots showed rule 83 with only three cells. Cause:
+`FileCharBookImpl` deduplicated consecutive data lines by character alone — a
+leftover for `92_huang.txt`, which lists every character line twice,
+byte-identical. In `92_ou.txt` each repeated character is a distinct glyph
+file, so rules like 27 (器×4) collapsed to one cell and 83 lost its second 仰;
+repeated characters inside the 心經 books vanished the same way. The parser now
+collapses only consecutive byte-identical lines, which preserves the 黃自元
+behaviour and keeps every real glyph. Verified by simulating the new rule over
+every `assets/*.txt`: both 92-rule books parse to 92 rules × 4 characters.
+
+Shipped in 4.11.1 (41101), published to production 2026-08-31 together with
+the pairing fix and label corrections.
+
