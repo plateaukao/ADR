@@ -46,20 +46,33 @@ sequenceDiagram
 
 ## 症狀二：浮動時螢幕底部一條不透明白帶蓋住 app
 
-**證據鏈**：浮動時 IME 視窗 `Requested h=1800`，但
-`mGivenContentInsets=[0,1747]` — 根視圖只到 y=1747，不是 1800。Android 10 的
-IME 視窗 decor 在根視圖沒蓋到的底部 53px 自己畫了不透明底色；截圖量測該帶
-純白（mean 255），把 einkbro 底部工具列的下半截整條蓋掉。API 36 模擬器上
-同一套碼沒這條帶（新版 decor 不畫）。
+第一版修法（IME 視窗背景設透明）**沒有用** — 使用者回報白帶仍在。在 A7 上把 IME
+decor 樹整棵傾印出來（TEMP log）才找到真兇，而且有**兩個**：
 
-**修法**：`onCreate` 把 IME 視窗背景明確設為透明
-（`window.window?.setBackgroundDrawable(ColorDrawable(TRANSPARENT))`）。
-53px 的幾何缺口仍在（decor 對舊版系統 insets 的處理），但透明後 app 內容
-直接透出來，視覺上完全正常；卡片的可觸區與夾範圍本來就以實際根視圖尺寸算，
-不受影響。
+1. **DecorView 的導覽列 scrim**：decor 直屬子視圖裡有一條
+   `View y=1747..1800 h=53 bg=#FFFFFFFF` — DecorView 用裸 View 畫
+   navigationBarColor 的底。只設 `navigationBarColor = TRANSPARENT` 會被框架在
+   顯示流程蓋回白色，於是三管齊下（`suppressNavScrim`，onCreate 與每次
+   onWindowShown＋post 再跑一次）：透明色、清 `FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS`、
+   **把 decor 直屬裸 View 的 alpha 歸零** — `updateColorViews` 重畫時會重設底色與
+   visibility，但不碰 alpha，歸零後怎麼重畫都看不見。
+
+2. **回報的 insets 短了 53px**：`onComputeInsets` 原以「根視圖底」
+   （`loc[1] + root.height`）當內容起點，但 Android 10 的 IME content frame 在底部
+   保留導覽列高度（A7 為 53px），根視圖到不了視窗底 — `mGivenContentInsets` 停在
+   1747 而非 1800，所有 app 永遠留著 53px 底部 inset：`adjustResize` 的 app
+   （einkbro、設定頁自己）就在畫面底部露出一條**自家底色**的空白帶 — scrim 排除後
+   剩下的白就是它。改用 **decor 高度**（視窗真正的底）當內容起點；實體鍵盤覆蓋模式
+   「面板收起」分支同修。
+
+一條白帶、兩層成因疊在同個位置：scrim 蓋在上面、inset 讓 app 自己也讓出同一塊。
+只修任何一個都看不出差別，這也是第一版誤判「已修好」的原因 — 當時的驗證場景
+（einkbro 輸入列）底部本來就是 app 的白色背景，量不出來。
 
 ## 驗證
 
-A7 實機：einkbro 輸入列 → 貼底 → 點浮動鍵 → `mInputShown` 保持 true、
-浮動卡片直接出現；底部網址列文字透出、白帶消失。X.com 欄位與模擬器
-（API 36）迴歸路徑不受影響。
+A7 實機：einkbro 輸入列 → 貼底 → 點浮動鍵 → `mInputShown` 保持 true、浮動卡片直接
+出現；`mGivenContentInsets` = 視窗全高、einkbro `visible frame` 回到滿版 1800、
+網址列與歷史縮圖延伸到螢幕最底（截圖量測 y1747–1800 有內容），白帶消失。
+驗證場景要挑「底部有深色 app 內容」的畫面 — 白 app 配白帶量不出來，
+這次靠這個教訓多繞了三輪。模擬器（API 36）迴歸不受影響。
