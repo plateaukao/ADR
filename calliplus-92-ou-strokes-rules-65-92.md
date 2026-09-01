@@ -18,3 +18,9 @@ What deliberately has no data:
 The recording sessions doubled as QA for the book itself: they surfaced the
 shuffled-glyph blocks, twelve wrong labels, and the duplicate-collapsing
 parser bug (see the shuffled-glyphs ADR), all fixed and shipped in 4.11.1.
+
+Update, later the same day: the user recorded 86_1 登, 87_1 蔡, 87_3 察,
+88_1 衆 and 89_1 象 (351/368). Every rule of the book now animates; the only
+characters without a take of their own are the exact repeats within rules
+27/28 and 86–89.
+
