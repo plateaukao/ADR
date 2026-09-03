@@ -96,11 +96,24 @@ which the Hanvon engine draws hairline-thin (its stock apps use ~10–60 px on
 the same panel). Hanvon scales the preference by 4, clamped to 10–60, and uses
 the graffiti style (6) — the one the stock calligraphy-practice app picks.
 
+## The character pane, too (follow-up commit)
+
+Same-day follow-up: the single-char view's practice square was still the
+software "fake calligraphy brush" — slow on e-ink, and on Hanvon stylus-only.
+Now, whenever the character pane is showing, its square becomes a second hvpen
+draw area (the firmware happily holds several, one handle each), with the
+pane's brush-size slider driving that area's `setPenWidth`. To make that
+clean, `HanvonInk` grew from one tracked handle into a rect-keyed map with an
+`apply(regions)` reconciler: unchanged rects keep their handle *and their
+inked strokes* (a slider tweak only re-sends widths), new rects register,
+stale ones unregister.
+
+One asymmetry against Boox: the Hanvon engine's clear (`resetData`) is
+global — there is no per-area clear — so clearing the pane also wipes grid
+ink on two-pane screens. The pane's 清除, prev/next, and the menu 清除 all
+route through the existing PaintView clear listener.
+
 ## What's deliberately not done yet
 
-The Boox-only extras — firmware-inking the character pane's practice square
-and the quiet clear choreography — stay Boox-only for now; Hanvon launched at
-Supernote parity (grid inking, clear, palm logic irrelevant on a touch-less
-screen). The stroke-point callback is consumed and discarded; wiring it into
-the stroke recorder would let the N10 record 筆順 traces like the Supernote
-does.
+The stroke-point callback is consumed and discarded; wiring it into the
+stroke recorder would let the N10 record 筆順 traces like the Supernote does.
