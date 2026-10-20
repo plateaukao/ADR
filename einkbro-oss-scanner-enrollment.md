@@ -32,3 +32,13 @@ revision reports 9 failures and 4 passing tests, including unsupported
 failures are recorded in the threat model and logged without aborting the image
 build, following Anthropic's template guidance. Android compilation and JVM test
 failures still abort the build.
+
+Application: https://github.com/anthropics/oss-scanner/pull/896
+
+The complete `tools/check einkbro --no-shell` run succeeded, including the
+scanner's additional tools layer. A container of the target image with networking
+disabled, two CPUs and 8 GiB of memory also completed the Android rebuild and JVM
+test task. Its reports contain 317 passing tests: 293 in the app, 10 in ad-filter
+and 14 in adblock-client. The JavaScript suite reproduced the same documented
+baseline failures offline. Anthropic's CLA bot requires the maintainer's separate
+signing statement before the application can merge.
